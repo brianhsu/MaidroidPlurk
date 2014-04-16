@@ -1,0 +1,6 @@
+project/project/
+project/target/
+target/
+*.swp
+src/main/resources/*.props
+sign.properties
