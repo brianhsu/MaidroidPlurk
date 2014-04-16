@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="app_name">MaidroidPlurk</string>
-  <string name="loading">讀取中，請稍候……</string>
+  <string name="moduleLoadingIndicatorText">讀取中，請稍候……</string>
+  <string name="moduleErrorMesssageTextDefault">發生錯誤了 :-(</string>
+  <string name="moduleErrorMessageRetryButtonTitle">重試一次</string>
 </resources>
