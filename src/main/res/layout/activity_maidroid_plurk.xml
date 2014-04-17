@@ -11,13 +11,17 @@
     android:layout_height="match_parent">
 
     <include layout="@layout/module_loading_indicator"/>
-    <include layout="@layout/module_error_message"/>
-
-    <WebView
-      android:id="@+id/activityMaidroidPlurkWebView"
+    <fragment 
+      android:name="idv.brianhsu.maidroid.plurk.fragment.ErrorNotice"
+      android:id="@+id/activityMaidroidPlurkErrorNotice"
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:visibility="gone"/>
+      android:layout_height="match_parent" />
+
+    <FrameLayout
+      android:id="@+id/activityMaidroidPlurkFragmentContainer"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent" />
+
   </LinearLayout>
 
   <idv.brianhsu.maidroid.ui.DialogFrame

@@ -20,7 +20,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  aar("idv.brianhsu.maidroid.ui" % "maidroidui_2.10" % "0.0.1"),
+  aar("idv.brianhsu.maidroid.ui" % "maidroidui_2.10" % "0.0.2"),
   aar("com.viewpagerindicator" % "library" % "2.4.1"),
   "com.android.support" % "support-v4" % "19.1.0",
   "com.android.support" % "appcompat-v7" % "19.1.0"

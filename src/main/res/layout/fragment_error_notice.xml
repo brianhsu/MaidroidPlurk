@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
-  android:id="@+id/moduleErrorMessage"
+  android:id="@+id/fragmentErrorNotice"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:visibility="gone"
@@ -14,8 +14,8 @@
     android:layout_height="wrap_content" />
 
   <TextView 
-    android:id="@+id/moduleErrorMessageText"
-    android:text="@string/moduleErrorMesssageTextDefault"
+    android:id="@+id/fragmentErrorNoticeText"
+    android:text="@string/fragmentErrorMesssageTextDefault"
     android:textAppearance="?android:attr/textAppearanceMedium"
     android:lineSpacingMultiplier="1.5"
     android:gravity="center"
@@ -24,9 +24,9 @@
     android:layout_height="wrap_content" />
 
   <Button
-    android:id="@+id/moduleErrorMessageRetryButton"
+    android:id="@+id/fragmentErrorNoticeRetryButton"
     android:enabled="false"
-    android:text="@string/moduleErrorMessageRetryButtonTitle"
+    android:text="@string/fragmentErrorMessageRetryButtonTitle"
     android:textSize="14sp"
     android:padding="10dp"
     android:layout_marginTop="20dp"
