@@ -40,11 +40,15 @@ class ErrorNotice extends Fragment {
     inflater.inflate(R.layout.fragment_error_notice, container, false)
   }
 
-  def showMessage(message: String, cause: Throwable) {
-    DebugLog(cause.getMessage, cause)
+  def showMessage(message: String, cause: Exception) {
+    DebugLog("====> ErrorNotice.showMessage:" + cause.getMessage, cause)
     errorMessage.setText(message)
     activityCallback.onHideOtherUI()
     errorNotice.setVisibility(View.VISIBLE)
+  }
+
+  def setVisibility(visibility: Int) {
+    Option(this.getView).foreach(_.setVisibility(visibility))
   }
 
 }

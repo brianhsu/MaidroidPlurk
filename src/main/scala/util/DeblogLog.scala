@@ -11,8 +11,11 @@ object DebugLog {
     if (IsDebugging) { Log.d(Tag, message) }
   }
 
-  def apply(message: String, throwable: Throwable) { 
-    if (IsDebugging) { Log.d(Tag, message, throwable) }
+  def apply(message: String, exception: Exception) { 
+    if (IsDebugging) { 
+      Log.d(Tag, message, exception)
+      exception.printStackTrace() 
+    }
   }
   
 }
