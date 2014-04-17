@@ -9,6 +9,7 @@ import android.webkit.WebView
 import android.support.v7.app.ActionBarActivity
 
 import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.ui.model._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
@@ -16,13 +17,25 @@ import idv.brianhsu.maidroid.ui.util.AsyncUI._
 import org.bone.soplurk.api._
 import scala.concurrent._
 
-class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
+import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentActivity
+
+trait FragmentFinder {
+  this: FragmentActivity =>
+
+  def findFragment[T <: Fragment](id: Int): T = { 
+    getSupportFragmentManager().findFragmentById(id).asInstanceOf[T]
+  }
+}
+
+class MaidroidPlurk extends ActionBarActivity with TypedViewHolder with FragmentFinder with ErrorNotice.Listener
 {
   implicit val activity = this
 
   private lazy val dialogFrame = findView(TR.dialogFrame)
   private lazy val webView = findView(TR.activityMaidroidPlurkWebView)
   private lazy val loadingIndicator = findView(TR.moduleLoadingIndicator)
+  private lazy val errorNotice = findFragment[ErrorNotice](R.id.activityMaidroidPlurkErrorNotice)
 
   private lazy val plurkAPI = PlurkAPI.withCallback(
     appKey = "6T7KUTeSbwha", 
@@ -36,15 +49,6 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
     authURL.get
   }.map(_.replace("OAuth", "m"))
 
-  private def showErrorMessage(message: String, cause: Throwable) {
-    val errorMessageView = findView(TR.moduleErrorMessage)
-    val errorMessageText = findView(TR.moduleErrorMessageText)
-    errorMessageText.setText(s"$message，原因：${cause.getMessage}")
-    errorMessageView.setVisibility(View.VISIBLE)
-    loadingIndicator.setVisibility(View.GONE)
-    webView.setVisibility(View.GONE)
-  }
-
   override def onCreate(savedInstanceState: Bundle) {
 
     super.onCreate(savedInstanceState)
@@ -56,10 +60,11 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
       Message(MaidMaro.Half.Angry, "ABCDEFG", None) :: Nil
     )
 
-    authorizationURL.onFailure { case error: Exception => 
-      this.runOnUIThread {
+    authorizationURL.onFailureInUI { 
+      case error: Exception => {
         DebugLog(error.getMessage, error) 
-        showErrorMessage("無法取得噗浪登入網址", error)
+        errorNotice.showMessage("無法取得噗浪登入網址", error)
+
       }
     }
 
@@ -71,6 +76,11 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
       webView.loadUrl(url)
     }
 
+  }
+
+  override def onHideOtherUI() {
+    loadingIndicator.setVisibility(View.GONE)
+    webView.setVisibility(View.GONE)
   }
 
   val plurkAuthWebViewClient = new WebViewClient() {
@@ -98,7 +108,5 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
         )
       }
     }
-
-
   }
 }
