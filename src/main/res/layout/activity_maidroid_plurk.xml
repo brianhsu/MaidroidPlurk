@@ -14,8 +14,7 @@
     <include layout="@layout/module_error_message"/>
 
     <WebView
-      android:id="@+id/loginWebView"
-      android:layout_margin="5dp"
+      android:id="@+id/activityMaidroidPlurkWebView"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:visibility="gone"/>
