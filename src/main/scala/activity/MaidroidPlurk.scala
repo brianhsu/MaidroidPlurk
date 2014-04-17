@@ -2,35 +2,21 @@ package idv.brianhsu.maidroid.plurk.activity
 
 import android.app.Activity
 import android.os.Bundle
-import android.webkit.WebViewClient
-import android.webkit.WebView
-
-import idv.brianhsu.maidroid.plurk._
-import idv.brianhsu.maidroid.ui.model._
-import idv.brianhsu.maidroid.ui.util.AsyncUI._
-import org.bone.soplurk.api._
-import scala.concurrent._
 import android.view.View
 import android.net.Uri
+import android.webkit.WebViewClient
+import android.webkit.WebView
+import android.support.v7.app.ActionBarActivity
 
-object DebugLog {
+import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.util._
+import idv.brianhsu.maidroid.ui.model._
+import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
-  import android.util.Log
+import org.bone.soplurk.api._
+import scala.concurrent._
 
-  val IsDebugging = true
-  val Tag = "MaidroidPlurk"
-
-  def apply(message: String) { 
-    if (IsDebugging) { Log.d(Tag, message) }
-  }
-
-  def apply(message: String, throwable: Throwable) { 
-    if (IsDebugging) { Log.d(Tag, message, throwable) }
-  }
-  
-}
-
-class MaidroidPlurk extends Activity with TypedViewHolder
+class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
 {
   implicit val activity = this
 
@@ -77,7 +63,7 @@ class MaidroidPlurk extends Activity with TypedViewHolder
       }
     }
 
-    authorizationURL.runOnUIThread { url =>
+    authorizationURL.onSuccessInUI { url =>
       DebugLog("Get Plurk authorization URL:" + url) 
       loadingIndicator.setVisibility(View.GONE)
       webView.setVisibility(View.VISIBLE)
@@ -105,7 +91,7 @@ class MaidroidPlurk extends Activity with TypedViewHolder
       }
 
       webView.setVisibility(View.GONE)
-      authStatusFuture.runOnUIThread { status => 
+      authStatusFuture.onSuccessInUI { status => 
         dialogFrame.setMessages(
           Message(MaidMaro.Half.Happy, "看起來是沒有什麼問題呢，已經登入噗浪囉。", None) :: 
           Nil
