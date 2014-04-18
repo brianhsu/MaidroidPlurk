@@ -18,31 +18,31 @@ import android.webkit.WebView
 import org.bone.soplurk.api._
 import scala.concurrent._
 
-object TimeLine {
+object TimelinePlurksFragment {
   trait Listener {
     def onGetPlurkAPI: PlurkAPI
   }
 }
 
-class TimeLine extends Fragment {
+class TimelinePlurksFragment extends Fragment {
 
   private implicit def activity = getActivity
-  private var activityCallback: TimeLine.Listener = _
+  private var activityCallback: TimelinePlurksFragment.Listener = _
   private def plurkAPI = activityCallback.onGetPlurkAPI
 
   override def onAttach(activity: Activity) {
     super.onAttach(activity)
     try {
-      activityCallback = activity.asInstanceOf[TimeLine.Listener]
+      activityCallback = activity.asInstanceOf[TimelinePlurksFragment.Listener]
     } catch {
       case e: ClassCastException => 
-        throw new ClassCastException(s"${activity} must mixed with TimeLine.Listener")
+        throw new ClassCastException(s"${activity} must mixed with TimelinePlurksFragment.Listener")
     }
   }
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
                             savedInstanceState: Bundle): View = {
-    inflater.inflate(R.layout.fragment_timeline, container, false)
+    inflater.inflate(R.layout.fragment_timeline_plurks, container, false)
   }
 
 }

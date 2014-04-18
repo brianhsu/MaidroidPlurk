@@ -20,7 +20,7 @@ import scala.concurrent._
 import scala.util.Try
 
 class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
-                    with ErrorNotice.Listener with Login.Listener with TimeLine.Listener
+                    with ErrorNotice.Listener with Login.Listener with TimelinePlurksFragment.Listener
 {
   implicit val activity = this
 
@@ -28,7 +28,7 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
   private lazy val loadingIndicator = findView(TR.moduleLoadingIndicator)
   private lazy val errorNoticeFragment = getSupportFragmentManager().findFragmentById(R.id.activityMaidroidPlurkErrorNotice).asInstanceOf[ErrorNotice]
   private lazy val fragmentLogin = new Login
-  private lazy val fragmentTimeLine = new TimeLine
+  private lazy val fragmentTimelinePlurksFragment = new TimelinePlurksFragment
 
   val onGetPlurkAPI = PlurkAPI.withCallback(
     appKey = "6T7KUTeSbwha", 
@@ -80,7 +80,7 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
     )
     errorNoticeFragment.setVisibility(View.GONE)
     loadingIndicator.setVisibility(View.GONE)
-    switchToFragment(fragmentTimeLine)
+    switchToFragment(fragmentTimelinePlurksFragment)
   }
 
   override def onStart() {
