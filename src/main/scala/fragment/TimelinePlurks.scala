@@ -31,6 +31,9 @@ import android.text.Html
 object TimelinePlurksFragment {
   trait Listener {
     def onGetPlurkAPI: PlurkAPI
+    def onHideLoadingUI(): Unit
+    def onShowTimelinePlurksFailure(e: Exception): Unit
+    def onShowTimelinePlurksSuccess(timeline: Timeline): Unit
   }
 }
 
@@ -138,21 +141,26 @@ class TimelinePlurksFragment extends Fragment {
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
     listView.setEmptyView(view.findView(TR.fragmentTimelinePlurksEmptyNotice))
     listView.setAdapter(adapter)
-    setupPlurkList()
+    updateTimeline()
   }
 
-  private def setupPlurkList() {
+  def updateTimeline() {
 
-    val plurksFuture = future { plurkAPI.Timeline.getPlurks().get }
+    val plurksFuture = future { 
+      Thread.sleep(10 * 1000)
+      plurkAPI.Timeline.getPlurks().get 
+    }
 
     plurksFuture.onSuccessInUI { timeline => 
       DebugLog("==> plurksFuture.onSuccessInUI")
       adapter.appendTimeline(timeline)
+      activityCallback.onHideLoadingUI()
+      activityCallback.onShowTimelinePlurksSuccess(timeline)
     }
 
     plurksFuture.onFailureInUI { case e: Exception =>
-      DebugLog("==> plurksFuture.onSuccessInUI")
-      DebugLog("==> exception:" + e)
+      DebugLog("==> plurksFuture.onFailureInUI" + e, e)
+      activityCallback.onShowTimelinePlurksFailure(e)
     }
   }
 

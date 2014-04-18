@@ -12,6 +12,7 @@ import idv.brianhsu.maidroid.ui.model._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
 import org.bone.soplurk.api._
+import org.bone.soplurk.api.PlurkAPI.Timeline
 
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
@@ -28,13 +29,17 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
   private lazy val loadingIndicator = findView(TR.moduleLoadingIndicator)
   private lazy val errorNoticeFragment = getSupportFragmentManager().findFragmentById(R.id.activityMaidroidPlurkErrorNotice).asInstanceOf[ErrorNotice]
   private lazy val fragmentLogin = new Login
-  private lazy val fragmentTimelinePlurksFragment = new TimelinePlurksFragment
+  private lazy val fragmentTimelinePlurks = new TimelinePlurksFragment
 
   val onGetPlurkAPI = PlurkAPI.withCallback(
     appKey = "6T7KUTeSbwha", 
     appSecret = "AZIpUPdkTARzbDmdKBsu4kpxhHUJ3eWX", 
     callbackURL = "http://localhost/auth"
   )
+
+  def onHideLoadingUI() {
+    loadingIndicator.setVisibility(View.GONE)
+  }
 
   def onShowAuthorizationPage(url: String) {
     loadingIndicator.setVisibility(View.GONE)
@@ -80,7 +85,30 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
     )
     errorNoticeFragment.setVisibility(View.GONE)
     loadingIndicator.setVisibility(View.GONE)
-    switchToFragment(fragmentTimelinePlurksFragment)
+    switchToFragment(fragmentTimelinePlurks)
+  }
+
+  def onShowTimelinePlurksFailure(error: Exception) {
+    DebugLog("====> onShowTimelinePlurksFailure", error)
+    errorNoticeFragment.setVisibility(View.VISIBLE)
+    errorNoticeFragment.showMessageWithRetry("無法讀取河道", error) {
+      loadingIndicator.setVisibility(View.VISIBLE)
+      errorNoticeFragment.setVisibility(View.GONE)
+      fragmentTimelinePlurks.updateTimeline()
+    }
+
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Panic, "糟糕，讀不到河道上的資料啊！", None) :: 
+      Message(MaidMaro.Half.Normal, "會不會是網路有問題呢？", None) ::
+      Message(MaidMaro.Half.Normal, s"對了，系統說這個錯誤是：「${error.getMessage}」造成的說") :: Nil
+    )
+  }
+
+  def onShowTimelinePlurksSuccess(timeline: Timeline) {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Smile, "好像順利讀到噗浪上的資料了喲，不知道最近有沒有什麼有趣的事發生呢？", None) :: 
+      Message(MaidMaro.Half.Happy, "如果有好玩的事，記得要和小鈴分享一下喲！", None) :: Nil
+    )
   }
 
   override def onStart() {
@@ -111,6 +139,7 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
   }
 
   private def switchToFragment(fragment: Fragment) {
+    loadingIndicator.setVisibility(View.VISIBLE)
     getSupportFragmentManager.
         beginTransaction.
         replace(R.id.activityMaidroidPlurkFragmentContainer, fragment).
