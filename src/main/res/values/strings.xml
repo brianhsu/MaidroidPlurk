@@ -5,6 +5,6 @@
   <string name="fragmentErrorMesssageTextDefault">發生錯誤了 :-(</string>
   <string name="fragmentErrorMessageRetryButtonTitle">重試一次</string>
 
-  <string name="fragmentTimelinePlurksFragmentEmptyNoticeText">目前河道上沒東西呢……</string>
+  <string name="fragmentTimelinePlurksEmptyNoticeText">目前河道上沒東西呢……</string>
 
 </resources>

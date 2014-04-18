@@ -27,7 +27,7 @@ libraryDependencies ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.bone" %% "soplurk" % "0.2.1"
+  "org.bone" %% "soplurk" % "0.2.2"
 )
 
 platformTarget in Android := "android-19"
