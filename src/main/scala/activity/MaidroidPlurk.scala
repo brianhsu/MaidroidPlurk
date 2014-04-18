@@ -25,7 +25,8 @@ trait FragmentFinder {
   }
 }
 
-class MaidroidPlurk extends ActionBarActivity with TypedViewHolder with FragmentFinder with ErrorNotice.Listener with Login.Listener
+class MaidroidPlurk extends ActionBarActivity with TypedViewHolder with FragmentFinder 
+                    with ErrorNotice.Listener with Login.Listener with TimeLine.Listener
 {
   implicit val activity = this
 

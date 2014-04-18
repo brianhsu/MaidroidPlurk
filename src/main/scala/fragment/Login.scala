@@ -34,10 +34,10 @@ class Login extends Fragment {
   private var activityCallback: Login.Listener = _
   private def plurkAPI = activityCallback.onGetPlurkAPI
 
-  private lazy val webView = getView.findView(TR.activityMaidroidPlurkWebView)
+  private lazy val webView = getView.findView(TR.fragmentLoginWebView)
 
   private lazy val authorizationURL: Future[String] = future {
-    plurkAPI.getAuthorizationURL.map(_.replace("OAuth", "m")).get
+    plurkAPI.getAuthorizationURL.get.replace("OAuth", "m")
   }
 
   override def onAttach(activity: Activity) {
@@ -88,6 +88,10 @@ class Login extends Fragment {
         case _ if isAuthorizationURL => true
         case _ => activityCallback.onLoginFailure(new Exception("登入失敗，使用者拒絕授權")) ; false
       }
+    }
+
+    override def onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
+      activityCallback.onLoginFailure(new Exception(s"登入失敗，${description}"))
     }
 
     override def onPageFinished(view: WebView, url: String) {
