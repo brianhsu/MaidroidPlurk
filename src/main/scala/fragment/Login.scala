@@ -79,14 +79,13 @@ class Login extends Fragment {
 
     override def shouldOverrideUrlLoading(view: WebView, url: String): Boolean = {
       val isCallbackURL = url.startsWith("http://localhost/auth")
-      val isAuthorizationURL = url.startsWith("http://plurk.com/m/authorize")
       
       DebugLog("====> shouldOverrideUrlLoading.url:" + url)
 
       url match {
+        case "http://www.plurk.com/" => activityCallback.onLoginFailure(new Exception("登入失敗，使用者拒絕授權")) ; false
         case _ if isCallbackURL => startAuth(url); false
-        case _ if isAuthorizationURL => true
-        case _ => activityCallback.onLoginFailure(new Exception("登入失敗，使用者拒絕授權")) ; false
+        case _ => true
       }
     }
 
@@ -101,7 +100,11 @@ class Login extends Fragment {
 
     override def onPageFinished(view: WebView, url: String) {
       DebugLog("====> onPageFinished:" + url)
-      if (url.startsWith("http://www.plurk.com/m/authorize")) {
+      val shouldShowPage = 
+        !url.startsWith("http://localhost/auth") &&
+        url != "http://www.plurk.com/" && url != "http://www.plurk.com/m/"
+
+      if (shouldShowPage) {
         activityCallback.onShowAuthorizationPage(url)
         setVisibility(View.VISIBLE)
       }
