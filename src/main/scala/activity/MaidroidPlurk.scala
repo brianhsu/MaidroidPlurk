@@ -19,23 +19,16 @@ import android.support.v4.app.FragmentActivity
 import scala.concurrent._
 import scala.util.Try
 
-trait FragmentFinder {
-  this: FragmentActivity =>
-
-  def findFragment[T <: Fragment](id: Int): Option[T] = Try { 
-    getSupportFragmentManager().findFragmentById(id).asInstanceOf[T]
-  }.toOption
-}
-
-class MaidroidPlurk extends ActionBarActivity with TypedViewHolder with FragmentFinder 
+class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
                     with ErrorNotice.Listener with Login.Listener with TimeLine.Listener
 {
   implicit val activity = this
 
   private lazy val dialogFrame = findView(TR.dialogFrame)
   private lazy val loadingIndicator = findView(TR.moduleLoadingIndicator)
-  private lazy val errorNoticeFragment = findFragment[ErrorNotice](R.id.activityMaidroidPlurkErrorNotice).get
-  private def loginFragmentHolder = findFragment[Login](R.id.activityMaidroidPlurkFragmentContainer)
+  private lazy val errorNoticeFragment = getSupportFragmentManager().findFragmentById(R.id.activityMaidroidPlurkErrorNotice).asInstanceOf[ErrorNotice]
+  private lazy val fragmentLogin = new Login
+  private lazy val fragmentTimeLine = new TimeLine
 
   val onGetPlurkAPI = PlurkAPI.withCallback(
     appKey = "6T7KUTeSbwha", 
@@ -87,12 +80,12 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder with Fragment
     )
     errorNoticeFragment.setVisibility(View.GONE)
     loadingIndicator.setVisibility(View.GONE)
-    switchToTimeLineFragment()
+    switchToFragment(fragmentTimeLine)
   }
 
   override def onStart() {
     super.onStart()
-    loginFragmentHolder.foreach { _.startAuthorization() }
+    fragmentLogin.startAuthorization()
     errorNoticeFragment.setVisibility(View.GONE)
   }
 
@@ -102,7 +95,7 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder with Fragment
     setContentView(R.layout.activity_maidroid_plurk)
 
     if (savedInstanceState == null) {
-      setupLoginFragment()
+      switchToFragment(fragmentLogin)
     }
 
     dialogFrame.setMessages(
@@ -114,27 +107,20 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder with Fragment
 
   override def onHideOtherUI() {
     loadingIndicator.setVisibility(View.GONE)
-    loginFragmentHolder.foreach { _.setVisibility(View.GONE) }
+    fragmentLogin.setVisibility(View.GONE)
   }
 
-  private def setupLoginFragment() {
+  private def switchToFragment(fragment: Fragment) {
     getSupportFragmentManager.
         beginTransaction.
-        replace(R.id.activityMaidroidPlurkFragmentContainer, new Login).
-        commit()
-  }
-
-  private def switchToTimeLineFragment() {
-    getSupportFragmentManager.
-        beginTransaction.
-        replace(R.id.activityMaidroidPlurkFragmentContainer, new TimeLine).
+        replace(R.id.activityMaidroidPlurkFragmentContainer, fragment).
         commit()
   }
 
   private def retryLogin() {
     loadingIndicator.setVisibility(View.VISIBLE)
     errorNoticeFragment.setVisibility(View.GONE)
-    loginFragmentHolder.foreach { _.startAuthorization() }
+    fragmentLogin.startAuthorization()
   }
 
 
