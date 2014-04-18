@@ -30,6 +30,7 @@ import android.text.Html
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.text.method.LinkMovementMethod
+import android.content.res.Resources
 
 object TimelinePlurksFragment {
   trait Listener {
@@ -60,7 +61,24 @@ class PlurkAdapter(context: Activity) extends BaseAdapter {
 
   private val textViewImageGetter = new Html.ImageGetter() {
 
-    private def downloadImageFromNetwork(url: String): Try[Bitmap] = Try {
+    class URLDrawable(resources: Resources, loadingBitmap: Bitmap) extends 
+          BitmapDrawable(resources, loadingBitmap) 
+    {
+      private var drawableHolder: Option[Drawable] = None
+
+      override def draw(canvas: android.graphics.Canvas) {
+        drawableHolder.foreach(_ draw canvas)
+      }
+
+      def updateDrawable(bitmap: Bitmap) {
+        val drawable = new BitmapDrawable(activity.getResources, bitmap)
+        drawable.setBounds(0, 0, drawable.getIntrinsicWidth, drawable.getIntrinsicHeight)
+        drawableHolder = Some(drawable)
+      }
+    }
+
+    private val loadingImage = BitmapFactory.decodeResource(activity.getResources, R.drawable.default_avatar)
+    private def downloadImageFromNetwork(url: String): Bitmap = {
       val inSampleSize = calculateInSampleSize(url, 240, 160)
       val imgStream = new URL(url).openStream()
       val options = new BitmapFactory.Options
@@ -105,27 +123,27 @@ class PlurkAdapter(context: Activity) extends BaseAdapter {
       inSampleSize
     }
 
+    private def getDrawableFromNetwork(source: String) = {
+      val urlDrawable = new URLDrawable(activity.getResources, loadingImage)
+      val bitmapFuture = future { downloadImageFromNetwork(source) }
+
+      bitmapFuture.onSuccessInUI { bitmap =>
+        urlDrawable.updateDrawable(bitmap)
+        notifyDataSetChanged()
+      }
+
+      urlDrawable
+    }
+
+    private def getDrawableFromBitmap(bitmap: Bitmap) = {
+      val drawable = new BitmapDrawable(activity.getResources, bitmap)
+      drawable.setBounds(0, 0, drawable.getIntrinsicWidth, drawable.getIntrinsicHeight)
+      drawable
+    }
+
     override def getDrawable(source: String): Drawable = {
-
-      def bitmapFromHTTPOrCache = imageCache.get(source) match {
-        case Some(bitmap) => Success(bitmap)
-        case None => downloadImageFromNetwork(source)
-      }
-
-      val drawableHolder = 
-        source.startsWith("http") match {
-          case true => bitmapFromHTTPOrCache.map(new BitmapDrawable(context.getResources, _))
-          case false => Try(Drawable.createFromPath(source))
-        }
-
-      drawableHolder.foreach { drawable =>
-        drawable.setBounds(
-          0, 0, 
-          drawable.getIntrinsicWidth, drawable.getIntrinsicHeight()
-        )
-      }
-
-      drawableHolder.getOrElse(null)
+      val drawableFromMemory = imageCache.get(source).map(getDrawableFromBitmap)
+      drawableFromMemory getOrElse (getDrawableFromNetwork(source))
     }
   }
 
