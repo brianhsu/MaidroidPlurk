@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     >
 
   <LinearLayout
@@ -11,12 +11,17 @@
     android:layout_height="match_parent">
 
     <include layout="@layout/module_loading_indicator"/>
-    <WebView
-      android:id="@+id/loginWebView"
-      android:layout_margin="5dp"
+    <fragment 
+      android:name="idv.brianhsu.maidroid.plurk.fragment.ErrorNotice"
+      android:id="@+id/activityMaidroidPlurkErrorNotice"
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:visibility="gone"/>
+      android:layout_height="match_parent" />
+
+    <FrameLayout
+      android:id="@+id/activityMaidroidPlurkFragmentContainer"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent" />
+
   </LinearLayout>
 
   <idv.brianhsu.maidroid.ui.DialogFrame
