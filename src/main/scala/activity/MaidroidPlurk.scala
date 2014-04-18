@@ -49,7 +49,11 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder with Fragment
   def onGetAuthURLFailure(error: Exception) {
     DebugLog("====> onGetAuthURLFailure", error)
     errorNoticeFragment.setVisibility(View.VISIBLE)
-    errorNoticeFragment.showMessage("無法取得噗浪登入網址", error)
+    errorNoticeFragment.showMessageWithRetry("無法取得噗浪登入網址", error) { 
+      DebugLog("====> Retry in onGetAuthURLFailure")
+      retryLogin()
+    }
+
     dialogFrame.setMessages(
       Message(MaidMaro.Half.Panic, "咦咦咦咦？！怎麼會這樣，沒辦法找到噗浪的登入網頁耶……", None) :: 
       Message(MaidMaro.Half.Panic, "可不可以請主人檢查一下網路的狀態，看是不是網路不穩定或者忘了開網路呢？", None) :: 
@@ -62,15 +66,17 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder with Fragment
   def onLoginFailure(error: Exception) {
     DebugLog("====> onLoginFailure", error)
     errorNoticeFragment.setVisibility(View.VISIBLE)
-    errorNoticeFragment.showMessage("無法正確登入噗浪", error)
+    errorNoticeFragment.showMessageWithRetry("無法正確登入噗浪", error) {
+      DebugLog("====> Retry in onLoginFailure")
+      retryLogin()
+    }
+
     dialogFrame.setMessages(
       Message(MaidMaro.Half.Normal, "好像怪怪的，沒辦法正常登入噗浪耶……", None) :: 
       Message(MaidMaro.Half.Normal, "該不會是小鈴太沒用了，所以才一直出錯吧？", None) :: 
       Message(MaidMaro.Half.Normal, s"對了，系統說這個錯誤是：「${error.getMessage}」造成的說") :: Nil
 
     )
-
-
   }
 
   def onLoginSuccess() {
@@ -106,11 +112,19 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder with Fragment
     loginFragmentHolder.foreach { _.setVisibility(View.GONE) }
   }
 
-  def setupLoginFragment() {
+  private def setupLoginFragment() {
     getSupportFragmentManager.
         beginTransaction.
         replace(R.id.activityMaidroidPlurkFragmentContainer, new Login).
         commit()
   }
+
+  private def retryLogin() {
+    loadingIndicator.setVisibility(View.VISIBLE)
+    errorNoticeFragment.setVisibility(View.GONE)
+    loginFragmentHolder.foreach { _.startAuthorization() }
+  }
+
+
 
 }

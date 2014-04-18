@@ -36,10 +36,6 @@ class Login extends Fragment {
 
   private lazy val webView = getView.findView(TR.fragmentLoginWebView)
 
-  private lazy val authorizationURL: Future[String] = future {
-    plurkAPI.getAuthorizationURL.get.replace("OAuth", "m")
-  }
-
   override def onAttach(activity: Activity) {
     super.onAttach(activity)
     try {
@@ -58,6 +54,10 @@ class Login extends Fragment {
 
     webView.setWebViewClient(plurkAuthWebViewClient)
 
+    val authorizationURL: Future[String] = future {
+      plurkAPI.getAuthorizationURL.get.replace("OAuth", "m")
+    }
+
     authorizationURL.onFailureInUI { 
       case error: Exception => {
         DebugLog("====> authorizationURL.onFailureInUI:" + error.getMessage, error) 
@@ -75,7 +75,7 @@ class Login extends Fragment {
     Option(getView).foreach(_.setVisibility(visibility))
   }
 
-  val plurkAuthWebViewClient = new WebViewClient() {
+  def plurkAuthWebViewClient = new WebViewClient() {
 
     override def shouldOverrideUrlLoading(view: WebView, url: String): Boolean = {
       val isCallbackURL = url.startsWith("http://localhost/auth")
@@ -90,21 +90,26 @@ class Login extends Fragment {
       }
     }
 
-    override def onReceivedError(view: WebView, errorCode: Int, description: String, failingUrl: String) {
-      activityCallback.onLoginFailure(new Exception(s"登入失敗，${description}"))
+    override def onReceivedError(view: WebView, errorCode: Int, 
+                                 description: String, failingUrl: String) {
+
+      if (!failingUrl.startsWith("http://localhost/auth")) {
+        activityCallback.onLoginFailure(new Exception(s"登入失敗，${description}"))
+      }
+
     }
 
     override def onPageFinished(view: WebView, url: String) {
       DebugLog("====> onPageFinished:" + url)
       if (url.startsWith("http://www.plurk.com/m/authorize")) {
         activityCallback.onShowAuthorizationPage(url)
-        webView.setVisibility(View.VISIBLE)
+        setVisibility(View.VISIBLE)
       }
     }
 
     def startAuth(url: String) {
 
-      webView.setVisibility(View.GONE)
+      setVisibility(View.GONE)
 
       val uri = Uri.parse(url)
       val code = uri.getQueryParameter("oauth_verifier")
@@ -113,7 +118,7 @@ class Login extends Fragment {
       }
 
       authStatusFuture.onSuccessInUI{ _ => 
-        webView.setVisibility(View.GONE)
+        setVisibility(View.GONE)
         activityCallback.onLoginSuccess() 
       }
 

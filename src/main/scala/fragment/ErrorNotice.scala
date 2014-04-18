@@ -3,6 +3,7 @@ package idv.brianhsu.maidroid.plurk.fragment
 import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.TypedResource._
+import idv.brianhsu.maidroid.ui.util.CallbackConversions._
 
 import android.app.Activity
 import android.os.Bundle
@@ -22,8 +23,10 @@ object ErrorNotice {
 class ErrorNotice extends Fragment {
 
   private var activityCallback: ErrorNotice.Listener = _
+
   private lazy val errorMessage = getView.findView(TR.fragmentErrorNoticeText)
   private lazy val errorNotice = getView.findView(TR.fragmentErrorNotice)
+  private lazy val errorRetryButton = getView.findView(TR.fragmentErrorNoticeRetryButton)
 
   override def onAttach(activity: Activity) {
     super.onAttach(activity)
@@ -40,11 +43,20 @@ class ErrorNotice extends Fragment {
     inflater.inflate(R.layout.fragment_error_notice, container, false)
   }
 
+  def showMessageWithRetry(message: String, cause: Exception)(retry: => Any) {
+    showMessage(message, cause)
+    errorRetryButton.setEnabled(true)
+    errorRetryButton.setOnClickListener { view: View =>
+      retry
+    }
+  }
+
   def showMessage(message: String, cause: Exception) {
     DebugLog("====> ErrorNotice.showMessage:" + cause.getMessage, cause)
-    errorMessage.setText(message)
     activityCallback.onHideOtherUI()
+    errorMessage.setText(message)
     errorNotice.setVisibility(View.VISIBLE)
+    errorRetryButton.setEnabled(false)
   }
 
   def setVisibility(visibility: Int) {
