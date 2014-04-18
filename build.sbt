@@ -11,7 +11,7 @@ scalaVersion := "2.10.4"
 
 organization := "idv.brianhsu.maidroid.plurk"
 
-scalacOptions := Seq("-feature")
+scalacOptions := Seq("-feature", "-deprecation")
 
 resolvers ++= Seq(
   "populov" at "http://dl.bintray.com/populov/maven",

@@ -25,8 +25,11 @@ import org.bone.soplurk.api.PlurkAPI.Timeline
 import org.bone.soplurk.model._
 import scala.concurrent._
 import java.net.URL
-import scala.util.Try
+import scala.util.{Try, Success}
 import android.text.Html
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
+import android.text.method.LinkMovementMethod
 
 object TimelinePlurksFragment {
   trait Listener {
@@ -42,6 +45,8 @@ import android.widget.BaseAdapter
 class ViewTag(var userID: Long, itemView: View) {
   lazy val avatar = itemView.findView(TR.itemPlurkAvatar)
   lazy val content = itemView.findView(TR.itemPlurkText)
+
+  content.setMovementMethod(LinkMovementMethod.getInstance())
 }
 
 class PlurkAdapter(context: Activity) extends BaseAdapter {
@@ -49,8 +54,42 @@ class PlurkAdapter(context: Activity) extends BaseAdapter {
   private var plurks: Vector[Plurk] = Vector.empty
   private var users: Map[Long, User] = Map.empty
   private var avatarCache: Map[Long, Bitmap] = Map.empty
+  private var imageCache: Map[String, Bitmap] = Map.empty
 
   private val layoutInflater = LayoutInflater.from(context)
+
+  private def downloadImageFromNetwork(url: String): Try[Bitmap] = Try {
+    val imgStream = new URL(url).openStream()
+    val imgBitmap = BitmapFactory.decodeStream(imgStream)
+    imgStream.close()
+    imageCache += (url -> imgBitmap)
+    imgBitmap
+  }
+
+  private val textViewImageGetter = new Html.ImageGetter() {
+    override def getDrawable(source: String): Drawable = {
+
+      def bitmapFromHTTPOrCache = imageCache.get(source) match {
+        case Some(bitmap) => Success(bitmap)
+        case None => downloadImageFromNetwork(source)
+      }
+
+      val drawableHolder = 
+        source.startsWith("http") match {
+          case true => bitmapFromHTTPOrCache.map(new BitmapDrawable(context.getResources, _))
+          case false => Try(Drawable.createFromPath(source))
+        }
+
+      drawableHolder.foreach { drawable =>
+        drawable.setBounds(
+          0, 0, 
+          drawable.getIntrinsicWidth, drawable.getIntrinsicHeight()
+        )
+      }
+
+      drawableHolder.getOrElse(null)
+    }
+  }
 
   def getCount = plurks.size
   def getItem(position: Int) = plurks(position)
@@ -61,7 +100,7 @@ class PlurkAdapter(context: Activity) extends BaseAdapter {
     val view = layoutInflater.inflate(R.layout.item_plurk, parent, false)
     val viewTag = new ViewTag(owner.id, view)
 
-    viewTag.content.setText(Html.fromHtml(plurk.content))
+    viewTag.content.setText(Html.fromHtml(plurk.content, textViewImageGetter, null))
     loadAvatar(owner, viewTag.avatar)
     view.setTag(viewTag)
     view
@@ -76,7 +115,7 @@ class PlurkAdapter(context: Activity) extends BaseAdapter {
       case null => createNewView(plurk, owner, parent)
       case view => 
         val viewTag = view.getTag.asInstanceOf[ViewTag]
-        viewTag.content.setText(plurk.content)
+        viewTag.content.setText(Html.fromHtml(plurk.content, textViewImageGetter, null))
 
         if (viewTag.userID != owner.id) {
           loadAvatar(owner, viewTag.avatar)
@@ -89,6 +128,7 @@ class PlurkAdapter(context: Activity) extends BaseAdapter {
   def loadAvatarBitmapFromNetwork(user: User): Try[Bitmap] = Try {
     val avatarURLStream = new URL(user.bigAvatar).openStream()
     val avatarBitmap = BitmapFactory.decodeStream(avatarURLStream)
+    avatarURLStream.close()
     avatarCache += (user.id -> avatarBitmap)
     avatarBitmap
   }

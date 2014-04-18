@@ -80,12 +80,15 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
   }
 
   def onLoginSuccess() {
-    dialogFrame.setMessages(
-      Message(MaidMaro.Half.Happy, "成功登入噗浪了呢", None) :: Nil
-    )
     errorNoticeFragment.setVisibility(View.GONE)
-    loadingIndicator.setVisibility(View.GONE)
+    loadingIndicator.setVisibility(View.VISIBLE)
     switchToFragment(fragmentTimelinePlurks)
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Happy, "成功登入噗浪了呢！", None) :: 
+      Message(MaidMaro.Half.Smile, "小鈴正在幫主人整理河道上的資料，請主人稍候一下喲。", None) ::
+      Nil
+    )
+
   }
 
   def onShowTimelinePlurksFailure(error: Exception) {
@@ -106,8 +109,8 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
 
   def onShowTimelinePlurksSuccess(timeline: Timeline) {
     dialogFrame.setMessages(
-      Message(MaidMaro.Half.Smile, "好像順利讀到噗浪上的資料了喲，不知道最近有沒有什麼有趣的事發生呢？", None) :: 
-      Message(MaidMaro.Half.Happy, "如果有好玩的事，記得要和小鈴分享一下喲！", None) :: Nil
+      Message(MaidMaro.Half.Happy, "好像順利讀到噗浪上的資料了喲，不知道最近有沒有什麼有趣的事發生呢？", None) :: 
+      Message(MaidMaro.Half.Smile, "如果有好玩的事，記得要和小鈴分享一下喲！", None) :: Nil
     )
   }
 
