@@ -12,17 +12,19 @@ import idv.brianhsu.maidroid.ui.model._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
 import org.bone.soplurk.api._
-import scala.concurrent._
 
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 
+import scala.concurrent._
+import scala.util.Try
+
 trait FragmentFinder {
   this: FragmentActivity =>
 
-  def findFragment[T <: Fragment](id: Int): Option[T] = { 
-    Option(getSupportFragmentManager().findFragmentById(id).asInstanceOf[T])
-  }
+  def findFragment[T <: Fragment](id: Int): Option[T] = Try { 
+    getSupportFragmentManager().findFragmentById(id).asInstanceOf[T]
+  }.toOption
 }
 
 class MaidroidPlurk extends ActionBarActivity with TypedViewHolder with FragmentFinder 
@@ -83,6 +85,9 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder with Fragment
     dialogFrame.setMessages(
       Message(MaidMaro.Half.Happy, "成功登入噗浪了呢", None) :: Nil
     )
+    errorNoticeFragment.setVisibility(View.GONE)
+    loadingIndicator.setVisibility(View.GONE)
+    switchToTimeLineFragment()
   }
 
   override def onStart() {
@@ -116,6 +121,13 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder with Fragment
     getSupportFragmentManager.
         beginTransaction.
         replace(R.id.activityMaidroidPlurkFragmentContainer, new Login).
+        commit()
+  }
+
+  private def switchToTimeLineFragment() {
+    getSupportFragmentManager.
+        beginTransaction.
+        replace(R.id.activityMaidroidPlurkFragmentContainer, new TimeLine).
         commit()
   }
 
