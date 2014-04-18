@@ -25,6 +25,8 @@ import org.bone.soplurk.api.PlurkAPI.Timeline
 import org.bone.soplurk.model._
 import scala.concurrent._
 import java.net.URL
+import java.net.URLConnection
+
 import scala.util.{Try, Success}
 import android.text.Html
 import android.graphics.drawable.BitmapDrawable
@@ -78,38 +80,48 @@ class PlurkAdapter(context: Activity) extends BaseAdapter {
     }
 
     private val loadingImage = BitmapFactory.decodeResource(activity.getResources, R.drawable.default_avatar)
-    private def downloadImageFromNetwork(url: String): Bitmap = {
-      val inSampleSize = calculateInSampleSize(url, 240, 160)
-      val imgStream = new URL(url).openStream()
-      val options = new BitmapFactory.Options
-      options.inSampleSize = inSampleSize
-      val imgBitmap = BitmapFactory.decodeStream(imgStream, null, options)
-      imgStream.close()
 
-      val isThumbnail = imgBitmap.getWidth == 48 && imgBitmap.getHeight == 48
-      val resizedBitmap = isThumbnail match {
-        case true => Bitmap.createScaledBitmap(imgBitmap, 128, 128, false)
-        case false => imgBitmap
-      }
-      imageCache += (url -> resizedBitmap)
-      resizedBitmap
+    private def openStream(imageURL: String) = {
+      val connection = new URL(imageURL).openConnection()
+      connection.getInputStream()
     }
 
-    private def calculateInSampleSize(source: String, requiredWidth: Int, 
-                                      requiredHeight: Int): Int = {
-      val imgStream = new URL(source).openStream()
+    private def calculateOriginSize(url: String): (Int, Int) = {
+      val imgStream = openStream(url)
       val options = new BitmapFactory.Options
       options.inJustDecodeBounds = true
       BitmapFactory.decodeStream(imgStream, null, options)
+      imgStream.close()
+      (options.outWidth, options.outHeight)
+    }
 
-      val height = options.outHeight
-      val width = options.outWidth
+    private def downloadImageFromNetwork(url: String): Bitmap = {
+      val (originWidth, originHeight) = calculateOriginSize(url)
+      val inSampleSize = calculateInSampleSize(originWidth, originHeight, 240, 160)
+      val imgStream = openStream(url)
+      val options = new BitmapFactory.Options
+      options.inSampleSize = inSampleSize
+
+      if (originWidth <= 48 && originHeight <= 48) {
+        options.inDensity = 160
+        options.inScaled = false
+        options.inTargetDensity = 160
+      }
+
+      val imgBitmap = BitmapFactory.decodeStream(imgStream, null, options)
+      imgStream.close()
+      imageCache += (url -> imgBitmap)
+      imgBitmap
+    }
+
+    private def calculateInSampleSize(originWidth: Int, originHeight: Int, 
+                                      requiredWidth: Int, requiredHeight: Int): Int = {
       var inSampleSize = 1
 
-      if (height > requiredHeight || width > requiredWidth) {
+      if (originHeight > requiredHeight || originWidth > requiredWidth) {
 
-          val halfHeight = height / 2
-          val halfWidth = width / 2
+          val halfHeight = originHeight / 2
+          val halfWidth = originWidth / 2
 
           // Calculate the largest inSampleSize value that is a power of 2 and keeps both
           // height and width larger than the requested height and width.
@@ -119,13 +131,18 @@ class PlurkAdapter(context: Activity) extends BaseAdapter {
           }
       }
 
-      imgStream.close()
       inSampleSize
     }
 
     private def getDrawableFromNetwork(source: String) = {
       val urlDrawable = new URLDrawable(activity.getResources, loadingImage)
-      val bitmapFuture = future { downloadImageFromNetwork(source) }
+      val bitmapFuture = future { 
+        downloadImageFromNetwork(source) 
+      }
+
+      bitmapFuture.onFailureInUI { case e: Exception =>
+        DebugLog("====> " + e, e)
+      }
 
       bitmapFuture.onSuccessInUI { bitmap =>
         urlDrawable.updateDrawable(bitmap)
