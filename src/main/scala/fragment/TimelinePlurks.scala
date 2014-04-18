@@ -163,25 +163,32 @@ class PlurkAdapter(context: Activity) extends BaseAdapter {
     }
   }
 
-  def loadAvatarBitmapFromNetwork(user: User): Try[Bitmap] = Try {
-    val avatarURLStream = new URL(user.bigAvatar).openStream()
-    val avatarBitmap = BitmapFactory.decodeStream(avatarURLStream)
-    avatarURLStream.close()
-    avatarCache += (user.id -> avatarBitmap)
-    avatarBitmap
-  }
+  def loadAvatarBitmapFromNetwork(user: User, imageView: ImageView) {
 
-  def loadAvatar(user: User, imageView: ImageView) {
-    val avatarBitmapFuture = future { loadAvatarBitmapFromNetwork(user).get }
-    avatarBitmapFuture.onSuccessInUI { bitmap =>
+    val avatarBitmapFuture = future {
+      val avatarURLStream = new URL(user.bigAvatar).openStream()
+      val avatarBitmap = BitmapFactory.decodeStream(avatarURLStream)
+      avatarURLStream.close()
+      avatarBitmap
+    }
+
+    avatarBitmapFuture.onSuccessInUI { avatarBitmap =>
       DebugLog(s"====> [ok] avatar url of ${user.displayName}: ${user.bigAvatar}")
-      imageView.setImageBitmap(bitmap)
+      avatarCache += (user.id -> avatarBitmap)
+      imageView.setImageBitmap(avatarBitmap)
     }
 
     avatarBitmapFuture.onFailureInUI { case e: Exception =>
       DebugLog(s"====> [failed] avatar url of ${user.displayName}: ${user.bigAvatar}")
     }
 
+  }
+
+  def loadAvatar(user: User, imageView: ImageView) {
+    avatarCache.get(user.id) match {
+      case Some(bitmap) => imageView.setImageBitmap(bitmap)
+      case None => loadAvatarBitmapFromNetwork(user, imageView)
+    }
   }
 
   def appendTimeline(timeline: Timeline) {
