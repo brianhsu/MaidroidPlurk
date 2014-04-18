@@ -58,15 +58,53 @@ class PlurkAdapter(context: Activity) extends BaseAdapter {
 
   private val layoutInflater = LayoutInflater.from(context)
 
-  private def downloadImageFromNetwork(url: String): Try[Bitmap] = Try {
-    val imgStream = new URL(url).openStream()
-    val imgBitmap = BitmapFactory.decodeStream(imgStream)
-    imgStream.close()
-    imageCache += (url -> imgBitmap)
-    imgBitmap
-  }
-
   private val textViewImageGetter = new Html.ImageGetter() {
+
+    private def downloadImageFromNetwork(url: String): Try[Bitmap] = Try {
+      val inSampleSize = calculateInSampleSize(url, 240, 160)
+      val imgStream = new URL(url).openStream()
+      val options = new BitmapFactory.Options
+      options.inSampleSize = inSampleSize
+      val imgBitmap = BitmapFactory.decodeStream(imgStream, null, options)
+      imgStream.close()
+
+      val isThumbnail = imgBitmap.getWidth == 48 && imgBitmap.getHeight == 48
+      val resizedBitmap = isThumbnail match {
+        case true => Bitmap.createScaledBitmap(imgBitmap, 128, 128, false)
+        case false => imgBitmap
+      }
+      imageCache += (url -> resizedBitmap)
+      resizedBitmap
+    }
+
+    private def calculateInSampleSize(source: String, requiredWidth: Int, 
+                                      requiredHeight: Int): Int = {
+      val imgStream = new URL(source).openStream()
+      val options = new BitmapFactory.Options
+      options.inJustDecodeBounds = true
+      BitmapFactory.decodeStream(imgStream, null, options)
+
+      val height = options.outHeight
+      val width = options.outWidth
+      var inSampleSize = 1
+
+      if (height > requiredHeight || width > requiredWidth) {
+
+          val halfHeight = height / 2
+          val halfWidth = width / 2
+
+          // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+          // height and width larger than the requested height and width.
+          while ((halfHeight / inSampleSize) > requiredHeight && 
+                 (halfWidth / inSampleSize) > requiredWidth) {
+              inSampleSize *= 2
+          }
+      }
+
+      imgStream.close()
+      inSampleSize
+    }
+
     override def getDrawable(source: String): Drawable = {
 
       def bitmapFromHTTPOrCache = imageCache.get(source) match {
