@@ -18,6 +18,7 @@
 
   <TextView
     android:id="@+id/itemPlurkText"
+    android:lineSpacingMultiplier="1.5"
     android:layout_marginBottom="20dp"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"/>

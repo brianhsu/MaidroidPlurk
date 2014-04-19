@@ -69,7 +69,12 @@ class PlurkAdapter(context: Activity) extends BaseAdapter {
       private var drawableHolder: Option[Drawable] = None
 
       override def draw(canvas: android.graphics.Canvas) {
-        drawableHolder.foreach(_ draw canvas)
+        drawableHolder match {
+          case Some(drawable) => drawable draw canvas
+          case None => 
+            super.setBounds(0, 0, super.getIntrinsicWidth, super.getIntrinsicHeight)
+            super.draw(canvas)
+        }
       }
 
       def updateDrawable(bitmap: Bitmap) {
@@ -82,8 +87,15 @@ class PlurkAdapter(context: Activity) extends BaseAdapter {
     private val loadingImage = BitmapFactory.decodeResource(activity.getResources, R.drawable.default_avatar)
 
     private def openStream(imageURL: String) = {
-      val connection = new URL(imageURL).openConnection()
-      connection.getInputStream()
+      if (imageURL.contains("images.plurk.com/tx_")) {
+        val newURL = imageURL.replace("/tx_", "/").replace(".gif", ".jpg")
+        val connection = new URL(newURL).openConnection()
+        DebugLog("====> newURL:" + newURL)
+        connection.getInputStream()
+      } else {
+        val connection = new URL(imageURL).openConnection()
+        connection.getInputStream()
+      }
     }
 
     private def calculateOriginSize(url: String): (Int, Int) = {
