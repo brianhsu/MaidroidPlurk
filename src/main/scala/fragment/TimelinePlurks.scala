@@ -47,6 +47,8 @@ object TimelinePlurksFragment {
 
 import android.widget.BaseAdapter
 
+
+
 class ViewTag(var userID: Long, itemView: View) {
   lazy val avatar = itemView.findView(TR.itemPlurkAvatar)
   lazy val content = itemView.findView(TR.itemPlurkText)
@@ -70,11 +72,12 @@ class PlurkAdapter(context: Activity) extends BaseAdapter {
     {
       private var drawableHolder: Option[Drawable] = None
 
+      this.setBounds(0, 0, super.getIntrinsicWidth, super.getIntrinsicHeight)
+
       override def draw(canvas: android.graphics.Canvas) {
         drawableHolder match {
           case Some(drawable) => drawable draw canvas
           case None => 
-            super.setBounds(0, 0, super.getIntrinsicWidth, super.getIntrinsicHeight)
             super.draw(canvas)
         }
       }
