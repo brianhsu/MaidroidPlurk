@@ -86,8 +86,36 @@ class ViewTag(itemView: View) {
   lazy val qualifier = itemView.findView(TR.itemPlurkQualifier)
   lazy val postedDate = itemView.findView(TR.itemPlurkPostedDate)
   lazy val commentCount = itemView.findView(TR.itemPlurkCommentCount)
+  lazy val replurk = itemView.findView(TR.itemPlurkReplurk)
+  lazy val mute = itemView.findView(TR.itemPlurkMute)
+  lazy val favorite = itemView.findView(TR.itemPlurkFavorite)
 
   content.setMovementMethod(LinkMovementMethod.getInstance())
+
+  private def setReplurkInfo(plurk: Plurk) {
+
+    replurk.setText(plurk.replurkInfo.replurkersCount.toString)
+
+    plurk.replurkInfo.isReplurked match {
+      case true =>  replurk.setBackgroundResource(R.drawable.rounded_blue)
+      case false => replurk.setBackgroundResource(R.drawable.rounded_gray)
+    }
+
+    plurk.replurkInfo.isReplurkable match {
+      case true => replurk.setVisibility(View.VISIBLE)
+      case false => replurk.setVisibility(View.GONE)
+    }
+
+  }
+
+  private def setFavoriteInfo(plurk: Plurk) {
+
+    favorite.setText(plurk.favoriteInfo.favoriteCount.toString)
+    plurk.favoriteInfo.isFavorite match {
+      case true =>  favorite.setBackgroundResource(R.drawable.rounded_blue)
+      case false => favorite.setBackgroundResource(R.drawable.rounded_gray)
+    }
+  }
 
   def update(owner: User, plurk: Plurk, imageGetter: PlurkImageGetter) {
     content.setText(Html.fromHtml(plurk.content, imageGetter, null))
@@ -108,6 +136,9 @@ class ViewTag(itemView: View) {
       case Some(Unread) => commentCount.setBackgroundResource(R.drawable.rounded_red)
       case _ => commentCount.setBackgroundResource(R.drawable.rounded_blue)
     }
+
+    setReplurkInfo(plurk)
+    setFavoriteInfo(plurk)
   }
 }
 

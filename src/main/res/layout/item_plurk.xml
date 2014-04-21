@@ -117,14 +117,13 @@
         android:layout_height="wrap_content"/>
 
       <TextView
-        android:id="@+id/itemPlurkLike"
+        android:id="@+id/itemPlurkFavorite"
         android:textColor="?android:textColorPrimary"
         android:layout_marginBottom="10dp"
         android:background="@drawable/rounded_gray"
         android:drawableLeft="@drawable/like"
         android:drawablePadding="5dp"
         android:layout_marginLeft="5dp"
-        android:text="10"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
