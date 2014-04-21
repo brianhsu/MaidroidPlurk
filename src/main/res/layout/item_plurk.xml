@@ -79,13 +79,57 @@
 
     <TextView
       android:id="@+id/itemPlurkPostedDate"
-      android:layout_marginBottom="10dp"
+      android:text="YYYY-MM-DD HH:MM:SS"
+      android:gravity="center_vertical"
       android:layout_marginRight="10dp"
-      android:layout_marginTop="10dp"
-      android:text="2014-10-11 22:22:00"
-      android:gravity="right"
-      android:layout_width="match_parent"
+      android:layout_width="wrap_content"
       android:layout_height="wrap_content"/>
+
+
+    <LinearLayout 
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="10dp"
+      android:gravity="right"
+      android:orientation="horizontal">
+
+      <TextView
+        android:id="@+id/itemPlurkMute"
+        android:text="消音"
+        android:textColor="?android:textColorPrimary"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/rounded_gray"
+        android:drawableLeft="@drawable/mute"
+        android:drawablePadding="5dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+      <TextView
+        android:id="@+id/itemPlurkReplurk"
+        android:textColor="?android:textColorPrimary"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/rounded_gray"
+        android:text="1"
+        android:drawableLeft="@drawable/replurk"
+        android:drawablePadding="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+      <TextView
+        android:id="@+id/itemPlurkLike"
+        android:textColor="?android:textColorPrimary"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/rounded_gray"
+        android:drawableLeft="@drawable/like"
+        android:drawablePadding="5dp"
+        android:layout_marginLeft="5dp"
+        android:text="10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
 
   </LinearLayout>
 
