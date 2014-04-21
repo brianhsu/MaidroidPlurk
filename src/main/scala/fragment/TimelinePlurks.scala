@@ -256,6 +256,7 @@ class TimelinePlurksFragment extends Fragment {
 
   private lazy val listView = getView.findView(TR.fragmentTimelinePlurksListView)
   private lazy val adapter = new PlurkAdapter(activity)
+  private lazy val footer = activity.getLayoutInflater.inflate(R.layout.item_loading_footer, null, false)
 
   private var isLoadingMore: Boolean = false
 
@@ -275,8 +276,6 @@ class TimelinePlurksFragment extends Fragment {
   }
 
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
-
-    val footer = activity.getLayoutInflater.inflate(R.layout.item_loading_footer, null, false)
 
     listView.setEmptyView(view.findView(TR.fragmentTimelinePlurksEmptyNotice))
     listView.addFooterView(footer)
@@ -305,6 +304,12 @@ class TimelinePlurksFragment extends Fragment {
 
     olderTimelineFuture.onSuccessInUI { timeline => 
       adapter.appendTimeline(timeline)
+
+      timeline.plurks.isEmpty match {
+        case true   => footer.setVisibility(View.GONE)
+        case faslse => footer.setVisibility(View.VISIBLE)
+      }
+
       this.isLoadingMore = false
     }
 
