@@ -173,7 +173,7 @@ class PlurkAdapter(context: Activity) extends BaseAdapter {
   private implicit val activity = context
   private var plurks: Vector[Plurk] = Vector.empty
   private var users: Map[Long, User] = Map.empty
-  private val avatarCache = new LRUCache[Long, Bitmap](10)
+  private val avatarCache = new LRUCache[Long, Bitmap](50)
   private val layoutInflater = LayoutInflater.from(context)
   private val textViewImageGetter = new PlurkImageGetter(activity, this, loadingImage)
   private val loadingImage = BitmapFactory.decodeResource(activity.getResources, R.drawable.default_avatar)
@@ -203,11 +203,9 @@ class PlurkAdapter(context: Activity) extends BaseAdapter {
       case view => 
         val viewTag = view.getTag.asInstanceOf[ViewTag]
         viewTag.content.setText(Html.fromHtml(plurk.content, textViewImageGetter, null))
-
-        if (viewTag.userID != owner.id) {
-          loadAvatar(owner, viewTag.avatar)
-          viewTag.userID = owner.id
-        }
+        viewTag.avatar.setImageResource(R.drawable.default_avatar)
+        loadAvatar(owner, viewTag.avatar)
+        viewTag.userID = owner.id
         view
     }
   }
@@ -224,6 +222,7 @@ class PlurkAdapter(context: Activity) extends BaseAdapter {
     avatarBitmapFuture.onSuccessInUI { avatarBitmap =>
       avatarCache += (user.id -> avatarBitmap)
       imageView.setImageBitmap(avatarBitmap)
+      notifyDataSetChanged()
     }
 
     avatarBitmapFuture.onFailureInUI { case e: Exception =>
