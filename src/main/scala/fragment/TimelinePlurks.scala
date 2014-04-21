@@ -318,7 +318,6 @@ class TimelinePlurksFragment extends Fragment {
   def updateTimeline() {
 
     val plurksFuture = future { 
-      Thread.sleep(10 * 1000)
       plurkAPI.Timeline.getPlurks().get 
     }
 
