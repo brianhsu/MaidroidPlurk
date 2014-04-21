@@ -49,6 +49,7 @@ object TimelinePlurksFragment {
 import android.widget.BaseAdapter
 import org.bone.soplurk.constant.Qualifier
 import org.bone.soplurk.constant.Qualifier._
+import org.bone.soplurk.constant.ReadStatus.Unread
 
 object QualifierDisplay {
 
@@ -84,6 +85,7 @@ class ViewTag(itemView: View) {
   lazy val displayName = itemView.findView(TR.itemPlurkDisplayName)
   lazy val qualifier = itemView.findView(TR.itemPlurkQualifier)
   lazy val postedDate = itemView.findView(TR.itemPlurkPostedDate)
+  lazy val commentCount = itemView.findView(TR.itemPlurkCommentCount)
 
   content.setMovementMethod(LinkMovementMethod.getInstance())
 
@@ -98,6 +100,13 @@ class ViewTag(itemView: View) {
         qualifier.setBackgroundColor(backgroundColor)
         qualifier.setText(translatedName)
         qualifier.setVisibility(View.VISIBLE)
+    }
+
+    commentCount.setText(plurk.responseCount.toString)
+
+    plurk.readStatus match {
+      case Some(Unread) => commentCount.setBackgroundResource(R.drawable.rounded_red)
+      case _ => commentCount.setBackgroundResource(R.drawable.rounded_blue)
     }
   }
 }
