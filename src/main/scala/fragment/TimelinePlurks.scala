@@ -54,10 +54,10 @@ class ViewTag(var userID: Long, itemView: View) {
   content.setMovementMethod(LinkMovementMethod.getInstance())
 }
 
-class PlurkImageGetter(activity: Activity, adapter: BaseAdapter) extends Html.ImageGetter {
+class PlurkImageGetter(activity: Activity, adapter: BaseAdapter, loadingImage: Bitmap) extends Html.ImageGetter {
 
   private implicit val implicitActivity = activity
-  private val imageCache = new LRUCache[String, Bitmap](10)
+  private val imageCache = new LRUCache[String, Bitmap](5)
 
   class URLDrawable(resources: Resources, loadingBitmap: Bitmap) extends 
         BitmapDrawable(resources, loadingBitmap) 
@@ -81,13 +81,10 @@ class PlurkImageGetter(activity: Activity, adapter: BaseAdapter) extends Html.Im
     }
   }
 
-  private val loadingImage = BitmapFactory.decodeResource(activity.getResources, R.drawable.default_avatar)
-
   private def openStream(imageURL: String) = {
     if (imageURL.contains("images.plurk.com/tx_")) {
       val newURL = imageURL.replace("/tx_", "/").replace(".gif", ".jpg")
       val connection = new URL(newURL).openConnection()
-      DebugLog("====> newURL:" + newURL)
       connection.getInputStream()
     } else {
       val connection = new URL(imageURL).openConnection()
@@ -106,7 +103,7 @@ class PlurkImageGetter(activity: Activity, adapter: BaseAdapter) extends Html.Im
 
   private def downloadImageFromNetwork(url: String): Bitmap = {
     val (originWidth, originHeight) = calculateOriginSize(url)
-    val inSampleSize = calculateInSampleSize(originWidth, originHeight, 240, 160)
+    val inSampleSize = calculateInSampleSize(originWidth, originHeight, 100, 100)
     val imgStream = openStream(url)
     val options = new BitmapFactory.Options
     options.inSampleSize = inSampleSize
@@ -149,10 +146,6 @@ class PlurkImageGetter(activity: Activity, adapter: BaseAdapter) extends Html.Im
       downloadImageFromNetwork(source) 
     }
 
-    bitmapFuture.onFailureInUI { case e: Exception =>
-      DebugLog("====> " + e, e)
-    }
-
     bitmapFuture.onSuccessInUI { bitmap =>
       urlDrawable.updateDrawable(bitmap)
       adapter.notifyDataSetChanged()
@@ -182,7 +175,8 @@ class PlurkAdapter(context: Activity) extends BaseAdapter {
   private var users: Map[Long, User] = Map.empty
   private val avatarCache = new LRUCache[Long, Bitmap](10)
   private val layoutInflater = LayoutInflater.from(context)
-  private val textViewImageGetter = new PlurkImageGetter(activity, this)
+  private val textViewImageGetter = new PlurkImageGetter(activity, this, loadingImage)
+  private val loadingImage = BitmapFactory.decodeResource(activity.getResources, R.drawable.default_avatar)
 
   def getCount = plurks.size
   def getItem(position: Int) = plurks(position)
@@ -228,7 +222,6 @@ class PlurkAdapter(context: Activity) extends BaseAdapter {
     }
 
     avatarBitmapFuture.onSuccessInUI { avatarBitmap =>
-      DebugLog(s"====> [ok] avatar url of ${user.displayName}: ${user.bigAvatar}")
       avatarCache += (user.id -> avatarBitmap)
       imageView.setImageBitmap(avatarBitmap)
     }
@@ -326,14 +319,12 @@ class TimelinePlurksFragment extends Fragment {
     }
 
     plurksFuture.onSuccessInUI { timeline => 
-      DebugLog("==> plurksFuture.onSuccessInUI")
       adapter.appendTimeline(timeline)
       activityCallback.onHideLoadingUI()
       activityCallback.onShowTimelinePlurksSuccess(timeline)
     }
 
     plurksFuture.onFailureInUI { case e: Exception =>
-      DebugLog("==> plurksFuture.onFailureInUI" + e, e)
       activityCallback.onShowTimelinePlurksFailure(e)
     }
   }
