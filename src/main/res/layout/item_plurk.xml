@@ -16,11 +16,58 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"/>
 
-  <TextView
-    android:id="@+id/itemPlurkText"
-    android:lineSpacingMultiplier="1.5"
-    android:layout_marginBottom="20dp"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"/>
+  <LinearLayout 
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp"
+    android:orientation="vertical">
+
+    <LinearLayout 
+      android:orientation="horizontal"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content">
+
+      <TextView 
+        android:id="@+id/itemPlurkDisplayName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="?android:textColorPrimary"
+        android:textSize="18sp"
+        android:text="Nickname" />
+
+      <TextView 
+        android:id="@+id/itemPlurkQualifier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:background="#E2560B"
+        android:paddingLeft="2dp"
+        android:paddingRight="2dp"
+        android:layout_marginLeft="5dp"
+        android:text="說" />
+
+    </LinearLayout>
+
+    <TextView
+      android:id="@+id/itemPlurkText"
+      android:lineSpacingMultiplier="1.3"
+      android:textSize="18sp"
+      android:layout_marginTop="10dp"
+      android:layout_marginLeft="10dp"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"/>
+
+    <TextView
+      android:id="@+id/itemPlurkPostedDate"
+      android:layout_marginBottom="10dp"
+      android:layout_marginRight="10dp"
+      android:layout_marginTop="10dp"
+      android:text="2014-10-11 22:22:00"
+      android:gravity="right"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"/>
+
+  </LinearLayout>
 
 </LinearLayout>

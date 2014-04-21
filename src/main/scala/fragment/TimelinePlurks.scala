@@ -26,6 +26,7 @@ import org.bone.soplurk.model._
 import scala.concurrent._
 import java.net.URL
 import java.net.URLConnection
+import java.text.SimpleDateFormat
 
 import scala.util.{Try, Success}
 import android.text.Html
@@ -46,12 +47,59 @@ object TimelinePlurksFragment {
 }
 
 import android.widget.BaseAdapter
- 
-class ViewTag(var userID: Long, itemView: View) {
+import org.bone.soplurk.constant.Qualifier
+import org.bone.soplurk.constant.Qualifier._
+
+object QualifierDisplay {
+
+  def apply(plurk: Plurk) = plurk.qualifier match {
+    case Asks      => Some((0xff8361BC, plurk.qualifierTranslated.getOrElse(plurk.qualifier.name)))
+    case Feels     => Some((0xff2D83BE, plurk.qualifierTranslated.getOrElse(plurk.qualifier.name)))
+    case Gives     => Some((0xff620E0E, plurk.qualifierTranslated.getOrElse(plurk.qualifier.name)))
+    case Has       => Some((0xff777777, plurk.qualifierTranslated.getOrElse(plurk.qualifier.name)))
+    case Hates     => Some((0xff111111, plurk.qualifierTranslated.getOrElse(plurk.qualifier.name)))
+    case Hopes     => Some((0xffE05BE9, plurk.qualifierTranslated.getOrElse(plurk.qualifier.name)))
+    case Is        => Some((0xffE57C43, plurk.qualifierTranslated.getOrElse(plurk.qualifier.name)))
+    case Likes     => Some((0xff8C8C8C, plurk.qualifierTranslated.getOrElse(plurk.qualifier.name)))
+    case Loves     => Some((0xffB20C0C, plurk.qualifierTranslated.getOrElse(plurk.qualifier.name)))
+    case Needs     => Some((0xff7A9A37, plurk.qualifierTranslated.getOrElse(plurk.qualifier.name)))
+    case Says      => Some((0xffE2560B, plurk.qualifierTranslated.getOrElse(plurk.qualifier.name)))
+    case Shares    => Some((0xffA74949, plurk.qualifierTranslated.getOrElse(plurk.qualifier.name)))
+    case Thinks    => Some((0xff689CC1, plurk.qualifierTranslated.getOrElse(plurk.qualifier.name)))
+    case Wants     => Some((0xff8DB241, plurk.qualifierTranslated.getOrElse(plurk.qualifier.name)))
+    case Was       => Some((0xff525252, plurk.qualifierTranslated.getOrElse(plurk.qualifier.name)))
+    case Whispers  => Some((0xff32007E, plurk.qualifierTranslated.getOrElse(plurk.qualifier.name)))
+    case Will      => Some((0xffB46DB9, plurk.qualifierTranslated.getOrElse(plurk.qualifier.name)))
+    case Wishes    => Some((0xff5BB017, plurk.qualifierTranslated.getOrElse(plurk.qualifier.name)))
+    case Wonders   => Some((0xff2E4E9E, plurk.qualifierTranslated.getOrElse(plurk.qualifier.name)))
+    case _ => None
+  }
+
+}
+
+class ViewTag(itemView: View) {
+  lazy val dateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
   lazy val avatar = itemView.findView(TR.itemPlurkAvatar)
   lazy val content = itemView.findView(TR.itemPlurkText)
+  lazy val displayName = itemView.findView(TR.itemPlurkDisplayName)
+  lazy val qualifier = itemView.findView(TR.itemPlurkQualifier)
+  lazy val postedDate = itemView.findView(TR.itemPlurkPostedDate)
 
   content.setMovementMethod(LinkMovementMethod.getInstance())
+
+  def update(owner: User, plurk: Plurk, imageGetter: PlurkImageGetter) {
+    content.setText(Html.fromHtml(plurk.content, imageGetter, null))
+    content.setFocusable(false)
+    postedDate.setText(dateTimeFormatter.format(plurk.posted))
+    displayName.setText(owner.displayName)
+    QualifierDisplay(plurk) match {
+      case None => qualifier.setVisibility(View.GONE)
+      case Some((backgroundColor, translatedName)) =>
+        qualifier.setBackgroundColor(backgroundColor)
+        qualifier.setText(translatedName)
+        qualifier.setVisibility(View.VISIBLE)
+    }
+  }
 }
 
 class PlurkImageGetter(activity: Activity, adapter: BaseAdapter, loadingImage: Bitmap) extends Html.ImageGetter {
@@ -103,7 +151,7 @@ class PlurkImageGetter(activity: Activity, adapter: BaseAdapter, loadingImage: B
 
   private def downloadImageFromNetwork(url: String): Bitmap = {
     val (originWidth, originHeight) = calculateOriginSize(url)
-    val inSampleSize = calculateInSampleSize(originWidth, originHeight, 100, 100)
+    val inSampleSize = calculateInSampleSize(originWidth, originHeight, 150, 150)
     val imgStream = openStream(url)
     val options = new BitmapFactory.Options
     options.inSampleSize = inSampleSize
@@ -185,11 +233,10 @@ class PlurkAdapter(context: Activity) extends BaseAdapter {
   def createNewView(plurk: Plurk, owner: User, parent: ViewGroup): View = {
 
     val view = layoutInflater.inflate(R.layout.item_plurk, parent, false)
-    val viewTag = new ViewTag(owner.id, view)
-
-    viewTag.content.setText(Html.fromHtml(plurk.content, textViewImageGetter, null))
-    loadAvatar(owner, viewTag.avatar)
+    val viewTag = new ViewTag(view)
+    viewTag.update(owner, plurk, textViewImageGetter)
     view.setTag(viewTag)
+    loadAvatar(owner, viewTag.avatar)
     view
   }
 
@@ -202,10 +249,8 @@ class PlurkAdapter(context: Activity) extends BaseAdapter {
       case null => createNewView(plurk, owner, parent)
       case view => 
         val viewTag = view.getTag.asInstanceOf[ViewTag]
-        viewTag.content.setText(Html.fromHtml(plurk.content, textViewImageGetter, null))
-        viewTag.avatar.setImageResource(R.drawable.default_avatar)
+        viewTag.update(owner, plurk, textViewImageGetter)
         loadAvatar(owner, viewTag.avatar)
-        viewTag.userID = owner.id
         view
     }
   }
@@ -256,7 +301,8 @@ class TimelinePlurksFragment extends Fragment {
 
   private lazy val listView = getView.findView(TR.fragmentTimelinePlurksListView)
   private lazy val adapter = new PlurkAdapter(activity)
-  private lazy val footer = activity.getLayoutInflater.inflate(R.layout.item_loading_footer, null, false)
+  private lazy val footer = activity.getLayoutInflater.
+                                     inflate(R.layout.item_loading_footer, null, false)
 
   private var isLoadingMore: Boolean = false
 
@@ -266,7 +312,9 @@ class TimelinePlurksFragment extends Fragment {
       activityCallback = activity.asInstanceOf[TimelinePlurksFragment.Listener]
     } catch {
       case e: ClassCastException => 
-        throw new ClassCastException(s"${activity} must mixed with TimelinePlurksFragment.Listener")
+        throw new ClassCastException(
+          s"${activity} must mixed with TimelinePlurksFragment.Listener"
+        )
     }
   }
 
@@ -281,7 +329,9 @@ class TimelinePlurksFragment extends Fragment {
     listView.addFooterView(footer)
     listView.setAdapter(adapter)
     listView.setOnScrollListener(new OnScrollListener() {
-      def onScroll(view: AbsListView, firstVisibleItem: Int, visibleItemCount: Int, totalItemCount: Int) {
+      def onScroll(view: AbsListView, firstVisibleItem: Int, 
+                   visibleItemCount: Int, totalItemCount: Int) {
+
         val isLastItem = (firstVisibleItem + visibleItemCount) == totalItemCount
         val shouldLoadingMore = isLastItem && !isLoadingMore
         if (shouldLoadingMore) {
