@@ -27,7 +27,8 @@ libraryDependencies ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.bone" %% "soplurk" % "0.2.2"
+  "org.bone" %% "soplurk" % "0.2.2",
+  "com.typesafe.akka" %% "akka-actor" % "2.3.2"
 )
 
 platformTarget in Android := "android-19"
