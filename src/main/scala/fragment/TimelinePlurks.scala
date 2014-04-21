@@ -33,6 +33,8 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.text.method.LinkMovementMethod
 import android.content.res.Resources
+import android.widget.AbsListView.OnScrollListener
+import android.widget.AbsListView
 
 object TimelinePlurksFragment {
   trait Listener {
@@ -244,6 +246,8 @@ class PlurkAdapter(context: Activity) extends BaseAdapter {
     users ++= newUsers
     notifyDataSetChanged
   }
+
+  def lastPlurkDate = plurks.last.posted
 }
 
 class TimelinePlurksFragment extends Fragment {
@@ -254,6 +258,8 @@ class TimelinePlurksFragment extends Fragment {
 
   private lazy val listView = getView.findView(TR.fragmentTimelinePlurksListView)
   private lazy val adapter = new PlurkAdapter(activity)
+
+  private var isLoadingMore: Boolean = false
 
   override def onAttach(activity: Activity) {
     super.onAttach(activity)
@@ -271,9 +277,39 @@ class TimelinePlurksFragment extends Fragment {
   }
 
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
+
+    val footer = activity.getLayoutInflater.inflate(R.layout.item_loading_footer, null, false)
+
     listView.setEmptyView(view.findView(TR.fragmentTimelinePlurksEmptyNotice))
+    listView.addFooterView(footer)
     listView.setAdapter(adapter)
+    listView.setOnScrollListener(new OnScrollListener() {
+      def onScroll(view: AbsListView, firstVisibleItem: Int, visibleItemCount: Int, totalItemCount: Int) {
+        val isLastItem = (firstVisibleItem + visibleItemCount) == totalItemCount
+        val shouldLoadingMore = isLastItem && !isLoadingMore
+        if (shouldLoadingMore) {
+          loadingMoreItem
+        }
+      }
+
+      def onScrollStateChanged(view: AbsListView, scrollState: Int) { }
+
+    })
     updateTimeline()
+  }
+
+  def loadingMoreItem() {
+    this.isLoadingMore = true
+
+    val olderTimelineFuture = future {
+      plurkAPI.Timeline.getPlurks(offset = Some(adapter.lastPlurkDate)).get
+    }
+
+    olderTimelineFuture.onSuccessInUI { timeline => 
+      adapter.appendTimeline(timeline)
+      this.isLoadingMore = false
+    }
+
   }
 
   def updateTimeline() {
