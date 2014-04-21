@@ -85,7 +85,7 @@ class Login extends Fragment {
       url match {
         case "http://www.plurk.com/" => activityCallback.onLoginFailure(new Exception("登入失敗，使用者拒絕授權")) ; false
         case _ if isCallbackURL => startAuth(url); false
-        case _ => true
+        case _ => super.shouldOverrideUrlLoading(view, url)
       }
     }
 
@@ -94,6 +94,8 @@ class Login extends Fragment {
 
       if (!failingUrl.startsWith("http://localhost/auth")) {
         activityCallback.onLoginFailure(new Exception(s"登入失敗，${description}"))
+      } else {
+        super.onReceivedError(view, errorCode, description, failingUrl)
       }
 
     }
@@ -107,6 +109,8 @@ class Login extends Fragment {
       if (shouldShowPage) {
         activityCallback.onShowAuthorizationPage(url)
         setVisibility(View.VISIBLE)
+      } else {
+        super.onPageFinished(view, url)
       }
     }
 
