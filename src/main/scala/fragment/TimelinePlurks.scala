@@ -50,6 +50,8 @@ import android.widget.BaseAdapter
 import org.bone.soplurk.constant.Qualifier
 import org.bone.soplurk.constant.Qualifier._
 import org.bone.soplurk.constant.ReadStatus._
+import org.bone.soplurk.model.FavoriteInfo
+import org.bone.soplurk.model.ReplurkInfo
 
 object QualifierDisplay {
 
@@ -78,7 +80,30 @@ object QualifierDisplay {
 
 }
 
-class ViewTag(itemView: View) {
+object ViewTag {
+
+  private var plurkMutedStatus: Map[Long, Boolean] = Map.empty
+  private var plurkFavoriteInfo: Map[Long, FavoriteInfo] = Map.empty
+  private var plurkReplurkInfo: Map[Long, ReplurkInfo] = Map.empty
+
+  def updatePlurkReplurkInfo(plurkID: Long, replurkInfo: ReplurkInfo) {
+    plurkReplurkInfo += (plurkID -> replurkInfo)
+  }
+
+  def updatePlurkFavoriteInfo(plurkID: Long, favoriteInfo: FavoriteInfo) {
+    plurkFavoriteInfo += (plurkID -> favoriteInfo)
+  }
+
+  def updatePlurkMutedStatus(plurkID: Long, isMuted: Boolean) {
+    plurkMutedStatus += (plurkID -> isMuted)
+  }
+
+  def getPlurkReplurkInfo(plurkID: Long) = plurkReplurkInfo.get(plurkID)
+  def getPlurkFavoriteInfo(plurkID: Long) = plurkFavoriteInfo.get(plurkID)
+  def getPlurkMutedStatus(plurkID: Long) = plurkMutedStatus.get(plurkID)
+}
+
+class ViewTag(itemView: View)(implicit val activity: Activity) {
   lazy val dateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
   lazy val avatar = itemView.findView(TR.itemPlurkAvatar)
   lazy val content = itemView.findView(TR.itemPlurkText)
@@ -90,41 +115,127 @@ class ViewTag(itemView: View) {
   lazy val mute = itemView.findView(TR.itemPlurkMute)
   lazy val favorite = itemView.findView(TR.itemPlurkFavorite)
 
+  private def plurkAPI = PlurkAPIHelper.getPlurkAPI
+
   content.setMovementMethod(LinkMovementMethod.getInstance())
 
   private def setReplurkInfo(plurk: Plurk) {
 
-    val isMinePlurk = plurk.ownerID == plurk.userID
+    def replurkInfo = ViewTag.getPlurkReplurkInfo(plurk.plurkID).getOrElse(plurk.replurkInfo)
+    def updateReplurkButtonState() {
+      val isMinePlurk = plurk.ownerID == plurk.userID
+      replurk.setEnabled(!isMinePlurk)
 
-    plurk.replurkInfo.isReplurked match {
-      case true =>  replurk.setBackgroundResource(R.drawable.rounded_blue)
-      case false => replurk.setBackgroundResource(R.drawable.rounded_gray)
+      replurkInfo.isReplurked match {
+        case true =>  replurk.setBackgroundResource(R.drawable.rounded_blue)
+        case false => replurk.setBackgroundResource(R.drawable.rounded_gray)
+      }
+
+      replurkInfo.isReplurkable match {
+        case true => replurk.setVisibility(View.VISIBLE)
+        case false => replurk.setVisibility(View.GONE)
+      }
+
+      replurk.setText(replurkInfo.replurkersCount.toString)
     }
 
-    plurk.replurkInfo.isReplurkable match {
-      case true => replurk.setVisibility(View.VISIBLE)
-      case false => replurk.setVisibility(View.GONE)
+    updateReplurkButtonState()
+
+    replurk.setOnClickListener { view: View =>
+
+      replurk.setText("設定中")
+      replurk.setEnabled(false)
+
+      val isReplurkedFuture = replurkInfo.isReplurked match {
+        case false => future {
+          plurkAPI.Timeline.replurk(List(plurk.plurkID)).get
+          true
+        }
+        case true => future {
+          plurkAPI.Timeline.unreplurk(List(plurk.plurkID)).get
+          false
+        }
+      }
+
+      isReplurkedFuture.onSuccessInUI { isReplurked: Boolean =>
+        val oldReplurkInfo = replurkInfo
+        val newReplurkInfo = isReplurked match {
+          case true  => oldReplurkInfo.copy(
+            isReplurked = true, 
+            replurkersCount = oldReplurkInfo.replurkersCount + 1
+          )
+          case false => oldReplurkInfo.copy(
+            isReplurked = false, 
+            replurkersCount = oldReplurkInfo.replurkersCount - 1
+          )
+        }
+        ViewTag.updatePlurkReplurkInfo(plurk.plurkID, newReplurkInfo)
+        updateReplurkButtonState()
+      }
     }
 
-    replurk.setEnabled(!isMinePlurk)
-    replurk.setText(plurk.replurkInfo.replurkersCount.toString)
   }
 
   private def setFavoriteInfo(plurk: Plurk) {
 
-    favorite.setText(plurk.favoriteInfo.favoriteCount.toString)
-    plurk.favoriteInfo.isFavorite match {
-      case true =>  favorite.setBackgroundResource(R.drawable.rounded_blue)
-      case false => favorite.setBackgroundResource(R.drawable.rounded_gray)
+    def favoriteInfo = ViewTag.getPlurkFavoriteInfo(plurk.plurkID).
+                               getOrElse(plurk.favoriteInfo)
+
+    def updateFavoriteButtonState() {
+
+      favorite.setText(favoriteInfo.favoriteCount.toString)
+      favoriteInfo.isFavorite match {
+        case true =>  favorite.setBackgroundResource(R.drawable.rounded_blue)
+        case false => favorite.setBackgroundResource(R.drawable.rounded_gray)
+      }
     }
+
+    updateFavoriteButtonState()
+
+    favorite.setOnClickListener { view: View =>
+
+      favorite.setText("設定中")
+      favorite.setEnabled(false)
+
+      val isFavoriteFuture = favoriteInfo.isFavorite match {
+        case false => future {
+          plurkAPI.Timeline.favoritePlurks(List(plurk.plurkID)).get
+          true
+        }
+        case true => future {
+          plurkAPI.Timeline.unfavoritePlurks(List(plurk.plurkID)).get
+          false
+        }
+      }
+
+      isFavoriteFuture.onSuccessInUI { isFavorite: Boolean =>
+        val oldFavoriteInfo = favoriteInfo
+        val newFavoriteInfo = isFavorite match {
+          case true  => oldFavoriteInfo.copy(
+            isFavorite = true, 
+            favoriteCount = oldFavoriteInfo.favoriteCount + 1
+          )
+          case false => oldFavoriteInfo.copy(
+            isFavorite = false, 
+            favoriteCount = oldFavoriteInfo.favoriteCount - 1
+          )
+        }
+        ViewTag.updatePlurkFavoriteInfo(plurk.plurkID, newFavoriteInfo)
+        updateFavoriteButtonState()
+      }
+    }
+
   }
 
   private def setMuteInfo(plurk: Plurk) {
 
     var isMuted: Boolean = false
+    val isMinePlurk = plurk.ownerID == plurk.userID
+    def currentMuteState = ViewTag.getPlurkMutedStatus(plurk.plurkID).
+                                   getOrElse(plurk.readStatus == Some(Muted))
 
-    def setMuteButtonState(isAlreadyMuted: Boolean) {
-      isAlreadyMuted match {
+    def updateMuteButtonState() {
+      currentMuteState match {
         case true =>
           mute.setBackgroundResource(R.drawable.rounded_blue)
           mute.setText("解除消音")
@@ -134,28 +245,48 @@ class ViewTag(itemView: View) {
           mute.setText("消音")
           isMuted = false
       }
+
+      isMinePlurk match {
+        case true  => mute.setVisibility(View.GONE)
+        case false => mute.setVisibility(View.VISIBLE)
+      }
     }
 
-    setMuteButtonState(isAlreadyMuted = plurk.readStatus == Some(Muted))
 
+    updateMuteButtonState()
     mute.setOnClickListener { view: View =>
 
-      /*
       val newMutedStatusFuture = isMuted match {
-        case true => future { plurkAPI.Timeline.unmutePlurks(plurk.id :: Nil) }
-        case false => future { plurkAPI.Timeline.mutePlurk(plurk.id :: Nil) }
+
+        case true => future { 
+          plurkAPI.Timeline.unmutePlurks(List(plurk.plurkID)).get
+          'Unmuted  
+        }
+
+        case false => future { 
+          plurkAPI.Timeline.mutePlurks(List(plurk.plurkID)).get
+          'Muted 
+        }
       }
 
-      setMuteButtonState(!isMuted)
 
-      newMutedStatusFuture.onSuccessInUI { status =>
-        DebugLog("[ok] ====> newStatus:" + status)
+      mute.setEnabled(false)
+      mute.setText("設定中")
+      newMutedStatusFuture.onSuccessInUI { status: Symbol =>
+
+        status match {
+          case 'Muted => ViewTag.updatePlurkMutedStatus(plurk.plurkID, isMuted = true)
+          case 'Unmuted => ViewTag.updatePlurkMutedStatus(plurk.plurkID, isMuted = false)
+        }
+
+        updateMuteButtonState()
+        mute.setEnabled(true)
+        
       }
 
-      newMutedStatusFuture.onFailureInUI { status =>
-        DebugLog("[failed] ====> newStatus:" + status)
+      newMutedStatusFuture.onFailureInUI { 
+        case e: Exception => DebugLog("[failed] ====> failed:" + e, e)
       }
-      */
 
     }
   }
@@ -303,12 +434,12 @@ class PlurkImageGetter(activity: Activity, adapter: BaseAdapter, loadingImage: B
 
 }
 
-class PlurkAdapter(context: Activity) extends BaseAdapter {
-  private implicit val activity = context
+class PlurkAdapter(activity: Activity) extends BaseAdapter {
+  private implicit val mActivity = activity
   private var plurks: Vector[Plurk] = Vector.empty
   private var users: Map[Long, User] = Map.empty
   private val avatarCache = new LRUCache[Long, Bitmap](50)
-  private val layoutInflater = LayoutInflater.from(context)
+  private val layoutInflater = LayoutInflater.from(activity)
   private val textViewImageGetter = new PlurkImageGetter(activity, this, loadingImage)
   private val loadingImage = BitmapFactory.decodeResource(activity.getResources, R.drawable.default_avatar)
 
