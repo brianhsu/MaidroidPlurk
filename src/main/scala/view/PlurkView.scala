@@ -2,6 +2,7 @@ package idv.brianhsu.maidroid.plurk.view
 
 import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.TypedResource._
+import idv.brianhsu.maidroid.plurk.cache._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 import idv.brianhsu.maidroid.ui.util.CallbackConversions._
@@ -10,6 +11,7 @@ import scala.concurrent._
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.Bitmap
 import android.text.method.LinkMovementMethod
 import android.text.Html
 import android.view.View
@@ -65,6 +67,7 @@ class PlurkView(implicit val activity: Activity) extends LinearLayout(activity) 
   lazy val mute = this.findView(TR.itemPlurkMute)
   lazy val favorite = this.findView(TR.itemPlurkFavorite)
 
+  private var onwerID: Long = 0
   private def plurkAPI = PlurkAPIHelper.getPlurkAPI
 
   private def initView() {
@@ -254,6 +257,7 @@ class PlurkView(implicit val activity: Activity) extends LinearLayout(activity) 
   }
 
   def update(plurk: Plurk, owner: User, imageGetter: PlurkImageGetter): View = {
+    this.onwerID = owner.id
     content.setText(Html.fromHtml(plurk.content, imageGetter, null))
     postedDate.setText(dateTimeFormatter.format(plurk.posted))
     displayName.setText(owner.displayName)
@@ -265,11 +269,32 @@ class PlurkView(implicit val activity: Activity) extends LinearLayout(activity) 
         qualifier.setVisibility(View.VISIBLE)
     }
 
+    avatar.setImageResource(R.drawable.default_avatar)
+    AvatarCache.getAvatarBitmap(owner) match {
+      case Some(avatarBitmap) => setAvatarFromCache(avatarBitmap)
+      case None => setAvatarFromNetwork(owner)
+    }
+
     setCommentInfo(plurk)
     setReplurkInfo(plurk)
     setFavoriteInfo(plurk)
     setMuteInfo(plurk)
     this
+  }
+
+  def setAvatarFromCache(avatarBitmap: Bitmap) {
+    avatar.setImageBitmap(avatarBitmap)
+  }
+
+  def setAvatarFromNetwork(user: User) {
+    val avatarFuture = AvatarCache.getAvatarBitmapFromNetwork(user)
+    avatarFuture.onSuccessInUI { case(userID, bitmap) =>
+      // Prevent race condition that cause display incorrect avatar for
+      // recylced row view.
+      if (userID == onwerID) {
+        avatar.setImageBitmap(bitmap)
+      }
+    }
   }
 }
 
