@@ -40,7 +40,6 @@ import android.widget.AbsListView
 
 object TimelinePlurksFragment {
   trait Listener {
-    def onGetPlurkAPI: PlurkAPI
     def onHideLoadingUI(): Unit
     def onShowTimelinePlurksFailure(e: Exception): Unit
     def onShowTimelinePlurksSuccess(timeline: Timeline): Unit
@@ -384,7 +383,7 @@ class TimelinePlurksFragment extends Fragment {
 
   private implicit def activity = getActivity
   private var activityCallback: TimelinePlurksFragment.Listener = _
-  private def plurkAPI = activityCallback.onGetPlurkAPI
+  private def plurkAPI = PlurkAPIHelper.getPlurkAPI
 
   private lazy val listView = getView.findView(TR.fragmentTimelinePlurksListView)
   private lazy val adapter = new PlurkAdapter(activity)

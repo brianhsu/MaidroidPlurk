@@ -31,12 +31,6 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
   private lazy val fragmentLogin = new Login
   private lazy val fragmentTimelinePlurks = new TimelinePlurksFragment
 
-  val onGetPlurkAPI = PlurkAPI.withCallback(
-    appKey = "6T7KUTeSbwha", 
-    appSecret = "AZIpUPdkTARzbDmdKBsu4kpxhHUJ3eWX", 
-    callbackURL = "http://localhost/auth"
-  )
-
   def onHideLoadingUI() {
     loadingIndicator.setVisibility(View.GONE)
   }

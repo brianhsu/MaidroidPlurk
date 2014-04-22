@@ -20,7 +20,6 @@ import scala.concurrent._
 
 object Login {
   trait Listener {
-    def onGetPlurkAPI: PlurkAPI
     def onShowAuthorizationPage(url: String): Unit
     def onGetAuthURLFailure(error: Exception): Unit
     def onLoginFailure(error: Exception): Unit
@@ -32,7 +31,7 @@ class Login extends Fragment {
 
   private implicit def activity = getActivity
   private var activityCallback: Login.Listener = _
-  private def plurkAPI = activityCallback.onGetPlurkAPI
+  private def plurkAPI = PlurkAPIHelper.getPlurkAPI
 
   private lazy val webView = getView.findView(TR.fragmentLoginWebView)
 
