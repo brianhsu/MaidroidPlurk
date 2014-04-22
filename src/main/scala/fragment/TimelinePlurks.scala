@@ -119,7 +119,6 @@ class ViewTag(itemView: View) {
 
   def update(owner: User, plurk: Plurk, imageGetter: PlurkImageGetter) {
     content.setText(Html.fromHtml(plurk.content, imageGetter, null))
-    content.setFocusable(false)
     postedDate.setText(dateTimeFormatter.format(plurk.posted))
     displayName.setText(owner.displayName)
     QualifierDisplay(plurk) match {

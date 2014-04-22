@@ -21,9 +21,11 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"/>
 
-    <TextView 
+    <Button
       android:id="@+id/itemPlurkCommentCount"
       android:text="5"
+      android:minHeight="10dp"
+      android:padding="10dp"
       android:textSize="14dp"
       android:textColor="?android:textColorPrimary"
       android:drawableLeft="@drawable/comments"
@@ -59,7 +61,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="#FFFFFF"
-        android:textSize="18sp"
         android:background="#E2560B"
         android:paddingLeft="2dp"
         android:paddingRight="2dp"
@@ -80,9 +81,9 @@
     <TextView
       android:id="@+id/itemPlurkPostedDate"
       android:text="YYYY-MM-DD HH:MM:SS"
-      android:gravity="center_vertical"
+      android:gravity="center_vertical|right"
       android:layout_marginRight="10dp"
-      android:layout_width="wrap_content"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"/>
 
 
@@ -93,36 +94,36 @@
       android:gravity="right"
       android:orientation="horizontal">
 
-      <TextView
+      <Button
         android:id="@+id/itemPlurkMute"
         android:text="消音"
+        android:minHeight="10dp"
         android:textColor="?android:textColorPrimary"
         android:layout_marginBottom="10dp"
         android:background="@drawable/rounded_gray"
         android:drawableLeft="@drawable/mute"
-        android:drawablePadding="5dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
-      <TextView
+      <Button
         android:id="@+id/itemPlurkReplurk"
+        android:minHeight="10dp"
         android:textColor="?android:textColorPrimary"
         android:layout_marginBottom="10dp"
         android:background="@drawable/rounded_gray"
         android:text="1"
         android:drawableLeft="@drawable/replurk"
-        android:drawablePadding="5dp"
         android:layout_marginLeft="5dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
-      <TextView
+      <Button
         android:id="@+id/itemPlurkFavorite"
+        android:minHeight="10dp"
         android:textColor="?android:textColorPrimary"
         android:layout_marginBottom="10dp"
         android:background="@drawable/rounded_gray"
         android:drawableLeft="@drawable/like"
-        android:drawablePadding="5dp"
         android:layout_marginLeft="5dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
