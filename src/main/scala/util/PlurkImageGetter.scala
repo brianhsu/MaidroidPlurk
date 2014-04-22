@@ -1,6 +1,8 @@
 package idv.brianhsu.maidroid.plurk.util
 
+import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
+
 import scala.concurrent._
 
 import android.app.Activity
@@ -14,10 +16,23 @@ import android.text.Html
 
 import java.net.URL
 
-class PlurkImageGetter(activity: Activity, adapter: BaseAdapter, loadingImage: Bitmap) extends Html.ImageGetter {
+class PlurkImageGetter(activity: Activity, adapter: BaseAdapter) extends Html.ImageGetter {
 
   private implicit val implicitActivity = activity
+  private var mPlaceHolder: Option[Bitmap] = Some(BitmapFactory.decodeResource(activity.getResources, R.drawable.placeholder))
+
   private val imageCache = new LRUCache[String, Bitmap](5)
+  private def placeHolder = {
+    mPlaceHolder.filterNot(_.isRecycled) match {
+      case Some(bitmap) => bitmap
+      case None =>
+        val newBitmap = BitmapFactory.decodeResource(
+          activity.getResources, R.drawable.placeholder
+        )
+        mPlaceHolder = Some(newBitmap)
+        newBitmap
+    }
+  }
 
   class URLDrawable(resources: Resources, loadingBitmap: Bitmap) extends 
         BitmapDrawable(resources, loadingBitmap) 
@@ -101,7 +116,7 @@ class PlurkImageGetter(activity: Activity, adapter: BaseAdapter, loadingImage: B
   }
 
   private def getDrawableFromNetwork(source: String) = {
-    val urlDrawable = new URLDrawable(activity.getResources, loadingImage)
+    val urlDrawable = new URLDrawable(activity.getResources, placeHolder)
     val bitmapFuture = future { 
       downloadImageFromNetwork(source) 
     }

@@ -25,8 +25,7 @@ class PlurkAdapter(activity: Activity) extends BaseAdapter {
   private implicit val mActivity = activity
   private var plurks: Vector[Plurk] = Vector.empty
   private var users: Map[Long, User] = Map.empty
-  private val textViewImageGetter = new PlurkImageGetter(activity, this, loadingImage)
-  private val loadingImage = BitmapFactory.decodeResource(activity.getResources, R.drawable.default_avatar)
+  private val textViewImageGetter = new PlurkImageGetter(activity, this)
 
   def getCount = plurks.size
   def getItem(position: Int) = plurks(position)
