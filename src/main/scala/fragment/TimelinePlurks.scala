@@ -4,6 +4,7 @@ import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
+import idv.brianhsu.maidroid.ui.util.CallbackConversions._
 
 import android.app.Activity
 import android.content.Context
@@ -120,9 +121,43 @@ class ViewTag(itemView: View) {
   }
 
   private def setMuteInfo(plurk: Plurk) {
-    plurk.readStatus match {
-      case Some(Muted) => mute.setBackgroundResource(R.drawable.rounded_blue)
-      case _ => mute.setBackgroundResource(R.drawable.rounded_gray)
+
+    var isMuted: Boolean = false
+
+    def setMuteButtonState(isAlreadyMuted: Boolean) {
+      isAlreadyMuted match {
+        case true =>
+          mute.setBackgroundResource(R.drawable.rounded_blue)
+          mute.setText("解除消音")
+          isMuted = true
+        case false =>
+          mute.setBackgroundResource(R.drawable.rounded_gray)
+          mute.setText("消音")
+          isMuted = false
+      }
+    }
+
+    setMuteButtonState(isAlreadyMuted = plurk.readStatus == Some(Muted))
+
+    mute.setOnClickListener { view: View =>
+
+      /*
+      val newMutedStatusFuture = isMuted match {
+        case true => future { plurkAPI.Timeline.unmutePlurks(plurk.id :: Nil) }
+        case false => future { plurkAPI.Timeline.mutePlurk(plurk.id :: Nil) }
+      }
+
+      setMuteButtonState(!isMuted)
+
+      newMutedStatusFuture.onSuccessInUI { status =>
+        DebugLog("[ok] ====> newStatus:" + status)
+      }
+
+      newMutedStatusFuture.onFailureInUI { status =>
+        DebugLog("[failed] ====> newStatus:" + status)
+      }
+      */
+
     }
   }
 
