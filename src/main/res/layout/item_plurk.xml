@@ -25,14 +25,13 @@
       android:id="@+id/itemPlurkCommentCount"
       android:text="5"
       android:minHeight="10dp"
-      android:padding="10dp"
       android:textSize="14dp"
       android:textColor="?android:textColorPrimary"
       android:drawableLeft="@drawable/comments"
       android:drawablePadding="5dp"
       android:layout_marginTop="5dp"
       android:textStyle="bold"
-      android:background="@drawable/rounded_blue"
+      android:background="@drawable/rounded_gray"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content" />
   </LinearLayout>

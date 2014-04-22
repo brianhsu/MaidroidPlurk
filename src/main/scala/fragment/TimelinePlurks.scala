@@ -49,7 +49,7 @@ object TimelinePlurksFragment {
 import android.widget.BaseAdapter
 import org.bone.soplurk.constant.Qualifier
 import org.bone.soplurk.constant.Qualifier._
-import org.bone.soplurk.constant.ReadStatus.Unread
+import org.bone.soplurk.constant.ReadStatus._
 
 object QualifierDisplay {
 
@@ -94,7 +94,7 @@ class ViewTag(itemView: View) {
 
   private def setReplurkInfo(plurk: Plurk) {
 
-    replurk.setText(plurk.replurkInfo.replurkersCount.toString)
+    val isMinePlurk = plurk.ownerID == plurk.userID
 
     plurk.replurkInfo.isReplurked match {
       case true =>  replurk.setBackgroundResource(R.drawable.rounded_blue)
@@ -106,6 +106,8 @@ class ViewTag(itemView: View) {
       case false => replurk.setVisibility(View.GONE)
     }
 
+    replurk.setEnabled(!isMinePlurk)
+    replurk.setText(plurk.replurkInfo.replurkersCount.toString)
   }
 
   private def setFavoriteInfo(plurk: Plurk) {
@@ -114,6 +116,22 @@ class ViewTag(itemView: View) {
     plurk.favoriteInfo.isFavorite match {
       case true =>  favorite.setBackgroundResource(R.drawable.rounded_blue)
       case false => favorite.setBackgroundResource(R.drawable.rounded_gray)
+    }
+  }
+
+  private def setMuteInfo(plurk: Plurk) {
+    plurk.readStatus match {
+      case Some(Muted) => mute.setBackgroundResource(R.drawable.rounded_blue)
+      case _ => mute.setBackgroundResource(R.drawable.rounded_gray)
+    }
+  }
+
+  private def setCommentInfo(plurk: Plurk) {
+    commentCount.setText(plurk.responseCount.toString)
+
+    plurk.readStatus match {
+      case Some(Unread) => commentCount.setBackgroundResource(R.drawable.rounded_red)
+      case _ => commentCount.setBackgroundResource(R.drawable.rounded_gray)
     }
   }
 
@@ -129,15 +147,10 @@ class ViewTag(itemView: View) {
         qualifier.setVisibility(View.VISIBLE)
     }
 
-    commentCount.setText(plurk.responseCount.toString)
-
-    plurk.readStatus match {
-      case Some(Unread) => commentCount.setBackgroundResource(R.drawable.rounded_red)
-      case _ => commentCount.setBackgroundResource(R.drawable.rounded_blue)
-    }
-
+    setCommentInfo(plurk)
     setReplurkInfo(plurk)
     setFavoriteInfo(plurk)
+    setMuteInfo(plurk)
   }
 }
 
