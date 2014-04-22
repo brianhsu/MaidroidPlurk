@@ -3,42 +3,22 @@ package idv.brianhsu.maidroid.plurk.fragment
 import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.adapter._
 import idv.brianhsu.maidroid.plurk.util._
-import idv.brianhsu.maidroid.plurk.util.QualifierDisplay
 import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
-import idv.brianhsu.maidroid.ui.util.CallbackConversions._
+
+import org.bone.soplurk.api.PlurkAPI.Timeline
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.net.Uri
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.View
-import android.webkit.WebViewClient
-import android.webkit.WebView
-import android.view.LayoutInflater
-import android.widget.ImageView
-
-import org.bone.soplurk.api._
-import org.bone.soplurk.api.PlurkAPI.Timeline
-import org.bone.soplurk.model._
-import scala.concurrent._
-import java.net.URL
-import java.net.URLConnection
-import java.text.SimpleDateFormat
-
-import scala.util.{Try, Success}
-import android.text.Html
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
-import android.text.method.LinkMovementMethod
-import android.content.res.Resources
 import android.widget.AbsListView.OnScrollListener
 import android.widget.AbsListView
+
+import scala.concurrent._
 
 object TimelinePlurksFragment {
   trait Listener {
