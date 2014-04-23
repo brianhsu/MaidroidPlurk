@@ -43,7 +43,8 @@ proguardOptions in Android ++= Seq(
   "-dontwarn sun.reflect.Reflection",
   "-dontwarn javax.xml.bind.DatatypeConverter",
   "-dontwarn javax.inject.Named",
-  "-dontwarn org.apache.commons.codec.binary.Base64"
+  "-dontwarn org.apache.commons.codec.binary.Base64",
+  "-dontwarn akka.actor.**"
 )
  
 run <<= run in Android

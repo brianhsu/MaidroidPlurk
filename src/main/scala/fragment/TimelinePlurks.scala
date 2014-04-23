@@ -78,7 +78,6 @@ class TimelinePlurksFragment extends Fragment {
   }
 
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
-    DebugLog("===> onViewCreated")
 
     listView.setEmptyView(view.findView(TR.fragmentTimelinePlurksEmptyNotice))
     listView.addFooterView(footer)
@@ -111,7 +110,6 @@ class TimelinePlurksFragment extends Fragment {
     val actionMenu = inflater.inflate(R.menu.timeline, menu)
     this.toggleButtonHolder = Option(menu.findItem(R.id.timelineActionToggleUnreadOnly))
     this.filterButtonHolder = Option(menu.findItem(R.id.timelineActionFilter))
-    DebugLog("filterButtonHolder:" + this.filterButtonHolder)
     actionMenu
   }
 
@@ -216,7 +214,6 @@ class TimelinePlurksFragment extends Fragment {
 
   private def switchToFilter(filter: Option[Filter], isUnreadOnly: Boolean) = {
 
-    DebugLog(s"====> switchToFilter:${filter}, ${isUnreadOnly}" )
     filterButtonHolder.foreach { _.setEnabled(false) }
     toggleButtonHolder.foreach { button =>
       button.setEnabled(false)
