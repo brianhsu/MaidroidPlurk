@@ -22,6 +22,7 @@ import android.widget.AbsListView.OnScrollListener
 import android.widget.AbsListView
 import android.view.Menu
 import android.view.MenuInflater
+import android.view.MenuItem
 
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh
 import uk.co.senab.actionbarpulltorefresh.library.Options
@@ -55,6 +56,7 @@ class TimelinePlurksFragment extends Fragment {
 
   private var isLoadingMore = false
   private var adapter: PlurkAdapter = _
+  private var toggleButton: MenuItem = _
 
   override def onAttach(activity: Activity) {
     super.onAttach(activity)
@@ -105,7 +107,9 @@ class TimelinePlurksFragment extends Fragment {
   }
 
   override def onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-    inflater.inflate(R.menu.timeline, menu)
+    val actionMenu = inflater.inflate(R.menu.timeline, menu)
+    this.toggleButton = menu.findItem(R.id.timelineActionToggleUnreadOnly)
+    actionMenu
   }
 
   private def setupPullToRefresh() {
@@ -191,7 +195,6 @@ class TimelinePlurksFragment extends Fragment {
   import java.util.Date
   import org.bone.soplurk.constant.Filter
   import org.bone.soplurk.constant.Filter._
-  import android.view.MenuItem
 
   private var isUnreadOnly = false
   private var plurkFilter: Option[Filter] = None
@@ -209,7 +212,11 @@ class TimelinePlurksFragment extends Fragment {
   }
 
   private def switchToFilter(filter: Option[Filter], isUnreadOnly: Boolean) = {
+
+    toggleButton.setEnabled(false)
+    toggleButton.setTitle("讀取中……")
     activityCallback.onShowLoadingUI()
+
     this.plurkFilter = filter
     this.isUnreadOnly = isUnreadOnly
     updateListAdapter()
@@ -218,11 +225,12 @@ class TimelinePlurksFragment extends Fragment {
   }
 
   override def onOptionsItemSelected(item: MenuItem) = item.getItemId match {
-    case R.id.timeline_action_all => switchToFilter(None, this.isUnreadOnly)
-    case R.id.timeline_action_mine => switchToFilter(Some(OnlyUser), this.isUnreadOnly)
-    case R.id.timeline_action_private => switchToFilter(Some(OnlyPrivate), this.isUnreadOnly)
-    case R.id.timeline_action_responded => switchToFilter(Some(OnlyResponded), this.isUnreadOnly)
-    case R.id.timeline_action_favorite => switchToFilter(Some(OnlyFavorite), this.isUnreadOnly)
+    case R.id.timelineActionAll => switchToFilter(None, this.isUnreadOnly)
+    case R.id.timelineActionMine => switchToFilter(Some(OnlyUser), this.isUnreadOnly)
+    case R.id.timelineActionPrivate => switchToFilter(Some(OnlyPrivate), this.isUnreadOnly)
+    case R.id.timelineActionResponded => switchToFilter(Some(OnlyResponded), this.isUnreadOnly)
+    case R.id.timelineActionFavorite => switchToFilter(Some(OnlyFavorite), this.isUnreadOnly)
+    case R.id.timelineActionToggleUnreadOnly => switchToFilter(plurkFilter, !this.isUnreadOnly)
     case _ => super.onOptionsItemSelected(item)
   }
 
@@ -238,6 +246,8 @@ class TimelinePlurksFragment extends Fragment {
       adapter.appendTimeline(timeline)
       activityCallback.onHideLoadingUI()
       activityCallback.onShowTimelinePlurksSuccess(timeline)
+      toggleButton.setEnabled(true)
+      toggleButton.setTitle(if (isUnreadOnly) "未讀噗" else "所有噗")
     }
 
     plurksFuture.onFailureInUI { case e: Exception =>

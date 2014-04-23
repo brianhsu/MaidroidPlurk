@@ -5,6 +5,7 @@
 
   <item
     android:title="所有噗"
+    android:id="@+id/timelineActionToggleUnreadOnly"
     maidroid:showAsAction="always" />
 
   <item
@@ -13,19 +14,19 @@
     maidroid:showAsAction="always">
     <menu>
       <item
-        android:id="@+id/timeline_action_all"
+        android:id="@+id/timelineActionAll"
         android:title="所有的訊息" />
       <item 
-        android:id="@+id/timeline_action_mine"
+        android:id="@+id/timelineActionMine"
         android:title="我發表的訊息" />
       <item
-        android:id="@+id/timeline_action_private"
+        android:id="@+id/timelineActionPrivate"
         android:title="私人訊息" />
       <item 
-        android:id="@+id/timeline_action_responded"
+        android:id="@+id/timelineActionResponded"
         android:title="回應過的訊息" />
       <item 
-        android:id="@+id/timeline_action_favorite"
+        android:id="@+id/timelineActionFavorite"
         android:title="說讚 &amp; 轉噗的訊息" />
     </menu>
   </item>
