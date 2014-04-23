@@ -30,6 +30,8 @@ object TimelinePlurksFragment {
     def onHideLoadingUI(): Unit
     def onShowTimelinePlurksFailure(e: Exception): Unit
     def onShowTimelinePlurksSuccess(timeline: Timeline): Unit
+    def onRefreshTimelineSuccess(newTimeline: Timeline): Unit
+    def onRefreshTimelineFailure(e: Exception): Unit
   }
 }
 
@@ -97,18 +99,15 @@ class TimelinePlurksFragment extends Fragment {
 
         newTimelineFuture.onFailureInUI {
           case e: Exception => 
-            DebugLog(s"error: $e", e);
+            DebugLog(s"error: $e", e)
+            activityCallback.onRefreshTimelineFailure(e)
             pullToRefresh.setRefreshComplete()
         }
 
         newTimelineFuture.onSuccessInUI { newTimeline: Timeline => 
           adapter.prependTimeline(newTimeline)
+          activityCallback.onRefreshTimelineSuccess(newTimeline)
           pullToRefresh.setRefreshComplete()
-
-          // Show dialog message
-          if (newTimeline.plurks.isEmpty) {
-          } else {
-          }
         }
       }
     }

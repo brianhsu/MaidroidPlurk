@@ -11,7 +11,6 @@ import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.ui.model._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
-import org.bone.soplurk.api._
 import org.bone.soplurk.api.PlurkAPI.Timeline
 
 import android.support.v4.app.Fragment
@@ -133,6 +132,28 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
   override def onHideOtherUI() {
     loadingIndicator.setVisibility(View.GONE)
     fragmentLogin.setVisibility(View.GONE)
+  }
+
+  override def onRefreshTimelineFailure(e: Exception) {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Normal, "奇怪，怎麼沒辦法從噗浪拿到新的資料呢……", None) :: 
+      Message(MaidMaro.Half.Panic, s"哇啊啊，「${e}」是怎麼回事啊？", None) :: 
+      Message(MaidMaro.Half.Normal, "可不可以請主人檢查網路狀態後再重試一次？") :: Nil
+    )
+  }
+
+  override def onRefreshTimelineSuccess(newTimeline: Timeline) {
+    if (newTimeline.plurks.size > 0) {
+      dialogFrame.setMessages(
+        Message(MaidMaro.Half.Happy, s"已經幫主人把河道上最新的噗抓下來囉！總共有 ${newTimeline.plurks.size} 則新的噗喲。", None) :: 
+        Message(MaidMaro.Half.Smile, "不知道主人有沒有在河道上發現什麼新的趣事呢？") :: Nil
+      )
+    } else {
+      dialogFrame.setMessages(
+        Message(MaidMaro.Half.Normal, "對不起，現在噗浪的河道上好像沒有什麼人發新的文章呢……", None) :: 
+        Message(MaidMaro.Half.Smile, "主人要不要晚一點再試試看？") :: Nil
+      )
+    }
   }
 
   private def switchToFragment(fragment: Fragment) {
