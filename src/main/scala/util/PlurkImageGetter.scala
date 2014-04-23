@@ -14,13 +14,18 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.content.res.Resources
 import android.text.Html
+import android.util.DisplayMetrics
 
 import java.net.URL
 
 class PlurkImageGetter(activity: Activity, adapter: BaseAdapter) extends Html.ImageGetter {
 
   private implicit val implicitActivity = activity
+  private val metrics = new DisplayMetrics
   private var mPlaceHolder: Option[Bitmap] = Some(BitmapFactory.decodeResource(activity.getResources, R.drawable.placeholder))
+  private lazy val thumbnailSize = (metrics.widthPixels * 0.25).toInt
+
+  activity.getWindowManager.getDefaultDisplay.getMetrics(metrics)
 
   private def placeHolder = {
     mPlaceHolder.filterNot(_.isRecycled) match {
@@ -57,9 +62,10 @@ class PlurkImageGetter(activity: Activity, adapter: BaseAdapter) extends Html.Im
   }
 
   private def getDrawableFromNetwork(source: String) = {
+
     val urlDrawable = new URLDrawable(activity.getResources, placeHolder)
 
-    ImageCache.getBitmapFromNetwork(source).onSuccessInUI { bitmap =>
+    ImageCache.getBitmapFromNetwork(source, thumbnailSize).onSuccessInUI { bitmap =>
       urlDrawable.updateDrawable(bitmap)
       adapter.notifyDataSetChanged()
     }
