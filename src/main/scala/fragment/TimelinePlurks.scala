@@ -216,19 +216,16 @@ class TimelinePlurksFragment extends Fragment {
 
   private def switchToFilter(filter: Option[Filter], isUnreadOnly: Boolean) = {
 
+    DebugLog(s"====> switchToFilter:${filter}, ${isUnreadOnly}" )
     filterButtonHolder.foreach { _.setEnabled(false) }
     toggleButtonHolder.foreach { button =>
       button.setEnabled(false)
-      button.setTitle("讀取中……")
+      button.setActionView(R.layout.action_bar_loading)
     }
-
-
-    activityCallback.onShowLoadingUI()
 
     this.plurkFilter = filter
     this.isUnreadOnly = isUnreadOnly
-    updateListAdapter()
-    updateTimeline
+    updateTimeline(true)
     true
   }
 
@@ -242,22 +239,39 @@ class TimelinePlurksFragment extends Fragment {
     case _ => super.onOptionsItemSelected(item)
   }
 
-  def updateTimeline() {
 
-    val plurksFuture = future { getPlurks() }
+  private var adapterVersion: Int = 0
 
-    plurksFuture.onSuccess { 
-      case timeline => timeline.users.values.foreach(AvatarCache.getAvatarBitmapFromNetwork)
+  def updateTimeline(isNewFilter: Boolean = false) {
+
+    if (isNewFilter) {
+      adapterVersion += 1
     }
 
-    plurksFuture.onSuccessInUI { timeline => 
-      adapter.appendTimeline(timeline)
-      activityCallback.onHideLoadingUI()
-      activityCallback.onShowTimelinePlurksSuccess(timeline)
-      filterButtonHolder.foreach { _.setEnabled(true) }
-      toggleButtonHolder.foreach { button =>
-        button.setEnabled(true)
-        button.setTitle(if (isUnreadOnly) "未讀噗" else "所有噗")
+    val plurksFuture = future { (getPlurks(), adapterVersion) }
+
+    plurksFuture.onSuccess { case (timeline, adapterVersion) => 
+      if (adapterVersion >= this.adapterVersion) {
+        timeline.users.values.foreach(AvatarCache.getAvatarBitmapFromNetwork)
+      }
+    }
+
+    plurksFuture.onSuccessInUI { case (timeline, adapterVersion) => 
+      if (adapterVersion >= this.adapterVersion) {
+
+        if (isNewFilter) { 
+          updateListAdapter() 
+        }
+
+        adapter.appendTimeline(timeline)
+        activityCallback.onHideLoadingUI()
+        activityCallback.onShowTimelinePlurksSuccess(timeline)
+        filterButtonHolder.foreach { _.setEnabled(true) }
+        toggleButtonHolder.foreach { button =>
+          button.setEnabled(true)
+          button.setActionView(null)
+          button.setTitle(if (isUnreadOnly) "未讀噗" else "所有噗")
+        }
       }
     }
 
