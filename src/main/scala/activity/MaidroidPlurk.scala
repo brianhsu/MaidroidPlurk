@@ -134,6 +134,12 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
     fragmentLogin.setVisibility(View.GONE)
   }
 
+  override def onShowLoadingUI() {
+    loadingIndicator.setVisibility(View.VISIBLE)
+    fragmentLogin.setVisibility(View.GONE)
+    errorNoticeFragment.setVisibility(View.GONE)
+  }
+
   override def onRefreshTimelineFailure(e: Exception) {
     dialogFrame.setMessages(
       Message(MaidMaro.Half.Normal, "奇怪，怎麼沒辦法從噗浪拿到新的資料呢……", None) :: 

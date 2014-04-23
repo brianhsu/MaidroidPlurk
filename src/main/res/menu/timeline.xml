@@ -18,12 +18,15 @@
       <item 
         android:id="@+id/timeline_action_mine"
         android:title="我發表的訊息" />
+      <item
+        android:id="@+id/timeline_action_private"
+        android:title="私人訊息" />
       <item 
         android:id="@+id/timeline_action_responded"
         android:title="回應過的訊息" />
       <item 
         android:id="@+id/timeline_action_favorite"
-        android:title="說讚的訊息" />
+        android:title="說讚 &amp; 轉噗的訊息" />
     </menu>
   </item>
   <item

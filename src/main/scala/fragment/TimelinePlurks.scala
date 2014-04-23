@@ -31,6 +31,7 @@ import scala.concurrent._
 
 object TimelinePlurksFragment {
   trait Listener {
+    def onShowLoadingUI(): Unit
     def onHideLoadingUI(): Unit
     def onShowTimelinePlurksFailure(e: Exception): Unit
     def onShowTimelinePlurksSuccess(timeline: Timeline): Unit
@@ -47,13 +48,13 @@ class TimelinePlurksFragment extends Fragment {
 
   private lazy val listView = getView.findView(TR.fragmentTimelinePlurksListView)
   private lazy val pullToRefresh = getView.findView(TR.fragementTimelinePullToRefresh)
-  private lazy val adapter = new PlurkAdapter(activity)
   private lazy val footerProgress = getView.findView(TR.item_loading_footer_progress)
   private lazy val footerRetry = getView.findView(TR.item_loading_footer_retry)
   private lazy val footer = activity.getLayoutInflater.
                                      inflate(R.layout.item_loading_footer, null, false)
 
   private var isLoadingMore = false
+  private var adapter: PlurkAdapter = _
 
   override def onAttach(activity: Activity) {
     super.onAttach(activity)
@@ -77,7 +78,7 @@ class TimelinePlurksFragment extends Fragment {
 
     listView.setEmptyView(view.findView(TR.fragmentTimelinePlurksEmptyNotice))
     listView.addFooterView(footer)
-    listView.setAdapter(adapter)
+    updateListAdapter()
     listView.setOnScrollListener(new OnScrollListener() {
 
       def onScrollStateChanged(view: AbsListView, scrollState: Int) {}
@@ -188,9 +189,41 @@ class TimelinePlurksFragment extends Fragment {
   }
 
   import java.util.Date
+  import org.bone.soplurk.constant.Filter
+  import org.bone.soplurk.constant.Filter._
+  import android.view.MenuItem
 
-  def getPlurks(offset: Option[Date] = None) = {
-    plurkAPI.Timeline.getPlurks(offset = offset).get
+  private var isUnreadOnly = false
+  private var plurkFilter: Option[Filter] = None
+
+  private def getPlurks(offset: Option[Date] = None) = {
+    isUnreadOnly match {
+      case true  => plurkAPI.Timeline.getUnreadPlurks(filter = plurkFilter, offset = offset).get
+      case false => plurkAPI.Timeline.getPlurks(filter = plurkFilter, offset = offset).get
+    }
+  }
+
+  private def updateListAdapter() {
+    this.adapter = new PlurkAdapter(activity)
+    this.listView.setAdapter(adapter)
+  }
+
+  private def switchToFilter(filter: Option[Filter], isUnreadOnly: Boolean) = {
+    activityCallback.onShowLoadingUI()
+    this.plurkFilter = filter
+    this.isUnreadOnly = isUnreadOnly
+    updateListAdapter()
+    updateTimeline
+    true
+  }
+
+  override def onOptionsItemSelected(item: MenuItem) = item.getItemId match {
+    case R.id.timeline_action_all => switchToFilter(None, this.isUnreadOnly)
+    case R.id.timeline_action_mine => switchToFilter(Some(OnlyUser), this.isUnreadOnly)
+    case R.id.timeline_action_private => switchToFilter(Some(OnlyPrivate), this.isUnreadOnly)
+    case R.id.timeline_action_responded => switchToFilter(Some(OnlyResponded), this.isUnreadOnly)
+    case R.id.timeline_action_favorite => switchToFilter(Some(OnlyFavorite), this.isUnreadOnly)
+    case _ => super.onOptionsItemSelected(item)
   }
 
   def updateTimeline() {
