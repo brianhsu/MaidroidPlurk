@@ -19,6 +19,9 @@ import android.view.ViewGroup
 import android.view.View
 import android.widget.AbsListView.OnScrollListener
 import android.widget.AbsListView
+import android.view.Menu
+import android.view.MenuInflater
+
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh
 import uk.co.senab.actionbarpulltorefresh.library.Options
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener
@@ -63,6 +66,7 @@ class TimelinePlurksFragment extends Fragment {
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
                             savedInstanceState: Bundle): View = {
+    setHasOptionsMenu(true)
     inflater.inflate(R.layout.fragment_timeline_plurks, container, false)
   }
 
@@ -88,6 +92,10 @@ class TimelinePlurksFragment extends Fragment {
     setupPullToRefresh()
     updateTimeline()
 
+  }
+
+  override def onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    inflater.inflate(R.menu.timeline, menu)
   }
 
   private def setupPullToRefresh() {
