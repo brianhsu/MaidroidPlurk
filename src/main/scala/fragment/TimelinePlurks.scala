@@ -58,6 +58,7 @@ class TimelinePlurksFragment extends Fragment {
   private var adapter: PlurkAdapter = _
   private var toggleButtonHolder: Option[MenuItem] = None
   private var filterButtonHolder: Option[MenuItem] = None
+  private var filterButtonMap: Map[String, MenuItem] = Map()
 
   override def onAttach(activity: Activity) {
     super.onAttach(activity)
@@ -110,6 +111,13 @@ class TimelinePlurksFragment extends Fragment {
     val actionMenu = inflater.inflate(R.menu.timeline, menu)
     this.toggleButtonHolder = Option(menu.findItem(R.id.timelineActionToggleUnreadOnly))
     this.filterButtonHolder = Option(menu.findItem(R.id.timelineActionFilter))
+    this.filterButtonMap = Map(
+      "all" -> menu.findItem(R.id.timelineActionAll),
+      "my" -> menu.findItem(R.id.timelineActionMine),
+      "private" -> menu.findItem(R.id.timelineActionPrivate),
+      "responded" -> menu.findItem(R.id.timelineActionResponded),
+      "favorite" -> menu.findItem(R.id.timelineActionFavorite)
+    )
     actionMenu
   }
 
@@ -212,6 +220,19 @@ class TimelinePlurksFragment extends Fragment {
     this.listView.setAdapter(adapter)
   }
 
+  override def onPrepareOptionsMenu(menu: Menu) {
+    updateFilterMark()
+  }
+
+  private def updateFilterMark() {
+
+    val menuKey = plurkFilter.map(_.unreadWord).getOrElse("all")
+    val menuItem = filterButtonMap.get(menuKey)
+
+    filterButtonMap.values.foreach { menuItem => menuItem.setIcon(null) }
+    menuItem.foreach(_.setIcon(android.R.drawable.ic_menu_view))
+  }
+
   private def switchToFilter(filter: Option[Filter], isUnreadOnly: Boolean) = {
 
     filterButtonHolder.foreach { _.setEnabled(false) }
@@ -222,6 +243,8 @@ class TimelinePlurksFragment extends Fragment {
 
     this.plurkFilter = filter
     this.isUnreadOnly = isUnreadOnly
+
+    updateFilterMark()
     updateTimeline(true)
     true
   }
