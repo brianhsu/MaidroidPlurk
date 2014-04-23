@@ -2,6 +2,7 @@ package idv.brianhsu.maidroid.plurk.fragment
 
 import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.adapter._
+import idv.brianhsu.maidroid.plurk.cache._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
@@ -64,6 +65,8 @@ class TimelinePlurksFragment extends Fragment {
     listView.addFooterView(footer)
     listView.setAdapter(adapter)
     listView.setOnScrollListener(new OnScrollListener() {
+
+      def onScrollStateChanged(view: AbsListView, scrollState: Int) {}
       def onScroll(view: AbsListView, firstVisibleItem: Int, 
                    visibleItemCount: Int, totalItemCount: Int) {
 
@@ -73,8 +76,6 @@ class TimelinePlurksFragment extends Fragment {
           loadingMoreItem
         }
       }
-
-      def onScrollStateChanged(view: AbsListView, scrollState: Int) { }
 
     })
     updateTimeline()
@@ -104,6 +105,10 @@ class TimelinePlurksFragment extends Fragment {
 
     val plurksFuture = future { 
       plurkAPI.Timeline.getPlurks().get 
+    }
+
+    plurksFuture.onSuccess { 
+      case timeline => timeline.users.values.foreach(AvatarCache.getAvatarBitmapFromNetwork)
     }
 
     plurksFuture.onSuccessInUI { timeline => 
