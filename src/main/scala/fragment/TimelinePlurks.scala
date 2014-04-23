@@ -8,6 +8,7 @@ import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
 import org.bone.soplurk.api.PlurkAPI.Timeline
+import org.bone.soplurk.model.Plurk
 
 import android.app.Activity
 import android.content.Context
@@ -18,6 +19,9 @@ import android.view.ViewGroup
 import android.view.View
 import android.widget.AbsListView.OnScrollListener
 import android.widget.AbsListView
+import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh
+import uk.co.senab.actionbarpulltorefresh.library.Options
+import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener
 
 import scala.concurrent._
 
@@ -36,6 +40,7 @@ class TimelinePlurksFragment extends Fragment {
   private def plurkAPI = PlurkAPIHelper.getPlurkAPI
 
   private lazy val listView = getView.findView(TR.fragmentTimelinePlurksListView)
+  private lazy val pullToRefresh = getView.findView(TR.fragementTimelinePullToRefresh)
   private lazy val adapter = new PlurkAdapter(activity)
   private lazy val footer = activity.getLayoutInflater.
                                      inflate(R.layout.item_loading_footer, null, false)
@@ -76,12 +81,45 @@ class TimelinePlurksFragment extends Fragment {
           loadingMoreItem
         }
       }
-
     })
+
+    setupPullToRefresh()
     updateTimeline()
+
   }
 
-  def loadingMoreItem() {
+  private def setupPullToRefresh() {
+    val options = Options.create.refreshOnUp(true).scrollDistance(0.3f).noMinimize().build()
+    val onRefresh = new OnRefreshListener() {
+      override def onRefreshStarted(view: View) {
+
+        val newTimelineFuture = future { refreshTimeline(adapter.firstPlurkShow) }
+
+        newTimelineFuture.onFailureInUI {
+          case e: Exception => 
+            DebugLog(s"error: $e", e);
+            pullToRefresh.setRefreshComplete()
+        }
+
+        newTimelineFuture.onSuccessInUI { newTimeline: Timeline => 
+          adapter.prependTimeline(newTimeline)
+          pullToRefresh.setRefreshComplete()
+
+          // Show dialog message
+          if (newTimeline.plurks.isEmpty) {
+          } else {
+          }
+        }
+      }
+    }
+
+    ActionBarPullToRefresh.
+      from(activity).options(options).
+      allChildrenArePullable.listener(onRefresh).
+      setup(pullToRefresh)
+  }
+
+  private def loadingMoreItem() {
     this.isLoadingMore = true
 
     val olderTimelineFuture = future {
@@ -99,6 +137,28 @@ class TimelinePlurksFragment extends Fragment {
       this.isLoadingMore = false
     }
 
+  }
+
+  
+  private def refreshTimeline(latestPlurkShown: Option[Plurk]) = {
+
+    var newTimeline = plurkAPI.Timeline.getPlurks().get
+    var newPlurks = newTimeline.plurks
+    var newUsers = newTimeline.users
+    val latestTimestamp: Option[Long] = latestPlurkShown.map(_.posted.getTime)
+    def isOlderEnough = newPlurks.lastOption.map(_.posted.getTime <= (latestTimestamp getOrElse Long.MaxValue)).getOrElse(false)
+
+    while (!isOlderEnough && !newTimeline.plurks.isEmpty) {
+      newTimeline = plurkAPI.Timeline.getPlurks(offset = Some(newPlurks.last.posted)).get
+      newPlurks ++= newTimeline.plurks
+      newUsers ++= newTimeline.users
+    }
+
+    import org.bone.soplurk.api.PlurkAPI.Timeline
+    new Timeline(
+      newUsers,
+      newPlurks.takeWhile(_.posted.getTime > latestTimestamp.getOrElse(0L))
+    )
   }
 
   def updateTimeline() {
@@ -121,6 +181,5 @@ class TimelinePlurksFragment extends Fragment {
       activityCallback.onShowTimelinePlurksFailure(e)
     }
   }
-
 }
 

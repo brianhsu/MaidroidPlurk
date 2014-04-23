@@ -31,6 +31,8 @@ class PlurkAdapter(activity: Activity) extends BaseAdapter {
   def getItem(position: Int) = plurks(position)
   def getItemId(position: Int) = plurks(position).plurkID
   
+  def firstPlurkShow = plurks.headOption
+
   def getView(position: Int, convertView: View, parent: ViewGroup): View = {
 
     val itemView = convertView match {
@@ -41,6 +43,13 @@ class PlurkAdapter(activity: Activity) extends BaseAdapter {
     val plurk = plurks(position)
     val onwer = users(plurk.ownerID)
     itemView.update(plurk, onwer, textViewImageGetter)
+  }
+
+  def prependTimeline(newPlurks: Timeline) {
+    val newUsers = newPlurks.users.filterKeys(userID => !(users.keySet contains userID))
+    plurks ++:= newPlurks.plurks
+    users ++= newUsers
+    notifyDataSetChanged
   }
 
   def appendTimeline(timeline: Timeline) {

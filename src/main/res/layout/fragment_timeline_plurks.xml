@@ -6,10 +6,15 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent">
 
-  <ListView 
-    android:id="@+id/fragmentTimelinePlurksListView"
+  <uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout
+    android:id="@+id/fragementTimelinePullToRefresh"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" />
+    android:layout_height="match_parent">
+    <ListView 
+      android:id="@+id/fragmentTimelinePlurksListView"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent" />
+  </uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout>
 
   <LinearLayout 
     android:id="@+id/fragmentTimelinePlurksEmptyNotice"
