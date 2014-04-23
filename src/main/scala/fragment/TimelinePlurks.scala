@@ -56,7 +56,8 @@ class TimelinePlurksFragment extends Fragment {
 
   private var isLoadingMore = false
   private var adapter: PlurkAdapter = _
-  private var toggleButton: MenuItem = _
+  private var toggleButtonHolder: Option[MenuItem] = None
+  private var filterButtonHolder: Option[MenuItem] = None
 
   override def onAttach(activity: Activity) {
     super.onAttach(activity)
@@ -77,6 +78,7 @@ class TimelinePlurksFragment extends Fragment {
   }
 
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
+    DebugLog("===> onViewCreated")
 
     listView.setEmptyView(view.findView(TR.fragmentTimelinePlurksEmptyNotice))
     listView.addFooterView(footer)
@@ -103,12 +105,13 @@ class TimelinePlurksFragment extends Fragment {
 
     setupPullToRefresh()
     updateTimeline()
-
   }
 
   override def onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
     val actionMenu = inflater.inflate(R.menu.timeline, menu)
-    this.toggleButton = menu.findItem(R.id.timelineActionToggleUnreadOnly)
+    this.toggleButtonHolder = Option(menu.findItem(R.id.timelineActionToggleUnreadOnly))
+    this.filterButtonHolder = Option(menu.findItem(R.id.timelineActionFilter))
+    DebugLog("filterButtonHolder:" + this.filterButtonHolder)
     actionMenu
   }
 
@@ -213,8 +216,13 @@ class TimelinePlurksFragment extends Fragment {
 
   private def switchToFilter(filter: Option[Filter], isUnreadOnly: Boolean) = {
 
-    toggleButton.setEnabled(false)
-    toggleButton.setTitle("讀取中……")
+    filterButtonHolder.foreach { _.setEnabled(false) }
+    toggleButtonHolder.foreach { button =>
+      button.setEnabled(false)
+      button.setTitle("讀取中……")
+    }
+
+
     activityCallback.onShowLoadingUI()
 
     this.plurkFilter = filter
@@ -246,8 +254,11 @@ class TimelinePlurksFragment extends Fragment {
       adapter.appendTimeline(timeline)
       activityCallback.onHideLoadingUI()
       activityCallback.onShowTimelinePlurksSuccess(timeline)
-      toggleButton.setEnabled(true)
-      toggleButton.setTitle(if (isUnreadOnly) "未讀噗" else "所有噗")
+      filterButtonHolder.foreach { _.setEnabled(true) }
+      toggleButtonHolder.foreach { button =>
+        button.setEnabled(true)
+        button.setTitle(if (isUnreadOnly) "未讀噗" else "所有噗")
+      }
     }
 
     plurksFuture.onFailureInUI { case e: Exception =>

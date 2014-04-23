@@ -10,6 +10,7 @@
 
   <item
     android:icon="@drawable/ic_action_labels"
+    android:id="@+id/timelineActionFilter"
     android:title="Filter"
     maidroid:showAsAction="always">
     <menu>
