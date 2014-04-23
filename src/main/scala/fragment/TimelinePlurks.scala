@@ -6,6 +6,7 @@ import idv.brianhsu.maidroid.plurk.cache._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
+import idv.brianhsu.maidroid.ui.util.CallbackConversions._
 
 import org.bone.soplurk.api.PlurkAPI.Timeline
 import org.bone.soplurk.model.Plurk
@@ -47,10 +48,12 @@ class TimelinePlurksFragment extends Fragment {
   private lazy val listView = getView.findView(TR.fragmentTimelinePlurksListView)
   private lazy val pullToRefresh = getView.findView(TR.fragementTimelinePullToRefresh)
   private lazy val adapter = new PlurkAdapter(activity)
+  private lazy val footerProgress = getView.findView(TR.item_loading_footer_progress)
+  private lazy val footerRetry = getView.findView(TR.item_loading_footer_retry)
   private lazy val footer = activity.getLayoutInflater.
                                      inflate(R.layout.item_loading_footer, null, false)
 
-  private var isLoadingMore: Boolean = false
+  private var isLoadingMore = false
 
   override def onAttach(activity: Activity) {
     super.onAttach(activity)
@@ -83,11 +86,17 @@ class TimelinePlurksFragment extends Fragment {
 
         val isLastItem = (firstVisibleItem + visibleItemCount) == totalItemCount
         val shouldLoadingMore = isLastItem && !isLoadingMore
+
         if (shouldLoadingMore) {
+          footerRetry.setEnabled(false)
+          footerRetry.setVisibility(View.GONE)
+          footerProgress.setVisibility(View.VISIBLE)
           loadingMoreItem
         }
       }
     })
+
+    footerRetry.setOnClickListener { view: View => loadingMoreItem() }
 
     setupPullToRefresh()
     updateTimeline()
@@ -129,12 +138,15 @@ class TimelinePlurksFragment extends Fragment {
   private def loadingMoreItem() {
     this.isLoadingMore = true
 
-    val olderTimelineFuture = future {
-      plurkAPI.Timeline.getPlurks(offset = Some(adapter.lastPlurkDate)).get
-    }
+    footerProgress.setVisibility(View.VISIBLE)
+
+    val olderTimelineFuture = future { getPlurks(offset = Some(adapter.lastPlurkDate)) }
 
     olderTimelineFuture.onSuccessInUI { timeline => 
       adapter.appendTimeline(timeline)
+
+      footerRetry.setVisibility(View.GONE)
+      footerRetry.setEnabled(true)
 
       timeline.plurks.isEmpty match {
         case true   => footer.setVisibility(View.GONE)
@@ -144,19 +156,26 @@ class TimelinePlurksFragment extends Fragment {
       this.isLoadingMore = false
     }
 
+    olderTimelineFuture.onFailureInUI { case e: Exception => 
+      footerProgress.setVisibility(View.GONE)
+      footerRetry.setVisibility(View.VISIBLE)
+      footerRetry.setEnabled(true)
+      this.isLoadingMore = true
+    }
+
   }
 
   
   private def refreshTimeline(latestPlurkShown: Option[Plurk]) = {
 
-    var newTimeline = plurkAPI.Timeline.getPlurks().get
+    var newTimeline = getPlurks()
     var newPlurks = newTimeline.plurks
     var newUsers = newTimeline.users
     val latestTimestamp: Option[Long] = latestPlurkShown.map(_.posted.getTime)
     def isOlderEnough = newPlurks.lastOption.map(_.posted.getTime <= (latestTimestamp getOrElse Long.MaxValue)).getOrElse(false)
 
     while (!isOlderEnough && !newTimeline.plurks.isEmpty) {
-      newTimeline = plurkAPI.Timeline.getPlurks(offset = Some(newPlurks.last.posted)).get
+      newTimeline = getPlurks(offset = Some(newPlurks.last.posted))
       newPlurks ++= newTimeline.plurks
       newUsers ++= newTimeline.users
     }
@@ -168,11 +187,15 @@ class TimelinePlurksFragment extends Fragment {
     )
   }
 
+  import java.util.Date
+
+  def getPlurks(offset: Option[Date] = None) = {
+    plurkAPI.Timeline.getPlurks(offset = offset).get
+  }
+
   def updateTimeline() {
 
-    val plurksFuture = future { 
-      plurkAPI.Timeline.getPlurks().get 
-    }
+    val plurksFuture = future { getPlurks() }
 
     plurksFuture.onSuccess { 
       case timeline => timeline.users.values.foreach(AvatarCache.getAvatarBitmapFromNetwork)
