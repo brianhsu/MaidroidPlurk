@@ -1,6 +1,7 @@
 package idv.brianhsu.maidroid.plurk.adapter
 
 import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.view.ResponseView
@@ -25,9 +26,11 @@ import org.bone.soplurk.model._
 
 import java.net.URL
 
-class ResponseAdapter(activity: Activity, plurk: Plurk, owner: User, responses: Vector[Response], friends: Map[Long, User]) extends BaseAdapter {
+class ResponseAdapter(activity: Activity, plurk: Plurk, owner: User) extends BaseAdapter {
 
   private implicit val mActivity = activity
+  private var responses: Vector[Response] = Vector.empty
+  private var friends: Map[Long, User] = Map.empty
   private val textViewImageGetter = new PlurkImageGetter(activity, this)
 
   def getCount = responses.size + 2
@@ -68,12 +71,17 @@ class ResponseAdapter(activity: Activity, plurk: Plurk, owner: User, responses: 
   }
 
   def getHeaderView(convertView: View, parent: ViewGroup): View = {
-    convertView match {
-      case view: TextView => view
-      case _ => 
-        val infalter = activity.getLayoutInflater
-        infalter.inflate(R.layout.item_header_response, parent, false)
+    val infalter = activity.getLayoutInflater
+    val view = infalter.inflate(R.layout.item_header_response, parent, false)
+    val loadingIndicator = view.findView(TR.itemHeaderResponseLoadingIndicator)
+
+    if (responses.isEmpty) {
+      loadingIndicator.setVisibility(View.VISIBLE)
+    } else {
+      loadingIndicator.setVisibility(View.GONE)
     }
+
+    view
   }
   
   def getView(position: Int, convertView: View, parent: ViewGroup): View = {
@@ -83,6 +91,12 @@ class ResponseAdapter(activity: Activity, plurk: Plurk, owner: User, responses: 
       case 1 => getHeaderView(convertView, parent)
       case n => getResponseView(responses(n-2), convertView)
     }
+  }
+
+  def update(responses: List[Response], friends: Map[Long, User]) {
+    this.responses = responses.toVector
+    this.friends = friends
+    notifyDataSetChanged()
   }
 }
 

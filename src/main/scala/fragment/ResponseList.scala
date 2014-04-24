@@ -33,6 +33,7 @@ class ResponseList(plurk: Plurk, owner: User) extends Fragment with PlurkAdapter
   private implicit def activity = getActivity
 
   private def plurkAPI = PlurkAPIHelper.getPlurkAPI
+  private lazy val adapter = new ResponseAdapter(activity, plurk, owner)
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
                             savedInstanceState: Bundle): View = {
@@ -49,15 +50,14 @@ class ResponseList(plurk: Plurk, owner: User) extends Fragment with PlurkAdapter
     val list = containerView.findView(TR.fragmentResponseList)
     val emptyView = containerView.findView(TR.fragmentResponseEmptyNotice)
     list.setEmptyView(emptyView)
+    list.setAdapter(adapter)
   }
 
   private def loadResponses() {
 
     val responses = future { plurkAPI.Responses.get(plurk.plurkID).get }
     responses.onSuccessInUI { response =>
-      val adapter = new ResponseAdapter(activity, plurk, owner, response.responses.toVector, response.friends)
-      val listView = getView.findView(TR.fragmentResponseList)
-      listView.setAdapter(adapter)
+      adapter.update(response.responses, response.friends)
     }
   }
 }
