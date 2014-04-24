@@ -32,14 +32,42 @@ class ResponseList(plurk: Plurk, owner: User) extends Fragment with PlurkAdapter
 
   private implicit def activity = getActivity
 
+  private def plurkAPI = PlurkAPIHelper.getPlurkAPI
+
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
                             savedInstanceState: Bundle): View = {
     val view = inflater.inflate(R.layout.fragment_response, container, false)
-    val originPlurkList = view.findView(TR.fragmentResponseOriginPlurk)
+    setupOriginPlurkView(view)
+    setupResponseListView(view)
+    view
+  }
+
+  override def onViewCreated(view: View, savedInstanceState: Bundle) {
+    getResponses()
+  }
+
+  private def setupResponseListView(containerView: View) {
+    val list = containerView.findView(TR.fragmentResponseList)
+    val emptyView = containerView.findView(TR.fragmentResponseEmptyNotice)
+    list.setEmptyView(emptyView)
+  }
+
+  private def setupOriginPlurkView(containerView: View) {
+    val originPlurkList = containerView.findView(TR.fragmentResponseOriginPlurk)
     val adapter = new PlurkAdapter(activity, true)
     originPlurkList.setAdapter(adapter)
     adapter.addOnlyOnePlurk(owner, plurk)
-    view
+  }
+
+  private def getResponses() {
+
+    val responses = future { plurkAPI.Responses.get(plurk.plurkID).get }
+    responses.onSuccessInUI { t =>
+      DebugLog("====> responses")
+      DebugLog("  ====> seen:" + t.seen)
+      DebugLog("  ====> friends:" + t.friends)
+      DebugLog("  ====> responses:" + t.responses)
+    }
   }
 }
 
