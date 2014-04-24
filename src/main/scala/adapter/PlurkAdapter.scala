@@ -1,6 +1,7 @@
 package idv.brianhsu.maidroid.plurk.adapter
 
 import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.view.PlurkView
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
@@ -21,7 +22,7 @@ import org.bone.soplurk.model._
 
 import java.net.URL
 
-class PlurkAdapter(activity: Activity) extends BaseAdapter {
+class PlurkAdapter(activity: Activity with TimelinePlurksFragment.Listener) extends BaseAdapter {
   private implicit val mActivity = activity
   private var plurks: Vector[Plurk] = Vector.empty
   private var users: Map[Long, User] = Map.empty

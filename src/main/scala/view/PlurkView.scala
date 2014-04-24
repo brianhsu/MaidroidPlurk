@@ -1,6 +1,7 @@
 package idv.brianhsu.maidroid.plurk.view
 
 import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.plurk.cache._
 import idv.brianhsu.maidroid.plurk.util._
@@ -48,7 +49,7 @@ object PlurkView {
   def getPlurkMutedStatus(plurkID: Long) = plurkMutedStatus.get(plurkID)
 }
 
-class PlurkView(implicit val activity: Activity) extends LinearLayout(activity) {
+class PlurkView(implicit val activity: Activity with TimelinePlurksFragment.Listener) extends LinearLayout(activity) {
 
   private val inflater = activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE).
                                   asInstanceOf[LayoutInflater]
@@ -254,6 +255,11 @@ class PlurkView(implicit val activity: Activity) extends LinearLayout(activity) 
       case Some(Unread) => commentCount.setBackgroundResource(R.drawable.rounded_red)
       case _ => commentCount.setBackgroundResource(R.drawable.rounded_gray)
     }
+
+    commentCount.setOnClickListener { view: View =>
+      activity.onPlurkSelected(plurk)
+    }
+
   }
 
   def update(plurk: Plurk, owner: User, imageGetter: PlurkImageGetter): View = {

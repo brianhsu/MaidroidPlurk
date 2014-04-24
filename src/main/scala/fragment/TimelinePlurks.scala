@@ -38,6 +38,7 @@ import scala.concurrent._
 
 object TimelinePlurksFragment {
   trait Listener {
+    def onPlurkSelected(plurk: Plurk): Unit
     def onShowLoadingUI(): Unit
     def onHideLoadingUI(): Unit
     def onShowTimelinePlurksFailure(e: Exception): Unit
@@ -217,7 +218,7 @@ class TimelinePlurksFragment extends Fragment {
   }
 
   private def updateListAdapter() {
-    this.adapter = new PlurkAdapter(activity)
+    this.adapter = new PlurkAdapter(activity.asInstanceOf[Activity with TimelinePlurksFragment.Listener])
     this.listView.setAdapter(adapter)
   }
 

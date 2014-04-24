@@ -12,6 +12,7 @@ import idv.brianhsu.maidroid.ui.model._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
 import org.bone.soplurk.api.PlurkAPI.Timeline
+import org.bone.soplurk.model.Plurk
 import org.bone.soplurk.constant.Filter
 import org.bone.soplurk.constant.Filter._
 
@@ -22,7 +23,8 @@ import scala.concurrent._
 import scala.util.Try
 
 class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
-                    with ErrorNotice.Listener with Login.Listener with TimelinePlurksFragment.Listener
+                    with ErrorNotice.Listener with Login.Listener 
+                    with TimelinePlurksFragment.Listener
 {
   implicit val activity = this
 
@@ -56,6 +58,12 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
       Message(MaidMaro.Half.Normal, s"對了，系統說這個錯誤是：「${error.getMessage}」造成的說") :: Nil
     )
 
+  }
+
+  def onPlurkSelected(plurk: Plurk) {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Normal, s"Selected ${plurk}", None) :: Nil
+    )
   }
 
   def onLoginFailure(error: Exception) {
