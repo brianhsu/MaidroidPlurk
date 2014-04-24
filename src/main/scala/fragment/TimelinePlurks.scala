@@ -11,6 +11,8 @@ import org.bone.soplurk.api.PlurkAPI.Timeline
 
 import org.bone.soplurk.api.PlurkAPI.Timeline
 import org.bone.soplurk.model.Plurk
+import org.bone.soplurk.model.User
+
 import java.util.Date
 import org.bone.soplurk.constant.Filter
 import org.bone.soplurk.constant.Filter._
@@ -38,7 +40,7 @@ import scala.concurrent._
 
 object TimelinePlurksFragment {
   trait Listener {
-    def onPlurkSelected(plurk: Plurk): Unit
+    def onPlurkSelected(plurk: Plurk, owner: User): Unit
     def onShowLoadingUI(): Unit
     def onHideLoadingUI(): Unit
     def onShowTimelinePlurksFailure(e: Exception): Unit

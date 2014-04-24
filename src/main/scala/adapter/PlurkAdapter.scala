@@ -42,8 +42,11 @@ class PlurkAdapter(activity: Activity with TimelinePlurksFragment.Listener) exte
     }
 
     val plurk = plurks(position)
-    val onwer = users(plurk.ownerID)
-    itemView.update(plurk, onwer, textViewImageGetter)
+    val owner = users(plurk.ownerID)
+
+    itemView.update(plurk, owner, textViewImageGetter)
+    itemView.setOnCommentCountClickListener { activity.onPlurkSelected(plurk, owner) }
+    itemView
   }
 
   def prependTimeline(newPlurks: Timeline) {

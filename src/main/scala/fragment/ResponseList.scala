@@ -1,8 +1,9 @@
 package idv.brianhsu.maidroid.plurk.fragment
 
 import idv.brianhsu.maidroid.plurk._
-import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.TypedResource._
+import idv.brianhsu.maidroid.plurk.util._
+import idv.brianhsu.maidroid.plurk.view._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
 import android.app.Activity
@@ -16,20 +17,27 @@ import android.webkit.WebViewClient
 import android.webkit.WebView
 
 import org.bone.soplurk.api._
+import org.bone.soplurk.model._
+
 import scala.concurrent._
 
-object Response {
+object ResponseList {
+
   trait Listener {
   }
 }
 
-class Response extends Fragment {
+class ResponseList(plurk: Plurk, user: User) extends Fragment {
 
   private implicit def activity = getActivity
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
                             savedInstanceState: Bundle): View = {
-    inflater.inflate(R.layout.fragment_response, container, false)
+    val view = inflater.inflate(R.layout.fragment_response, container, false)
+    val originPlurkFrame = view.findView(TR.fragmentResponseOriginPlurk)
+    val originPlurk = new PlurkView(false)
+    originPlurkFrame.addView(originPlurk)
+    view
   }
 }
 

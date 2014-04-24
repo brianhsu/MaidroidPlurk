@@ -2,6 +2,8 @@ package idv.brianhsu.maidroid.plurk.activity
 
 import android.app.Activity
 import android.os.Bundle
+import android.content.Intent
+
 import android.view.View
 import android.support.v7.app.ActionBarActivity
 
@@ -13,6 +15,7 @@ import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
 import org.bone.soplurk.api.PlurkAPI.Timeline
 import org.bone.soplurk.model.Plurk
+import org.bone.soplurk.model.User
 import org.bone.soplurk.constant.Filter
 import org.bone.soplurk.constant.Filter._
 
@@ -60,14 +63,12 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
 
   }
 
-  def onPlurkSelected(plurk: Plurk) {
-
-    val t = new Response
-    switchToFragment(t, true)
-
-    dialogFrame.setMessages(
-      Message(MaidMaro.Half.Normal, s"Selected ${plurk}", None) :: Nil
-    )
+  def onPlurkSelected(plurk: Plurk, user: User) {
+    val intent = new Intent(this, classOf[PlurkResponse])
+    PlurkResponse.plurk = plurk
+    PlurkResponse.user = user
+    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+    startActivity(intent)
   }
 
   def onLoginFailure(error: Exception) {
@@ -192,12 +193,10 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
   private def switchToFragment(fragment: Fragment, addToBackStack: Boolean = false) {
 
     val transaction = getSupportFragmentManager.beginTransaction
+    transaction.replace(R.id.activityMaidroidPlurkFragmentContainer, fragment)
 
     if (addToBackStack) {
-      transaction.replace(R.id.activityMaidroidPlurkFragmentContainer, fragment)
       transaction.addToBackStack(null)
-    } else {
-      transaction.replace(R.id.activityMaidroidPlurkFragmentContainer, fragment)
     }
 
     transaction.commit()

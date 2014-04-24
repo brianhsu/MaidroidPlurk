@@ -49,7 +49,8 @@ object PlurkView {
   def getPlurkMutedStatus(plurkID: Long) = plurkMutedStatus.get(plurkID)
 }
 
-class PlurkView(implicit val activity: Activity with TimelinePlurksFragment.Listener) extends LinearLayout(activity) {
+class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activity)
+                extends LinearLayout(activity) {
 
   private val inflater = activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE).
                                   asInstanceOf[LayoutInflater]
@@ -68,7 +69,8 @@ class PlurkView(implicit val activity: Activity with TimelinePlurksFragment.List
   lazy val mute = this.findView(TR.itemPlurkMute)
   lazy val favorite = this.findView(TR.itemPlurkFavorite)
 
-  private var onwerID: Long = 0
+  private var ownerID: Long = 0
+  private var owner: User = _
   private def plurkAPI = PlurkAPIHelper.getPlurkAPI
 
   private def initView() {
@@ -256,14 +258,15 @@ class PlurkView(implicit val activity: Activity with TimelinePlurksFragment.List
       case _ => commentCount.setBackgroundResource(R.drawable.rounded_gray)
     }
 
-    commentCount.setOnClickListener { view: View =>
-      activity.onPlurkSelected(plurk)
+    if (isInResponseList) {
+      commentCount.setVisibility(View.GONE)
     }
 
   }
 
   def update(plurk: Plurk, owner: User, imageGetter: PlurkImageGetter): View = {
-    this.onwerID = owner.id
+    this.ownerID = owner.id
+    this.owner = owner
     content.setText(Html.fromHtml(plurk.content, imageGetter, null))
     postedDate.setText(dateTimeFormatter.format(plurk.posted))
     displayName.setText(owner.displayName)
@@ -297,10 +300,14 @@ class PlurkView(implicit val activity: Activity with TimelinePlurksFragment.List
     avatarFuture.onSuccessInUI { case(userID, bitmap) =>
       // Prevent race condition that cause display incorrect avatar for
       // recylced row view.
-      if (userID == onwerID) {
+      if (userID == ownerID) {
         avatar.setImageBitmap(bitmap)
       }
     }
+  }
+
+  def setOnCommentCountClickListener(callback: => Any) {
+    commentCount.setOnClickListener { view: View => callback }
   }
 }
 
