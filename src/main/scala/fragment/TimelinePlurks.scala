@@ -221,7 +221,7 @@ class TimelinePlurksFragment extends Fragment {
   }
 
   private def updateListAdapter() {
-    this.adapter = new PlurkAdapter(activity.asInstanceOf[Activity with TimelinePlurksFragment.Listener])
+    this.adapter = new PlurkAdapter(activity, false, Some(activityCallback.onPlurkSelected _))
     this.listView.setAdapter(adapter)
   }
 

@@ -10,6 +10,7 @@ import android.support.v7.app.ActionBarActivity
 import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.util._
+import idv.brianhsu.maidroid.plurk.adapter._
 import idv.brianhsu.maidroid.ui.model._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
@@ -27,7 +28,7 @@ import scala.util.Try
 
 class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
                     with ErrorNotice.Listener with Login.Listener 
-                    with TimelinePlurksFragment.Listener
+                    with TimelinePlurksFragment.Listener with PlurkAdapter.Listener
 {
   implicit val activity = this
 
@@ -63,7 +64,7 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
 
   }
 
-  def onPlurkSelected(plurk: Plurk, user: User) {
+  override def onPlurkSelected(plurk: Plurk, user: User) {
     val intent = new Intent(this, classOf[PlurkResponse])
     PlurkResponse.plurk = plurk
     PlurkResponse.user = user

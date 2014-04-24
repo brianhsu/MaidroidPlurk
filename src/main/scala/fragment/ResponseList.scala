@@ -2,6 +2,7 @@ package idv.brianhsu.maidroid.plurk.fragment
 
 import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.TypedResource._
+import idv.brianhsu.maidroid.plurk.adapter._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.view._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
@@ -27,16 +28,17 @@ object ResponseList {
   }
 }
 
-class ResponseList(plurk: Plurk, user: User) extends Fragment {
+class ResponseList(plurk: Plurk, owner: User) extends Fragment with PlurkAdapter.Listener {
 
   private implicit def activity = getActivity
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
                             savedInstanceState: Bundle): View = {
     val view = inflater.inflate(R.layout.fragment_response, container, false)
-    val originPlurkFrame = view.findView(TR.fragmentResponseOriginPlurk)
-    val originPlurk = new PlurkView(false)
-    originPlurkFrame.addView(originPlurk)
+    val originPlurkList = view.findView(TR.fragmentResponseOriginPlurk)
+    val adapter = new PlurkAdapter(activity, true)
+    originPlurkList.setAdapter(adapter)
+    adapter.addOnlyOnePlurk(owner, plurk)
     view
   }
 }

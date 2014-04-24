@@ -22,7 +22,14 @@ import org.bone.soplurk.model._
 
 import java.net.URL
 
-class PlurkAdapter(activity: Activity with TimelinePlurksFragment.Listener) extends BaseAdapter {
+object PlurkAdapter {
+  trait Listener {
+    def onPlurkSelected(plurk: Plurk, user: User) {}
+  }
+  type OnSelectedCallback = (Plurk, User) => Unit
+}
+
+class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false, callbackHolder: Option[PlurkAdapter.OnSelectedCallback] = None) extends BaseAdapter {
   private implicit val mActivity = activity
   private var plurks: Vector[Plurk] = Vector.empty
   private var users: Map[Long, User] = Map.empty
@@ -38,14 +45,17 @@ class PlurkAdapter(activity: Activity with TimelinePlurksFragment.Listener) exte
 
     val itemView = convertView match {
       case view: PlurkView => view
-      case _ => new PlurkView
+      case _ => new PlurkView(isInResponseList)
     }
 
     val plurk = plurks(position)
     val owner = users(plurk.ownerID)
 
     itemView.update(plurk, owner, textViewImageGetter)
-    itemView.setOnCommentCountClickListener { activity.onPlurkSelected(plurk, owner) }
+
+    callbackHolder.foreach { callback =>
+      itemView.setOnCommentCountClickListener { callback(plurk, owner) }
+    }
     itemView
   }
 
@@ -61,6 +71,11 @@ class PlurkAdapter(activity: Activity with TimelinePlurksFragment.Listener) exte
     plurks ++= timeline.plurks
     users ++= newUsers
     notifyDataSetChanged
+  }
+
+  def addOnlyOnePlurk(user: User, plurk: Plurk) {
+    plurks = Vector(plurk)
+    users = Map(user.id -> user)
   }
 
   def lastPlurkDate = plurks.last.posted
