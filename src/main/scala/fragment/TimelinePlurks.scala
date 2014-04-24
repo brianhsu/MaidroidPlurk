@@ -7,9 +7,14 @@ import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 import idv.brianhsu.maidroid.ui.util.CallbackConversions._
+import org.bone.soplurk.api.PlurkAPI.Timeline
 
 import org.bone.soplurk.api.PlurkAPI.Timeline
 import org.bone.soplurk.model.Plurk
+import java.util.Date
+import org.bone.soplurk.constant.Filter
+import org.bone.soplurk.constant.Filter._
+
 
 import android.app.Activity
 import android.content.Context
@@ -36,7 +41,7 @@ object TimelinePlurksFragment {
     def onShowLoadingUI(): Unit
     def onHideLoadingUI(): Unit
     def onShowTimelinePlurksFailure(e: Exception): Unit
-    def onShowTimelinePlurksSuccess(timeline: Timeline): Unit
+    def onShowTimelinePlurksSuccess(timeline: Timeline, isNewFilter: Boolean, filter: Option[Filter], isOnlyUnread: Boolean): Unit
     def onRefreshTimelineSuccess(newTimeline: Timeline): Unit
     def onRefreshTimelineFailure(e: Exception): Unit
   }
@@ -60,6 +65,9 @@ class TimelinePlurksFragment extends Fragment {
   private var toggleButtonHolder: Option[MenuItem] = None
   private var filterButtonHolder: Option[MenuItem] = None
   private var filterButtonMap: Map[String, MenuItem] = Map()
+
+  private var isUnreadOnly = false
+  private var plurkFilter: Option[Filter] = None
 
   override def onAttach(activity: Activity) {
     super.onAttach(activity)
@@ -195,19 +203,11 @@ class TimelinePlurksFragment extends Fragment {
       newUsers ++= newTimeline.users
     }
 
-    import org.bone.soplurk.api.PlurkAPI.Timeline
     new Timeline(
       newUsers,
       newPlurks.takeWhile(_.posted.getTime > latestTimestamp.getOrElse(0L))
     )
   }
-
-  import java.util.Date
-  import org.bone.soplurk.constant.Filter
-  import org.bone.soplurk.constant.Filter._
-
-  private var isUnreadOnly = false
-  private var plurkFilter: Option[Filter] = None
 
   private def getPlurks(offset: Option[Date] = None) = {
     isUnreadOnly match {
@@ -286,7 +286,7 @@ class TimelinePlurksFragment extends Fragment {
 
         adapter.appendTimeline(timeline)
         activityCallback.onHideLoadingUI()
-        activityCallback.onShowTimelinePlurksSuccess(timeline)
+        activityCallback.onShowTimelinePlurksSuccess(timeline, isNewFilter, plurkFilter, isUnreadOnly)
         filterButtonHolder.foreach { _.setEnabled(true) }
         toggleButtonHolder.foreach { button =>
           button.setEnabled(true)
