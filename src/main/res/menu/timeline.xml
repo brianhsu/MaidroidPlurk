@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu 
+  xmlns:android="http://schemas.android.com/apk/res/android" 
+  xmlns:maidroid="http://schemas.android.com/apk/res-auto">
+
+  <item
+    android:title="所有噗"
+    android:id="@+id/timelineActionToggleUnreadOnly"
+    maidroid:showAsAction="always" />
+
+  <item
+    android:icon="@drawable/ic_action_labels"
+    android:id="@+id/timelineActionFilter"
+    android:title="Filter"
+    maidroid:showAsAction="always">
+    <menu>
+      <item
+        android:id="@+id/timelineActionAll"
+        android:title="所有的訊息" />
+      <item 
+        android:id="@+id/timelineActionMine"
+        android:title="我發表的訊息" />
+      <item
+        android:id="@+id/timelineActionPrivate"
+        android:title="私人訊息" />
+      <item 
+        android:id="@+id/timelineActionResponded"
+        android:title="回應過的訊息" />
+      <item 
+        android:id="@+id/timelineActionFavorite"
+        android:title="說讚 &amp; 轉噗的訊息" />
+    </menu>
+  </item>
+  <item
+    android:icon="@drawable/ic_action_edit"
+    android:title="發新噗"
+    maidroid:showAsAction="always" />
+
+
+</menu>

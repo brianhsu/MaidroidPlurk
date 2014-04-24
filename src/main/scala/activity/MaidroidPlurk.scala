@@ -12,6 +12,8 @@ import idv.brianhsu.maidroid.ui.model._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
 import org.bone.soplurk.api.PlurkAPI.Timeline
+import org.bone.soplurk.constant.Filter
+import org.bone.soplurk.constant.Filter._
 
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
@@ -100,9 +102,21 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
     )
   }
 
-  def onShowTimelinePlurksSuccess(timeline: Timeline) {
+  def onShowTimelinePlurksSuccess(timeline: Timeline, isNewFilter: Boolean, 
+                                  filter: Option[Filter], isOnlyUnread: Boolean) {
+
+    val unreadText = if (isOnlyUnread) "未讀" else ""
+    val filterText = filter match {
+      case Some(OnlyUser) => s"我發表的${unreadText}訊息"
+      case Some(OnlyPrivate) => s"私人的${unreadText}訊息"
+      case Some(OnlyResponded) => s"回應過的${unreadText}訊息"
+      case Some(OnlyFavorite) => s"說讚或轉噗的${unreadText}訊息"
+      case _ => s"全部的${unreadText}訊息"
+    }
+
     dialogFrame.setMessages(
-      Message(MaidMaro.Half.Happy, "好像順利讀到噗浪上的資料了喲，不知道最近有沒有什麼有趣的事發生呢？", None) :: 
+      Message(MaidMaro.Half.Smile, s"順利幫主讀到噗浪上的資料了喲，現在列出的是「${filterText}」喲。", None) ::
+      Message(MaidMaro.Half.Happy, "不知道最近有沒有什麼有趣的事發生呢？", None) :: 
       Message(MaidMaro.Half.Smile, "如果有好玩的事，記得要和小鈴分享一下喲！", None) :: Nil
     )
   }
@@ -132,6 +146,12 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
   override def onHideOtherUI() {
     loadingIndicator.setVisibility(View.GONE)
     fragmentLogin.setVisibility(View.GONE)
+  }
+
+  override def onShowLoadingUI() {
+    loadingIndicator.setVisibility(View.VISIBLE)
+    fragmentLogin.setVisibility(View.GONE)
+    errorNoticeFragment.setVisibility(View.GONE)
   }
 
   override def onRefreshTimelineFailure(e: Exception) {

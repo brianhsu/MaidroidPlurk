@@ -6,9 +6,15 @@ import idv.brianhsu.maidroid.plurk.cache._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
+import idv.brianhsu.maidroid.ui.util.CallbackConversions._
+import org.bone.soplurk.api.PlurkAPI.Timeline
 
 import org.bone.soplurk.api.PlurkAPI.Timeline
 import org.bone.soplurk.model.Plurk
+import java.util.Date
+import org.bone.soplurk.constant.Filter
+import org.bone.soplurk.constant.Filter._
+
 
 import android.app.Activity
 import android.content.Context
@@ -19,6 +25,11 @@ import android.view.ViewGroup
 import android.view.View
 import android.widget.AbsListView.OnScrollListener
 import android.widget.AbsListView
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.support.v4.view.MenuItemCompat
+
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh
 import uk.co.senab.actionbarpulltorefresh.library.Options
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener
@@ -27,9 +38,10 @@ import scala.concurrent._
 
 object TimelinePlurksFragment {
   trait Listener {
+    def onShowLoadingUI(): Unit
     def onHideLoadingUI(): Unit
     def onShowTimelinePlurksFailure(e: Exception): Unit
-    def onShowTimelinePlurksSuccess(timeline: Timeline): Unit
+    def onShowTimelinePlurksSuccess(timeline: Timeline, isNewFilter: Boolean, filter: Option[Filter], isOnlyUnread: Boolean): Unit
     def onRefreshTimelineSuccess(newTimeline: Timeline): Unit
     def onRefreshTimelineFailure(e: Exception): Unit
   }
@@ -43,11 +55,19 @@ class TimelinePlurksFragment extends Fragment {
 
   private lazy val listView = getView.findView(TR.fragmentTimelinePlurksListView)
   private lazy val pullToRefresh = getView.findView(TR.fragementTimelinePullToRefresh)
-  private lazy val adapter = new PlurkAdapter(activity)
+  private lazy val footerProgress = getView.findView(TR.item_loading_footer_progress)
+  private lazy val footerRetry = getView.findView(TR.item_loading_footer_retry)
   private lazy val footer = activity.getLayoutInflater.
                                      inflate(R.layout.item_loading_footer, null, false)
 
-  private var isLoadingMore: Boolean = false
+  private var isLoadingMore = false
+  private var adapter: PlurkAdapter = _
+  private var toggleButtonHolder: Option[MenuItem] = None
+  private var filterButtonHolder: Option[MenuItem] = None
+  private var filterButtonMap: Map[String, MenuItem] = Map()
+
+  private var isUnreadOnly = false
+  private var plurkFilter: Option[Filter] = None
 
   override def onAttach(activity: Activity) {
     super.onAttach(activity)
@@ -63,6 +83,7 @@ class TimelinePlurksFragment extends Fragment {
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
                             savedInstanceState: Bundle): View = {
+    setHasOptionsMenu(true)
     inflater.inflate(R.layout.fragment_timeline_plurks, container, false)
   }
 
@@ -70,7 +91,7 @@ class TimelinePlurksFragment extends Fragment {
 
     listView.setEmptyView(view.findView(TR.fragmentTimelinePlurksEmptyNotice))
     listView.addFooterView(footer)
-    listView.setAdapter(adapter)
+    updateListAdapter()
     listView.setOnScrollListener(new OnScrollListener() {
 
       def onScrollStateChanged(view: AbsListView, scrollState: Int) {}
@@ -79,15 +100,34 @@ class TimelinePlurksFragment extends Fragment {
 
         val isLastItem = (firstVisibleItem + visibleItemCount) == totalItemCount
         val shouldLoadingMore = isLastItem && !isLoadingMore
+
         if (shouldLoadingMore) {
+          footerRetry.setEnabled(false)
+          footerRetry.setVisibility(View.GONE)
+          footerProgress.setVisibility(View.VISIBLE)
           loadingMoreItem
         }
       }
     })
 
+    footerRetry.setOnClickListener { view: View => loadingMoreItem() }
+
     setupPullToRefresh()
     updateTimeline()
+  }
 
+  override def onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    val actionMenu = inflater.inflate(R.menu.timeline, menu)
+    this.toggleButtonHolder = Option(menu.findItem(R.id.timelineActionToggleUnreadOnly))
+    this.filterButtonHolder = Option(menu.findItem(R.id.timelineActionFilter))
+    this.filterButtonMap = Map(
+      "all" -> menu.findItem(R.id.timelineActionAll),
+      "my" -> menu.findItem(R.id.timelineActionMine),
+      "private" -> menu.findItem(R.id.timelineActionPrivate),
+      "responded" -> menu.findItem(R.id.timelineActionResponded),
+      "favorite" -> menu.findItem(R.id.timelineActionFavorite)
+    )
+    actionMenu
   }
 
   private def setupPullToRefresh() {
@@ -121,12 +161,15 @@ class TimelinePlurksFragment extends Fragment {
   private def loadingMoreItem() {
     this.isLoadingMore = true
 
-    val olderTimelineFuture = future {
-      plurkAPI.Timeline.getPlurks(offset = Some(adapter.lastPlurkDate)).get
-    }
+    footerProgress.setVisibility(View.VISIBLE)
+
+    val olderTimelineFuture = future { getPlurks(offset = Some(adapter.lastPlurkDate)) }
 
     olderTimelineFuture.onSuccessInUI { timeline => 
       adapter.appendTimeline(timeline)
+
+      footerRetry.setVisibility(View.GONE)
+      footerRetry.setEnabled(true)
 
       timeline.plurks.isEmpty match {
         case true   => footer.setVisibility(View.GONE)
@@ -136,44 +179,121 @@ class TimelinePlurksFragment extends Fragment {
       this.isLoadingMore = false
     }
 
+    olderTimelineFuture.onFailureInUI { case e: Exception => 
+      footerProgress.setVisibility(View.GONE)
+      footerRetry.setVisibility(View.VISIBLE)
+      footerRetry.setEnabled(true)
+      this.isLoadingMore = true
+    }
+
   }
 
   
   private def refreshTimeline(latestPlurkShown: Option[Plurk]) = {
 
-    var newTimeline = plurkAPI.Timeline.getPlurks().get
+    var newTimeline = getPlurks()
     var newPlurks = newTimeline.plurks
     var newUsers = newTimeline.users
     val latestTimestamp: Option[Long] = latestPlurkShown.map(_.posted.getTime)
     def isOlderEnough = newPlurks.lastOption.map(_.posted.getTime <= (latestTimestamp getOrElse Long.MaxValue)).getOrElse(false)
 
     while (!isOlderEnough && !newTimeline.plurks.isEmpty) {
-      newTimeline = plurkAPI.Timeline.getPlurks(offset = Some(newPlurks.last.posted)).get
+      newTimeline = getPlurks(offset = Some(newPlurks.last.posted))
       newPlurks ++= newTimeline.plurks
       newUsers ++= newTimeline.users
     }
 
-    import org.bone.soplurk.api.PlurkAPI.Timeline
     new Timeline(
       newUsers,
       newPlurks.takeWhile(_.posted.getTime > latestTimestamp.getOrElse(0L))
     )
   }
 
-  def updateTimeline() {
+  private def getPlurks(offset: Option[Date] = None) = {
+    isUnreadOnly match {
+      case true  => plurkAPI.Timeline.getUnreadPlurks(filter = plurkFilter, offset = offset).get
+      case false => plurkAPI.Timeline.getPlurks(filter = plurkFilter, offset = offset).get
+    }
+  }
 
-    val plurksFuture = future { 
-      plurkAPI.Timeline.getPlurks().get 
+  private def updateListAdapter() {
+    this.adapter = new PlurkAdapter(activity)
+    this.listView.setAdapter(adapter)
+  }
+
+  override def onPrepareOptionsMenu(menu: Menu) {
+    updateFilterMark()
+  }
+
+  private def updateFilterMark() {
+
+    val menuKey = plurkFilter.map(_.unreadWord).getOrElse("all")
+    val menuItem = filterButtonMap.get(menuKey)
+
+    filterButtonMap.values.foreach { menuItem => menuItem.setIcon(null) }
+    menuItem.foreach(_.setIcon(android.R.drawable.ic_menu_view))
+  }
+
+  private def switchToFilter(filter: Option[Filter], isUnreadOnly: Boolean) = {
+
+    filterButtonHolder.foreach { _.setEnabled(false) }
+    toggleButtonHolder.foreach { button =>
+      button.setEnabled(false)
+      MenuItemCompat.setActionView(button, R.layout.action_bar_loading)
     }
 
-    plurksFuture.onSuccess { 
-      case timeline => timeline.users.values.foreach(AvatarCache.getAvatarBitmapFromNetwork)
+    this.plurkFilter = filter
+    this.isUnreadOnly = isUnreadOnly
+
+    updateFilterMark()
+    updateTimeline(true)
+    true
+  }
+
+  override def onOptionsItemSelected(item: MenuItem) = item.getItemId match {
+    case R.id.timelineActionAll => switchToFilter(None, this.isUnreadOnly)
+    case R.id.timelineActionMine => switchToFilter(Some(OnlyUser), this.isUnreadOnly)
+    case R.id.timelineActionPrivate => switchToFilter(Some(OnlyPrivate), this.isUnreadOnly)
+    case R.id.timelineActionResponded => switchToFilter(Some(OnlyResponded), this.isUnreadOnly)
+    case R.id.timelineActionFavorite => switchToFilter(Some(OnlyFavorite), this.isUnreadOnly)
+    case R.id.timelineActionToggleUnreadOnly => switchToFilter(plurkFilter, !this.isUnreadOnly)
+    case _ => super.onOptionsItemSelected(item)
+  }
+
+
+  private var adapterVersion: Int = 0
+
+  def updateTimeline(isNewFilter: Boolean = false) {
+
+    if (isNewFilter) {
+      adapterVersion += 1
     }
 
-    plurksFuture.onSuccessInUI { timeline => 
-      adapter.appendTimeline(timeline)
-      activityCallback.onHideLoadingUI()
-      activityCallback.onShowTimelinePlurksSuccess(timeline)
+    val plurksFuture = future { (getPlurks(), adapterVersion) }
+
+    plurksFuture.onSuccess { case (timeline, adapterVersion) => 
+      if (adapterVersion >= this.adapterVersion) {
+        timeline.users.values.foreach(AvatarCache.getAvatarBitmapFromNetwork)
+      }
+    }
+
+    plurksFuture.onSuccessInUI { case (timeline, adapterVersion) => 
+      if (adapterVersion >= this.adapterVersion) {
+
+        if (isNewFilter) { 
+          updateListAdapter() 
+        }
+
+        adapter.appendTimeline(timeline)
+        activityCallback.onHideLoadingUI()
+        activityCallback.onShowTimelinePlurksSuccess(timeline, isNewFilter, plurkFilter, isUnreadOnly)
+        filterButtonHolder.foreach { _.setEnabled(true) }
+        toggleButtonHolder.foreach { button =>
+          button.setEnabled(true)
+          MenuItemCompat.setActionView(button, null)
+          button.setTitle(if (isUnreadOnly) "未讀噗" else "所有噗")
+        }
+      }
     }
 
     plurksFuture.onFailureInUI { case e: Exception =>

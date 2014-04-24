@@ -57,9 +57,9 @@ object ImageCache {
     inSampleSize
   }
 
-  def getBitmapFromNetwork(url: String): Future[Bitmap] = future {
+  def getBitmapFromNetwork(url: String, thumbnailSize: Int): Future[Bitmap] = future {
     val (originWidth, originHeight) = calculateOriginSize(url)
-    val inSampleSize = calculateInSampleSize(originWidth, originHeight, 150, 150)
+    val inSampleSize = calculateInSampleSize(originWidth, originHeight, thumbnailSize, thumbnailSize)
     val imgStream = openStream(url)
     val options = new BitmapFactory.Options
     options.inSampleSize = inSampleSize
