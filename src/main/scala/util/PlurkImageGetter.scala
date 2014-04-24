@@ -22,7 +22,7 @@ class PlurkImageGetter(activity: Activity, adapter: BaseAdapter) extends Html.Im
 
   private implicit val implicitActivity = activity
   private val metrics = new DisplayMetrics
-  private var mPlaceHolder: Option[Bitmap] = Some(BitmapFactory.decodeResource(activity.getResources, R.drawable.placeholder))
+  private var mPlaceHolder: Option[Bitmap] = Option(BitmapFactory.decodeResource(activity.getResources, R.drawable.placeholder))
   private lazy val thumbnailSize = (metrics.widthPixels * 0.25).toInt
 
   activity.getWindowManager.getDefaultDisplay.getMetrics(metrics)
@@ -34,7 +34,7 @@ class PlurkImageGetter(activity: Activity, adapter: BaseAdapter) extends Html.Im
         val newBitmap = BitmapFactory.decodeResource(
           activity.getResources, R.drawable.placeholder
         )
-        mPlaceHolder = Some(newBitmap)
+        mPlaceHolder = Option(newBitmap)
         newBitmap
     }
   }

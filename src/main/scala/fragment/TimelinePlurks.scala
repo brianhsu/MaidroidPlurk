@@ -23,6 +23,7 @@ import android.widget.AbsListView
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.support.v4.view.MenuItemCompat
 
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh
 import uk.co.senab.actionbarpulltorefresh.library.Options
@@ -238,7 +239,7 @@ class TimelinePlurksFragment extends Fragment {
     filterButtonHolder.foreach { _.setEnabled(false) }
     toggleButtonHolder.foreach { button =>
       button.setEnabled(false)
-      button.setActionView(R.layout.action_bar_loading)
+      MenuItemCompat.setActionView(button, R.layout.action_bar_loading)
     }
 
     this.plurkFilter = filter
@@ -289,7 +290,7 @@ class TimelinePlurksFragment extends Fragment {
         filterButtonHolder.foreach { _.setEnabled(true) }
         toggleButtonHolder.foreach { button =>
           button.setEnabled(true)
-          button.setActionView(null)
+          MenuItemCompat.setActionView(button, null)
           button.setTitle(if (isUnreadOnly) "未讀噗" else "所有噗")
         }
       }
