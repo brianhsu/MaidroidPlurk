@@ -43,7 +43,7 @@ class ResponseList(plurk: Plurk, owner: User) extends Fragment with PlurkAdapter
   }
 
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
-    getResponses()
+    loadResponses()
   }
 
   private def setupResponseListView(containerView: View) {
@@ -59,14 +59,13 @@ class ResponseList(plurk: Plurk, owner: User) extends Fragment with PlurkAdapter
     adapter.addOnlyOnePlurk(owner, plurk)
   }
 
-  private def getResponses() {
+  private def loadResponses() {
 
     val responses = future { plurkAPI.Responses.get(plurk.plurkID).get }
-    responses.onSuccessInUI { t =>
-      DebugLog("====> responses")
-      DebugLog("  ====> seen:" + t.seen)
-      DebugLog("  ====> friends:" + t.friends)
-      DebugLog("  ====> responses:" + t.responses)
+    responses.onSuccessInUI { response =>
+      val adapter = new ResponseAdapter(activity, response.responses.toVector, response.friends)
+      val listView = getView.findView(TR.fragmentResponseList)
+      listView.setAdapter(adapter)
     }
   }
 }
