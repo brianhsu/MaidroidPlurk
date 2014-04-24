@@ -1,0 +1,22 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/item_loading_footer"
+  android:orientation="horizontal"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:gravity="center_horizontal"
+  android:padding="3dp">
+  <ProgressBar
+    android:id="@+id/item_loading_footer_progress"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center"
+    android:padding="5dp"/>
+  <Button
+    android:id="@+id/item_loading_footer_retry"
+    android:text="重試一次"
+    android:visibility="gone"
+    android:enabled="false"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"/>
+</LinearLayout>

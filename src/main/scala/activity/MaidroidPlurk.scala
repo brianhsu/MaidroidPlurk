@@ -11,35 +11,30 @@ import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.ui.model._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
-import org.bone.soplurk.api._
-import scala.concurrent._
+import org.bone.soplurk.api.PlurkAPI.Timeline
+import org.bone.soplurk.constant.Filter
+import org.bone.soplurk.constant.Filter._
 
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 
-trait FragmentFinder {
-  this: FragmentActivity =>
+import scala.concurrent._
+import scala.util.Try
 
-  def findFragment[T <: Fragment](id: Int): Option[T] = { 
-    Option(getSupportFragmentManager().findFragmentById(id).asInstanceOf[T])
-  }
-}
-
-class MaidroidPlurk extends ActionBarActivity with TypedViewHolder with FragmentFinder 
-                    with ErrorNotice.Listener with Login.Listener with TimeLine.Listener
+class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
+                    with ErrorNotice.Listener with Login.Listener with TimelinePlurksFragment.Listener
 {
   implicit val activity = this
 
   private lazy val dialogFrame = findView(TR.dialogFrame)
   private lazy val loadingIndicator = findView(TR.moduleLoadingIndicator)
-  private lazy val errorNoticeFragment = findFragment[ErrorNotice](R.id.activityMaidroidPlurkErrorNotice).get
-  private def loginFragmentHolder = findFragment[Login](R.id.activityMaidroidPlurkFragmentContainer)
+  private lazy val errorNoticeFragment = getSupportFragmentManager().findFragmentById(R.id.activityMaidroidPlurkErrorNotice).asInstanceOf[ErrorNotice]
+  private lazy val fragmentLogin = new Login
+  private lazy val fragmentTimelinePlurks = new TimelinePlurksFragment
 
-  val onGetPlurkAPI = PlurkAPI.withCallback(
-    appKey = "6T7KUTeSbwha", 
-    appSecret = "AZIpUPdkTARzbDmdKBsu4kpxhHUJ3eWX", 
-    callbackURL = "http://localhost/auth"
-  )
+  def onHideLoadingUI() {
+    loadingIndicator.setVisibility(View.GONE)
+  }
 
   def onShowAuthorizationPage(url: String) {
     loadingIndicator.setVisibility(View.GONE)
@@ -80,14 +75,55 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder with Fragment
   }
 
   def onLoginSuccess() {
+    errorNoticeFragment.setVisibility(View.GONE)
+    loadingIndicator.setVisibility(View.VISIBLE)
+    switchToFragment(fragmentTimelinePlurks)
     dialogFrame.setMessages(
-      Message(MaidMaro.Half.Happy, "成功登入噗浪了呢", None) :: Nil
+      Message(MaidMaro.Half.Happy, "成功登入噗浪了呢！", None) :: 
+      Message(MaidMaro.Half.Smile, "小鈴正在幫主人整理河道上的資料，請主人稍候一下喲。", None) ::
+      Nil
+    )
+
+  }
+
+  def onShowTimelinePlurksFailure(error: Exception) {
+    DebugLog("====> onShowTimelinePlurksFailure", error)
+    errorNoticeFragment.setVisibility(View.VISIBLE)
+    errorNoticeFragment.showMessageWithRetry("無法讀取河道", error) {
+      loadingIndicator.setVisibility(View.VISIBLE)
+      errorNoticeFragment.setVisibility(View.GONE)
+      fragmentTimelinePlurks.updateTimeline()
+    }
+
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Panic, "糟糕，讀不到河道上的資料啊！", None) :: 
+      Message(MaidMaro.Half.Normal, "會不會是網路有問題呢？", None) ::
+      Message(MaidMaro.Half.Normal, s"對了，系統說這個錯誤是：「${error.getMessage}」造成的說") :: Nil
+    )
+  }
+
+  def onShowTimelinePlurksSuccess(timeline: Timeline, isNewFilter: Boolean, 
+                                  filter: Option[Filter], isOnlyUnread: Boolean) {
+
+    val unreadText = if (isOnlyUnread) "未讀" else ""
+    val filterText = filter match {
+      case Some(OnlyUser) => s"我發表的${unreadText}訊息"
+      case Some(OnlyPrivate) => s"私人的${unreadText}訊息"
+      case Some(OnlyResponded) => s"回應過的${unreadText}訊息"
+      case Some(OnlyFavorite) => s"說讚或轉噗的${unreadText}訊息"
+      case _ => s"全部的${unreadText}訊息"
+    }
+
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Smile, s"順利幫主讀到噗浪上的資料了喲，現在列出的是「${filterText}」喲。", None) ::
+      Message(MaidMaro.Half.Happy, "不知道最近有沒有什麼有趣的事發生呢？", None) :: 
+      Message(MaidMaro.Half.Smile, "如果有好玩的事，記得要和小鈴分享一下喲！", None) :: Nil
     )
   }
 
   override def onStart() {
     super.onStart()
-    loginFragmentHolder.foreach { _.startAuthorization() }
+    fragmentLogin.startAuthorization()
     errorNoticeFragment.setVisibility(View.GONE)
   }
 
@@ -97,7 +133,7 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder with Fragment
     setContentView(R.layout.activity_maidroid_plurk)
 
     if (savedInstanceState == null) {
-      setupLoginFragment()
+      switchToFragment(fragmentLogin)
     }
 
     dialogFrame.setMessages(
@@ -109,20 +145,49 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder with Fragment
 
   override def onHideOtherUI() {
     loadingIndicator.setVisibility(View.GONE)
-    loginFragmentHolder.foreach { _.setVisibility(View.GONE) }
+    fragmentLogin.setVisibility(View.GONE)
   }
 
-  private def setupLoginFragment() {
+  override def onShowLoadingUI() {
+    loadingIndicator.setVisibility(View.VISIBLE)
+    fragmentLogin.setVisibility(View.GONE)
+    errorNoticeFragment.setVisibility(View.GONE)
+  }
+
+  override def onRefreshTimelineFailure(e: Exception) {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Normal, "奇怪，怎麼沒辦法從噗浪拿到新的資料呢……", None) :: 
+      Message(MaidMaro.Half.Panic, s"哇啊啊，「${e}」是怎麼回事啊？", None) :: 
+      Message(MaidMaro.Half.Normal, "可不可以請主人檢查網路狀態後再重試一次？") :: Nil
+    )
+  }
+
+  override def onRefreshTimelineSuccess(newTimeline: Timeline) {
+    if (newTimeline.plurks.size > 0) {
+      dialogFrame.setMessages(
+        Message(MaidMaro.Half.Happy, s"已經幫主人把河道上最新的噗抓下來囉！總共有 ${newTimeline.plurks.size} 則新的噗喲。", None) :: 
+        Message(MaidMaro.Half.Smile, "不知道主人有沒有在河道上發現什麼新的趣事呢？") :: Nil
+      )
+    } else {
+      dialogFrame.setMessages(
+        Message(MaidMaro.Half.Normal, "對不起，現在噗浪的河道上好像沒有什麼人發新的文章呢……", None) :: 
+        Message(MaidMaro.Half.Smile, "主人要不要晚一點再試試看？") :: Nil
+      )
+    }
+  }
+
+  private def switchToFragment(fragment: Fragment) {
+    loadingIndicator.setVisibility(View.VISIBLE)
     getSupportFragmentManager.
         beginTransaction.
-        replace(R.id.activityMaidroidPlurkFragmentContainer, new Login).
+        replace(R.id.activityMaidroidPlurkFragmentContainer, fragment).
         commit()
   }
 
   private def retryLogin() {
     loadingIndicator.setVisibility(View.VISIBLE)
     errorNoticeFragment.setVisibility(View.GONE)
-    loginFragmentHolder.foreach { _.startAuthorization() }
+    fragmentLogin.startAuthorization()
   }
 
 

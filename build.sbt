@@ -11,7 +11,7 @@ scalaVersion := "2.10.4"
 
 organization := "idv.brianhsu.maidroid.plurk"
 
-scalacOptions := Seq("-feature")
+scalacOptions := Seq("-feature", "-deprecation")
 
 resolvers ++= Seq(
   "populov" at "http://dl.bintray.com/populov/maven",
@@ -22,12 +22,16 @@ resolvers ++= Seq(
 libraryDependencies ++= Seq(
   aar("idv.brianhsu.maidroid.ui" % "maidroidui_2.10" % "0.0.2"),
   aar("com.viewpagerindicator" % "library" % "2.4.1"),
+  aar("com.github.chrisbanes.actionbarpulltorefresh" % "library" % "0.9.3"),
+  aar("com.github.chrisbanes.actionbarpulltorefresh" % "extra-abc" % "0.9.3"),
+  aar("com.github.castorflex.smoothprogressbar" % "library" % "0.2.0"),
   "com.android.support" % "support-v4" % "19.1.0",
   "com.android.support" % "appcompat-v7" % "19.1.0"
 )
 
 libraryDependencies ++= Seq(
-  "org.bone" %% "soplurk" % "0.2.1"
+  "org.bone" %% "soplurk" % "0.2.2",
+  "com.typesafe.akka" %% "akka-actor" % "2.3.2"
 )
 
 platformTarget in Android := "android-19"
@@ -39,7 +43,8 @@ proguardOptions in Android ++= Seq(
   "-dontwarn sun.reflect.Reflection",
   "-dontwarn javax.xml.bind.DatatypeConverter",
   "-dontwarn javax.inject.Named",
-  "-dontwarn org.apache.commons.codec.binary.Base64"
+  "-dontwarn org.apache.commons.codec.binary.Base64",
+  "-dontwarn akka.actor.**"
 )
  
 run <<= run in Android

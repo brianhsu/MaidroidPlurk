@@ -20,7 +20,6 @@ import scala.concurrent._
 
 object Login {
   trait Listener {
-    def onGetPlurkAPI: PlurkAPI
     def onShowAuthorizationPage(url: String): Unit
     def onGetAuthURLFailure(error: Exception): Unit
     def onLoginFailure(error: Exception): Unit
@@ -32,7 +31,7 @@ class Login extends Fragment {
 
   private implicit def activity = getActivity
   private var activityCallback: Login.Listener = _
-  private def plurkAPI = activityCallback.onGetPlurkAPI
+  private def plurkAPI = PlurkAPIHelper.getPlurkAPI
 
   private lazy val webView = getView.findView(TR.fragmentLoginWebView)
 
@@ -79,14 +78,13 @@ class Login extends Fragment {
 
     override def shouldOverrideUrlLoading(view: WebView, url: String): Boolean = {
       val isCallbackURL = url.startsWith("http://localhost/auth")
-      val isAuthorizationURL = url.startsWith("http://plurk.com/m/authorize")
       
       DebugLog("====> shouldOverrideUrlLoading.url:" + url)
 
       url match {
+        case "http://www.plurk.com/" => activityCallback.onLoginFailure(new Exception("登入失敗，使用者拒絕授權")) ; false
         case _ if isCallbackURL => startAuth(url); false
-        case _ if isAuthorizationURL => true
-        case _ => activityCallback.onLoginFailure(new Exception("登入失敗，使用者拒絕授權")) ; false
+        case _ => super.shouldOverrideUrlLoading(view, url)
       }
     }
 
@@ -95,15 +93,23 @@ class Login extends Fragment {
 
       if (!failingUrl.startsWith("http://localhost/auth")) {
         activityCallback.onLoginFailure(new Exception(s"登入失敗，${description}"))
+      } else {
+        super.onReceivedError(view, errorCode, description, failingUrl)
       }
 
     }
 
     override def onPageFinished(view: WebView, url: String) {
       DebugLog("====> onPageFinished:" + url)
-      if (url.startsWith("http://www.plurk.com/m/authorize")) {
+      val shouldShowPage = 
+        !url.startsWith("http://localhost/auth") &&
+        url != "http://www.plurk.com/" && url != "http://www.plurk.com/m/"
+
+      if (shouldShowPage) {
         activityCallback.onShowAuthorizationPage(url)
         setVisibility(View.VISIBLE)
+      } else {
+        super.onPageFinished(view, url)
       }
     }
 
