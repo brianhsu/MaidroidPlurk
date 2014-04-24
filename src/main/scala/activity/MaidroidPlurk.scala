@@ -61,6 +61,10 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
   }
 
   def onPlurkSelected(plurk: Plurk) {
+
+    val t = new Response
+    switchToFragment(t, true)
+
     dialogFrame.setMessages(
       Message(MaidMaro.Half.Normal, s"Selected ${plurk}", None) :: Nil
     )
@@ -171,6 +175,7 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
   }
 
   override def onRefreshTimelineSuccess(newTimeline: Timeline) {
+
     if (newTimeline.plurks.size > 0) {
       dialogFrame.setMessages(
         Message(MaidMaro.Half.Happy, s"已經幫主人把河道上最新的噗抓下來囉！總共有 ${newTimeline.plurks.size} 則新的噗喲。", None) :: 
@@ -184,12 +189,18 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
     }
   }
 
-  private def switchToFragment(fragment: Fragment) {
-    loadingIndicator.setVisibility(View.VISIBLE)
-    getSupportFragmentManager.
-        beginTransaction.
-        replace(R.id.activityMaidroidPlurkFragmentContainer, fragment).
-        commit()
+  private def switchToFragment(fragment: Fragment, addToBackStack: Boolean = false) {
+
+    val transaction = getSupportFragmentManager.beginTransaction
+
+    if (addToBackStack) {
+      transaction.replace(R.id.activityMaidroidPlurkFragmentContainer, fragment)
+      transaction.addToBackStack(null)
+    } else {
+      transaction.replace(R.id.activityMaidroidPlurkFragmentContainer, fragment)
+    }
+
+    transaction.commit()
   }
 
   private def retryLogin() {

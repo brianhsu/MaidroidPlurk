@@ -54,11 +54,11 @@ class TimelinePlurksFragment extends Fragment {
   private var activityCallback: TimelinePlurksFragment.Listener = _
   private def plurkAPI = PlurkAPIHelper.getPlurkAPI
 
-  private lazy val listView = getView.findView(TR.fragmentTimelinePlurksListView)
-  private lazy val pullToRefresh = getView.findView(TR.fragementTimelinePullToRefresh)
-  private lazy val footerProgress = getView.findView(TR.item_loading_footer_progress)
-  private lazy val footerRetry = getView.findView(TR.item_loading_footer_retry)
-  private lazy val footer = activity.getLayoutInflater.
+  private def listView = getView.findView(TR.fragmentTimelinePlurksListView)
+  private def pullToRefresh = getView.findView(TR.fragementTimelinePullToRefresh)
+  private def footerProgress = getView.findView(TR.item_loading_footer_progress)
+  private def footerRetry = getView.findView(TR.item_loading_footer_retry)
+  private def footer = activity.getLayoutInflater.
                                      inflate(R.layout.item_loading_footer, null, false)
 
   private var isLoadingMore = false
@@ -113,6 +113,7 @@ class TimelinePlurksFragment extends Fragment {
 
     footerRetry.setOnClickListener { view: View => loadingMoreItem() }
 
+    activityCallback.onShowLoadingUI()
     setupPullToRefresh()
     updateTimeline()
   }
