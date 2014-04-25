@@ -64,7 +64,7 @@ class TimelinePlurksFragment extends Fragment {
                                      inflate(R.layout.item_loading_footer, null, false)
 
   private var isLoadingMore = false
-  private var adapter: PlurkAdapter = _
+  private var adapterHolder: Option[PlurkAdapter] = None
   private var toggleButtonHolder: Option[MenuItem] = None
   private var filterButtonHolder: Option[MenuItem] = None
   private var filterButtonMap: Map[String, MenuItem] = Map()
@@ -134,12 +134,18 @@ class TimelinePlurksFragment extends Fragment {
     actionMenu
   }
 
+  override def onResume() {
+    DebugLog("====> onResume....")
+    adapterHolder.foreach(_.notifyDataSetChanged())
+    super.onResume()
+  }
+
   private def setupPullToRefresh() {
     val options = Options.create.refreshOnUp(true).scrollDistance(0.3f).noMinimize().build()
     val onRefresh = new OnRefreshListener() {
       override def onRefreshStarted(view: View) {
 
-        val newTimelineFuture = future { refreshTimeline(adapter.firstPlurkShow) }
+        val newTimelineFuture = future { refreshTimeline(adapterHolder.get.firstPlurkShow) }
 
         newTimelineFuture.onFailureInUI {
           case e: Exception => 
@@ -149,7 +155,7 @@ class TimelinePlurksFragment extends Fragment {
         }
 
         newTimelineFuture.onSuccessInUI { newTimeline: Timeline => 
-          adapter.prependTimeline(newTimeline)
+          adapterHolder.foreach(_.prependTimeline(newTimeline))
           activityCallback.onRefreshTimelineSuccess(newTimeline)
           pullToRefresh.setRefreshComplete()
         }
@@ -167,10 +173,10 @@ class TimelinePlurksFragment extends Fragment {
 
     footerProgress.setVisibility(View.VISIBLE)
 
-    val olderTimelineFuture = future { getPlurks(offset = Some(adapter.lastPlurkDate)) }
+    val olderTimelineFuture = future { getPlurks(offset = adapterHolder.map(_.lastPlurkDate)) }
 
     olderTimelineFuture.onSuccessInUI { timeline => 
-      adapter.appendTimeline(timeline)
+      adapterHolder.foreach(_.appendTimeline(timeline))
 
       footerRetry.setVisibility(View.GONE)
       footerRetry.setEnabled(true)
@@ -221,8 +227,8 @@ class TimelinePlurksFragment extends Fragment {
   }
 
   private def updateListAdapter() {
-    this.adapter = new PlurkAdapter(activity, false, Some(activityCallback.onPlurkSelected _))
-    this.listView.setAdapter(adapter)
+    this.adapterHolder = Some(new PlurkAdapter(activity, false, Some(activityCallback.onPlurkSelected _)))
+    this.adapterHolder.foreach(this.listView.setAdapter)
   }
 
   override def onPrepareOptionsMenu(menu: Menu) {
@@ -288,7 +294,7 @@ class TimelinePlurksFragment extends Fragment {
           updateListAdapter() 
         }
 
-        adapter.appendTimeline(timeline)
+        adapterHolder.foreach(_.appendTimeline(timeline))
         activityCallback.onHideLoadingUI()
         activityCallback.onShowTimelinePlurksSuccess(timeline, isNewFilter, plurkFilter, isUnreadOnly)
         filterButtonHolder.foreach { _.setEnabled(true) }

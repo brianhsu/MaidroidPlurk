@@ -58,6 +58,7 @@ class ResponseList(plurk: Plurk, owner: User) extends Fragment with PlurkAdapter
     val responses = future { plurkAPI.Responses.get(plurk.plurkID).get }
     responses.onSuccessInUI { response =>
       adapter.update(response.responses, response.friends)
+      PlurkView.updatePlurkCommentInfo(plurk.plurkID, response.responses.size, true)
     }
   }
 }

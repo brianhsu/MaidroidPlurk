@@ -28,9 +28,16 @@ import java.net.URL
 
 object PlurkView {
 
+  private var plurkCommentCount: Map[Long, Int] = Map.empty
+  private var plurkReadStatus: Map[Long, Boolean] = Map.empty
   private var plurkMutedStatus: Map[Long, Boolean] = Map.empty
   private var plurkFavoriteInfo: Map[Long, FavoriteInfo] = Map.empty
   private var plurkReplurkInfo: Map[Long, ReplurkInfo] = Map.empty
+
+  def updatePlurkCommentInfo(plurkID: Long, newCount: Int, newReadStatus: Boolean) {
+    plurkCommentCount += (plurkID -> newCount)
+    plurkReadStatus += (plurkID -> newReadStatus)
+  }
 
   def updatePlurkReplurkInfo(plurkID: Long, replurkInfo: ReplurkInfo) {
     plurkReplurkInfo += (plurkID -> replurkInfo)
@@ -251,17 +258,20 @@ class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activi
   }
 
   private def setCommentInfo(plurk: Plurk) {
-    commentCount.setText(plurk.responseCount.toString)
 
-    plurk.readStatus match {
-      case Some(Unread) => commentCount.setBackgroundResource(R.drawable.rounded_red)
-      case _ => commentCount.setBackgroundResource(R.drawable.rounded_gray)
+    val plurkCommentCount = PlurkView.plurkCommentCount.get(plurk.plurkID).getOrElse(plurk.responseCount).toString
+    val isRead = PlurkView.plurkReadStatus.get(plurk.plurkID).getOrElse(plurk.readStatus != Some(Unread))
+
+    commentCount.setText(plurkCommentCount)
+
+    isRead match {
+      case true  => commentCount.setBackgroundResource(R.drawable.rounded_gray)
+      case false => commentCount.setBackgroundResource(R.drawable.rounded_red)
     }
 
     if (isInResponseList) {
       commentCount.setVisibility(View.GONE)
     }
-
   }
 
   def update(plurk: Plurk, owner: User, imageGetter: PlurkImageGetter): View = {
