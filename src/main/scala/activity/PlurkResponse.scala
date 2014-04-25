@@ -2,6 +2,7 @@ package idv.brianhsu.maidroid.plurk.activity
 
 import idv.brianhsu.maidroid.ui.model._
 import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.util.DebugLog
 import idv.brianhsu.maidroid.plurk.fragment._
 
 import org.bone.soplurk.api.PlurkAPI._
@@ -24,8 +25,6 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
   private lazy val dialogFrame = findView(TR.activityPlurkResponseDialogFrame)
   private lazy val fragmentContainer = findView(TR.activityPlurkResponseFragmentContainer)
 
-  private lazy val fragment = new ResponseList(PlurkResponse.plurk, PlurkResponse.user)
-
   override def onCreate(savedInstanceState: Bundle) {
 
     super.onCreate(savedInstanceState)
@@ -35,10 +34,22 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
       Message(MaidMaro.Half.Happy, "小鈴正在幫主人讀取噗浪上的回應，請主人稍候一下喲……", None) :: Nil
     )
 
+  }
+
+  override def onStart() {
+
+    super.onStart()
+
+    val fragment = new ResponseList
+
+    fragment.plurk = PlurkResponse.plurk
+    fragment.owner = PlurkResponse.user
+
     getSupportFragmentManager.
       beginTransaction.
       replace(R.id.activityPlurkResponseFragmentContainer, fragment).
       commit()
+
   }
 
   override def onGetResponseSuccess(responses: PlurkResponses) {
@@ -60,6 +71,7 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
   }
 
   override def onGetResponseFailure(e: Exception) {
+    DebugLog("====> onGetResponseFailure....")
     dialogFrame.setMessages(
       Message(MaidMaro.Half.Normal, "好像怪怪的，沒辦法讀噗浪上的回應耶……", None) ::
       Message(MaidMaro.Half.Normal, s"系統說錯誤是：「${e.getMessage}」造成的說。", None) ::

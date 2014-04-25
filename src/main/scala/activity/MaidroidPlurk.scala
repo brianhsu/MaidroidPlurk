@@ -28,7 +28,7 @@ import scala.util.Try
 
 class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
                     with LoginFragment.Listener 
-                    with TimelineFragment.Listener with PlurkAdapter.Listener
+                    with TimelineFragment.Listener
 {
   implicit val activity = this
 
@@ -42,14 +42,6 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
       Message(MaidMaro.Half.Normal, "還是說，是小鈴太沒用了……", None) :: 
       Message(MaidMaro.Half.Normal, s"對了，系統說這個錯誤是：「${error.getMessage}」造成的說") :: Nil
     )
-  }
-
-  override def onPlurkSelected(plurk: Plurk, user: User) {
-    val intent = new Intent(this, classOf[PlurkResponse])
-    PlurkResponse.plurk = plurk
-    PlurkResponse.user = user
-    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-    startActivity(intent)
   }
 
   def onLoginFailure(error: Exception) {

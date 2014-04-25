@@ -18,6 +18,7 @@ import android.widget.Button
 
 import org.bone.soplurk.api._
 import scala.concurrent._
+import scala.util.Try
 
 object LoginFragment {
   trait Listener {
@@ -32,11 +33,11 @@ class LoginFragment extends Fragment {
   private implicit def activity = getActivity
   private def plurkAPI = PlurkAPIHelper.getPlurkAPI
 
-  private lazy val webView = getView.findView(TR.fragmentLoginWebView)
-  private lazy val loadingIndicator = getView.findView(TR.moduleLoadingIndicator)
-  private lazy val errorNotice = getView.findView(TR.fragmentLoginErrorNotice)
+  private lazy val webViewHolder = Option(getView).map(_.findView(TR.fragmentLoginWebView))
+  private lazy val loadingIndicatorHolder = Option(getView).map(_.findView(TR.moduleLoadingIndicator))
+  private lazy val errorNoticeHolder = Option(getView).map(_.findView(TR.fragmentLoginErrorNotice))
 
-  private lazy val activityCallback = activity.asInstanceOf[LoginFragment.Listener]
+  private var callbackHolder: Option[LoginFragment.Listener] = None
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
                             savedInstanceState: Bundle): View = {
@@ -48,20 +49,30 @@ class LoginFragment extends Fragment {
     startAuthorization()
   }
 
-  def showErrorNotice(message: String){
-    loadingIndicator.setVisibility(View.GONE)
-    errorNotice.setVisibility(View.VISIBLE)
-    errorNotice.setMessageWithRetry(message) { retryButton =>
-      retryButton.setEnabled(false)
-      errorNotice.setVisibility(View.GONE)
-      loadingIndicator.setVisibility(View.VISIBLE)
-      startAuthorization()
+  override def onAttach(activity: Activity) {
+    super.onAttach(activity)
+    callbackHolder = for {
+      activity <- Option(activity)
+      callback <- Try(activity.asInstanceOf[LoginFragment.Listener]).toOption
+    } yield callback
+  }
+
+  private def showErrorNotice(message: String){
+    loadingIndicatorHolder.foreach(_.setVisibility(View.GONE))
+    errorNoticeHolder.foreach(_.setVisibility(View.VISIBLE))
+    errorNoticeHolder.foreach { errorNotice =>
+      errorNotice.setMessageWithRetry(message) { retryButton =>
+        retryButton.setEnabled(false)
+        errorNoticeHolder.foreach(_.setVisibility(View.GONE))
+        loadingIndicatorHolder.foreach(_.setVisibility(View.VISIBLE))
+        startAuthorization()
+      }
     }
   }
 
-  def startAuthorization() {
+  private def startAuthorization() {
 
-    webView.setWebViewClient(plurkAuthWebViewClient)
+    webViewHolder.foreach(_.setWebViewClient(plurkAuthWebViewClient))
 
     val authorizationURL: Future[String] = future {
       plurkAPI.getAuthorizationURL.get.replace("OAuth", "m")
@@ -70,25 +81,25 @@ class LoginFragment extends Fragment {
     authorizationURL.onFailureInUI { 
       case error: Exception => {
         DebugLog("====> authorizationURL.onFailureInUI:" + error.getMessage, error) 
-        activityCallback.onGetAuthURLFailure(error)
+        callbackHolder.foreach(_.onGetAuthURLFailure(error))
         showErrorNotice("無法取得噗浪登入網址")
       }
     }
 
     authorizationURL.onSuccessInUI { url =>
-      webView.getSettings.setJavaScriptEnabled(true)
-      webView.loadUrl(url)
+      webViewHolder.foreach(_.getSettings.setJavaScriptEnabled(true))
+      webViewHolder.foreach(_.loadUrl(url))
     }
   }
 
-  def plurkAuthWebViewClient = new WebViewClient() {
+  private def plurkAuthWebViewClient = new WebViewClient() {
 
     override def shouldOverrideUrlLoading(view: WebView, url: String): Boolean = {
       val isCallbackURL = url.startsWith("http://localhost/auth")
       
       url match {
         case "http://www.plurk.com/" => 
-          activityCallback.onLoginFailure(new Exception("登入失敗，使用者拒絕授權"))
+          callbackHolder.foreach(_.onLoginFailure(new Exception("登入失敗，使用者拒絕授權")))
           showErrorNotice("登入失敗，使用者拒絕授權")
           false
         case _ if isCallbackURL => 
@@ -103,7 +114,7 @@ class LoginFragment extends Fragment {
                                  description: String, failingUrl: String) {
 
       if (!failingUrl.startsWith("http://localhost/auth")) {
-        activityCallback.onLoginFailure(new Exception(s"登入失敗，${description}"))
+        callbackHolder.foreach(_.onLoginFailure(new Exception(s"登入失敗，${description}")))
       } else {
         super.onReceivedError(view, errorCode, description, failingUrl)
       }
@@ -117,7 +128,7 @@ class LoginFragment extends Fragment {
         url != "http://www.plurk.com/" && url != "http://www.plurk.com/m/"
 
       if (shouldShowPage) {
-        loadingIndicator.setVisibility(View.GONE)
+        loadingIndicatorHolder.foreach(_.setVisibility(View.GONE))
       } else {
         super.onPageFinished(view, url)
       }
@@ -129,15 +140,15 @@ class LoginFragment extends Fragment {
       val code = uri.getQueryParameter("oauth_verifier")
       val authStatusFuture = future { plurkAPI.authorize(code).get }
 
-      loadingIndicator.setVisibility(View.VISIBLE)
+      loadingIndicatorHolder.foreach(_.setVisibility(View.VISIBLE))
 
       authStatusFuture.onSuccessInUI{ _ => 
-        activityCallback.onLoginSuccess() 
+        callbackHolder.foreach(_.onLoginSuccess())
       }
 
       authStatusFuture.onFailureInUI{ case e: Exception => 
         showErrorNotice("無法正確登入噗浪")
-        activityCallback.onLoginFailure(e) 
+        callbackHolder.foreach(_.onLoginFailure(e))
       }
     }
   }

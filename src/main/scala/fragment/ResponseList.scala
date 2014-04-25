@@ -22,6 +22,7 @@ import org.bone.soplurk.api.PlurkAPI._
 import org.bone.soplurk.model._
 
 import scala.concurrent._
+import scala.util.Try
 
 object ResponseList {
 
@@ -31,31 +32,49 @@ object ResponseList {
   }
 }
 
-class ResponseList(plurk: Plurk, owner: User) extends Fragment with PlurkAdapter.Listener {
+class ResponseList extends Fragment {
 
   private implicit def activity = getActivity
 
   private def plurkAPI = PlurkAPIHelper.getPlurkAPI
 
-  private lazy val activityCallback = getActivity.asInstanceOf[ResponseList.Listener]
+  private var callbackHolder: Option[ResponseList.Listener] = None
   private lazy val adapter = new ResponseAdapter(activity, plurk, owner)
+
+  private def listHolder = Option(getView).map(_.findView(TR.fragmentResponseList))
+  private def emptyViewHolder = Option(getView).map(_.findView(TR.fragmentResponseEmptyNotice))
+
+  var plurk: Plurk = _
+  var owner: User = _
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
                             savedInstanceState: Bundle): View = {
-    val view = inflater.inflate(R.layout.fragment_response, container, false)
-    setupResponseListView(view)
-    view
+    inflater.inflate(R.layout.fragment_response, container, false)
   }
 
-  override def onViewCreated(view: View, savedInstanceState: Bundle) {
+  override def onAttach(activity: Activity) {
+    super.onAttach(activity)
+    callbackHolder = for {
+      activity <- Option(activity)
+      callback <- Try(activity.asInstanceOf[ResponseList.Listener]).toOption
+    } yield callback
+  }
+
+  override def onStart() {
+    super.onStart()
+    setupResponseListView()
     loadResponses()
   }
 
-  private def setupResponseListView(containerView: View) {
-    val list = containerView.findView(TR.fragmentResponseList)
-    val emptyView = containerView.findView(TR.fragmentResponseEmptyNotice)
-    list.setEmptyView(emptyView)
-    list.setAdapter(adapter)
+  private def setupResponseListView() {
+    listHolder.foreach(_.setAdapter(adapter))
+
+    for {
+      list <- listHolder
+      emptyView <- emptyViewHolder
+    } {
+      listHolder.foreach(_.setEmptyView(emptyView))
+    }
   }
 
   def loadResponses() {
@@ -65,11 +84,11 @@ class ResponseList(plurk: Plurk, owner: User) extends Fragment with PlurkAdapter
     responses.onSuccessInUI { response =>
       adapter.update(response.responses, response.friends)
       PlurkView.updatePlurkCommentInfo(plurk.plurkID, response.responses.size, true)
-      activityCallback.onGetResponseSuccess(response)
+      callbackHolder.foreach(_.onGetResponseSuccess(response))
     }
 
     responses.onFailureInUI { case e: Exception =>
-      activityCallback.onGetResponseFailure(e)
+      callbackHolder.foreach(_.onGetResponseFailure(e))
     }
 
   }

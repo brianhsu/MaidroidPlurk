@@ -39,10 +39,10 @@ import uk.co.senab.actionbarpulltorefresh.library.Options
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener
 
 import scala.concurrent._
+import scala.util.Try
 
 object TimelineFragment {
   trait Listener {
-    def onPlurkSelected(plurk: Plurk, owner: User): Unit
     def onShowTimelinePlurksFailure(e: Exception): Unit
     def onShowTimelinePlurksSuccess(timeline: Timeline, isNewFilter: Boolean, filter: Option[Filter], isOnlyUnread: Boolean): Unit
     def onRefreshTimelineSuccess(newTimeline: Timeline): Unit
@@ -55,14 +55,14 @@ class TimelineFragment extends Fragment {
   private implicit def activity = getActivity
   private def plurkAPI = PlurkAPIHelper.getPlurkAPI
 
-  private lazy val activityCallback = activity.asInstanceOf[TimelineFragment.Listener]
+  private var callbackHolder: Option[TimelineFragment.Listener] = None
 
-  private lazy val listView = getView.findView(TR.fragmentTimelineListView)
-  private lazy val pullToRefresh = getView.findView(TR.fragementTimelinePullToRefresh)
-  private lazy val loadingIndicator = getView.findView(TR.moduleLoadingIndicator)
-  private lazy val errorNotice = getView.findView(TR.fragmentTimelineErrorNotice)
-  private lazy val loadMoreFooter = new LoadMoreFooter(activity)
+  private def listViewHolder = Option(getView).map(_.findView(TR.fragmentTimelineListView))
+  private def pullToRefreshHolder = Option(getView).map(_.findView(TR.fragementTimelinePullToRefresh))
+  private def loadingIndicatorHolder = Option(getView).map(_.findView(TR.moduleLoadingIndicator))
+  private def errorNoticeHolder = Option(getView).map(_.findView(TR.fragmentTimelineErrorNotice))
 
+  private var loadMoreFooter: LoadMoreFooter = _
   private var isLoadingMore = false
   private var hasMoreItem = true
 
@@ -84,28 +84,29 @@ class TimelineFragment extends Fragment {
 
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
 
-    listView.setEmptyView(view.findView(TR.fragmentTimelineEmptyNotice))
-    listView.addFooterView(loadMoreFooter)
+    loadMoreFooter = new LoadMoreFooter(activity)
+    listViewHolder.foreach(_.setEmptyView(view.findView(TR.fragmentTimelineEmptyNotice)))
+    listViewHolder.foreach(_.addFooterView(loadMoreFooter))
+    listViewHolder.foreach { listView =>
+      listView.setOnScrollListener(new OnScrollListener() {
 
-    updateListAdapter()
-    listView.setOnScrollListener(new OnScrollListener() {
+        def onScrollStateChanged(view: AbsListView, scrollState: Int) {}
+        def onScroll(view: AbsListView, firstVisibleItem: Int, 
+                     visibleItemCount: Int, totalItemCount: Int) {
 
-      def onScrollStateChanged(view: AbsListView, scrollState: Int) {}
-      def onScroll(view: AbsListView, firstVisibleItem: Int, 
-                   visibleItemCount: Int, totalItemCount: Int) {
+          val isLastItem = (firstVisibleItem + visibleItemCount) == totalItemCount
+          val shouldLoadingMore = isLastItem && !isLoadingMore && hasMoreItem
 
-        val isLastItem = (firstVisibleItem + visibleItemCount) == totalItemCount
-        val shouldLoadingMore = isLastItem && !isLoadingMore && hasMoreItem
-
-        if (shouldLoadingMore) {
-          loadMoreFooter.setStatus(LoadMoreFooter.Status.Loading)
-          loadingMoreItem()
+          if (shouldLoadingMore) {
+            loadMoreFooter.setStatus(LoadMoreFooter.Status.Loading)
+            loadingMoreItem()
+          }
         }
-      }
-    })
+      })
+    }
 
     loadMoreFooter.setOnRetryClickListener { retryButton: Button => loadingMoreItem() }
-
+    updateListAdapter()
     setupPullToRefresh()
     updateTimeline()
   }
@@ -124,19 +125,29 @@ class TimelineFragment extends Fragment {
     actionMenu
   }
 
+  override def onAttach(activity: Activity) {
+    super.onAttach(activity)
+    callbackHolder = for {
+      activity <- Option(activity)
+      callback <- Try(activity.asInstanceOf[TimelineFragment.Listener]).toOption
+    } yield callback
+  }
+
   override def onResume() {
     adapterHolder.foreach(_.notifyDataSetChanged())
     super.onResume()
   }
 
   private def showErrorNotice(message: String) {
-    loadingIndicator.setVisibility(View.GONE)
-    errorNotice.setVisibility(View.VISIBLE)
-    errorNotice.setMessageWithRetry(message) { retryButton =>
-      retryButton.setEnabled(false)
-      errorNotice.setVisibility(View.GONE)
-      loadingIndicator.setVisibility(View.VISIBLE)
-      updateTimeline()
+    loadingIndicatorHolder.foreach(_.setVisibility(View.GONE))
+    errorNoticeHolder.foreach(_.setVisibility(View.VISIBLE))
+    errorNoticeHolder.foreach { errorNotice =>
+      errorNotice.setMessageWithRetry(message) { retryButton =>
+        retryButton.setEnabled(false)
+        errorNoticeHolder.foreach(_.setVisibility(View.GONE))
+        loadingIndicatorHolder.foreach(_.setVisibility(View.VISIBLE))
+        updateTimeline()
+      }
     }
   }
 
@@ -150,22 +161,24 @@ class TimelineFragment extends Fragment {
         newTimelineFuture.onFailureInUI {
           case e: Exception => 
             DebugLog(s"error: $e", e)
-            activityCallback.onRefreshTimelineFailure(e)
-            pullToRefresh.setRefreshComplete()
+            callbackHolder.foreach(_.onRefreshTimelineFailure(e))
+            pullToRefreshHolder.foreach(_.setRefreshComplete())
         }
 
         newTimelineFuture.onSuccessInUI { newTimeline: Timeline => 
           adapterHolder.foreach(_.prependTimeline(newTimeline))
-          activityCallback.onRefreshTimelineSuccess(newTimeline)
-          pullToRefresh.setRefreshComplete()
+          callbackHolder.foreach(_.onRefreshTimelineSuccess(newTimeline))
+          pullToRefreshHolder.foreach(_.setRefreshComplete())
         }
       }
     }
 
-    ActionBarPullToRefresh.
-      from(activity).options(options).
-      allChildrenArePullable.listener(onRefresh).
-      setup(pullToRefresh)
+    pullToRefreshHolder.foreach { view =>
+      ActionBarPullToRefresh.
+        from(activity).options(options).
+        allChildrenArePullable.listener(onRefresh).
+        setup(view)
+    }
   }
 
   private def loadingMoreItem() {
@@ -217,8 +230,13 @@ class TimelineFragment extends Fragment {
   }
 
   private def updateListAdapter() {
-    this.adapterHolder = Some(new PlurkAdapter(activity, false, Some(activityCallback.onPlurkSelected _)))
-    this.adapterHolder.foreach(this.listView.setAdapter)
+    this.adapterHolder = Some(new PlurkAdapter(activity, false))
+    for {
+      adapter <- this.adapterHolder
+      listView <- this.listViewHolder
+    } { 
+      listView.setAdapter(adapter)
+    }
   }
 
   override def onPrepareOptionsMenu(menu: Menu) {
@@ -286,19 +304,19 @@ class TimelineFragment extends Fragment {
         }
 
         adapterHolder.foreach(_.appendTimeline(timeline))
-        activityCallback.onShowTimelinePlurksSuccess(timeline, isNewFilter, plurkFilter, isUnreadOnly)
+        callbackHolder.foreach(_.onShowTimelinePlurksSuccess(timeline, isNewFilter, plurkFilter, isUnreadOnly))
         filterButtonHolder.foreach { _.setEnabled(true) }
         toggleButtonHolder.foreach { button =>
           button.setEnabled(true)
           MenuItemCompat.setActionView(button, null)
           button.setTitle(if (isUnreadOnly) "未讀噗" else "所有噗")
         }
-        loadingIndicator.setVisibility(View.GONE)
+        loadingIndicatorHolder.foreach(_.setVisibility(View.GONE))
       }
     }
 
     plurksFuture.onFailureInUI { case e: Exception =>
-      activityCallback.onShowTimelinePlurksFailure(e)
+      callbackHolder.foreach(_.onShowTimelinePlurksFailure(e))
       showErrorNotice("無法讀取噗浪河道資料")
     }
   }
