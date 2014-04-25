@@ -1,6 +1,7 @@
 package idv.brianhsu.maidroid.plurk.view
 
 import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.plurk.cache._
 import idv.brianhsu.maidroid.plurk.util._
@@ -27,9 +28,16 @@ import java.net.URL
 
 object PlurkView {
 
+  private var plurkCommentCount: Map[Long, Int] = Map.empty
+  private var plurkReadStatus: Map[Long, Boolean] = Map.empty
   private var plurkMutedStatus: Map[Long, Boolean] = Map.empty
   private var plurkFavoriteInfo: Map[Long, FavoriteInfo] = Map.empty
   private var plurkReplurkInfo: Map[Long, ReplurkInfo] = Map.empty
+
+  def updatePlurkCommentInfo(plurkID: Long, newCount: Int, newReadStatus: Boolean) {
+    plurkCommentCount += (plurkID -> newCount)
+    plurkReadStatus += (plurkID -> newReadStatus)
+  }
 
   def updatePlurkReplurkInfo(plurkID: Long, replurkInfo: ReplurkInfo) {
     plurkReplurkInfo += (plurkID -> replurkInfo)
@@ -48,7 +56,8 @@ object PlurkView {
   def getPlurkMutedStatus(plurkID: Long) = plurkMutedStatus.get(plurkID)
 }
 
-class PlurkView(implicit val activity: Activity) extends LinearLayout(activity) {
+class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activity)
+                extends LinearLayout(activity) {
 
   private val inflater = activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE).
                                   asInstanceOf[LayoutInflater]
@@ -66,8 +75,12 @@ class PlurkView(implicit val activity: Activity) extends LinearLayout(activity) 
   lazy val replurk = this.findView(TR.itemPlurkReplurk)
   lazy val mute = this.findView(TR.itemPlurkMute)
   lazy val favorite = this.findView(TR.itemPlurkFavorite)
+  lazy val replurkerName = this.findView(TR.itemPlurkReplurkerName)
+  lazy val replurkerBlock = this.findView(TR.itemPlurkReplurkerBlock)
 
-  private var onwerID: Long = 0
+  private var ownerID: Long = 0
+  private var owner: User = _
+  private var replurker: Option[User] = None
   private def plurkAPI = PlurkAPIHelper.getPlurkAPI
 
   private def initView() {
@@ -247,20 +260,42 @@ class PlurkView(implicit val activity: Activity) extends LinearLayout(activity) 
     }
   }
 
-  private def setCommentInfo(plurk: Plurk) {
-    commentCount.setText(plurk.responseCount.toString)
+  private def setReplurkerInfo(plurk: Plurk) {
 
-    plurk.readStatus match {
-      case Some(Unread) => commentCount.setBackgroundResource(R.drawable.rounded_red)
-      case _ => commentCount.setBackgroundResource(R.drawable.rounded_gray)
+    replurker match {
+      case None => replurkerBlock.setVisibility(View.GONE)
+      case Some(user) =>
+        replurkerName.setText(user.displayName)
+        replurkerBlock.setVisibility(View.VISIBLE)
     }
   }
 
-  def update(plurk: Plurk, owner: User, imageGetter: PlurkImageGetter): View = {
-    this.onwerID = owner.id
+  private def setCommentInfo(plurk: Plurk) {
+
+    val plurkCommentCount = PlurkView.plurkCommentCount.get(plurk.plurkID).getOrElse(plurk.responseCount).toString
+    val isRead = PlurkView.plurkReadStatus.get(plurk.plurkID).getOrElse(plurk.readStatus != Some(Unread))
+
+    commentCount.setText(plurkCommentCount)
+
+    isRead match {
+      case true  => commentCount.setBackgroundResource(R.drawable.rounded_gray)
+      case false => commentCount.setBackgroundResource(R.drawable.rounded_red)
+    }
+
+    if (isInResponseList) {
+      commentCount.setVisibility(View.GONE)
+    }
+  }
+
+  def update(plurk: Plurk, owner: User, replurker: Option[User], imageGetter: PlurkImageGetter): View = {
+    this.ownerID = owner.id
+    this.owner = owner
+    this.replurker = replurker
+
     content.setText(Html.fromHtml(plurk.content, imageGetter, null))
     postedDate.setText(dateTimeFormatter.format(plurk.posted))
     displayName.setText(owner.displayName)
+
     QualifierDisplay(plurk) match {
       case None => qualifier.setVisibility(View.GONE)
       case Some((backgroundColor, translatedName)) =>
@@ -277,6 +312,7 @@ class PlurkView(implicit val activity: Activity) extends LinearLayout(activity) 
 
     setCommentInfo(plurk)
     setReplurkInfo(plurk)
+    setReplurkerInfo(plurk)
     setFavoriteInfo(plurk)
     setMuteInfo(plurk)
     this
@@ -291,10 +327,14 @@ class PlurkView(implicit val activity: Activity) extends LinearLayout(activity) 
     avatarFuture.onSuccessInUI { case(userID, bitmap) =>
       // Prevent race condition that cause display incorrect avatar for
       // recylced row view.
-      if (userID == onwerID) {
+      if (userID == ownerID) {
         avatar.setImageBitmap(bitmap)
       }
     }
+  }
+
+  def setOnCommentCountClickListener(callback: => Any) {
+    commentCount.setOnClickListener { view: View => callback }
   }
 }
 

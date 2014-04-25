@@ -9,6 +9,7 @@
     android:id="@+id/item_loading_footer_progress"
     android:layout_width="match_parent"
     android:layout_height="fill_parent"
+    android:visibility="gone"
     android:gravity="center"
     android:padding="5dp"/>
   <Button

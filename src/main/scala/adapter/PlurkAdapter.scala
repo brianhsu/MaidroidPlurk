@@ -1,6 +1,7 @@
 package idv.brianhsu.maidroid.plurk.adapter
 
 import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.view.PlurkView
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
@@ -21,7 +22,14 @@ import org.bone.soplurk.model._
 
 import java.net.URL
 
-class PlurkAdapter(activity: Activity) extends BaseAdapter {
+object PlurkAdapter {
+  trait Listener {
+    def onPlurkSelected(plurk: Plurk, user: User) {}
+  }
+  type OnSelectedCallback = (Plurk, User) => Unit
+}
+
+class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false, callbackHolder: Option[PlurkAdapter.OnSelectedCallback] = None) extends BaseAdapter {
   private implicit val mActivity = activity
   private var plurks: Vector[Plurk] = Vector.empty
   private var users: Map[Long, User] = Map.empty
@@ -37,12 +45,22 @@ class PlurkAdapter(activity: Activity) extends BaseAdapter {
 
     val itemView = convertView match {
       case view: PlurkView => view
-      case _ => new PlurkView
+      case _ => new PlurkView(isInResponseList)
     }
 
     val plurk = plurks(position)
-    val onwer = users(plurk.ownerID)
-    itemView.update(plurk, onwer, textViewImageGetter)
+    val owner = users(plurk.ownerID)
+    val replurker = for {
+      replurkerID <- plurk.replurkInfo.replurkerID
+      replurkUser <- users.get(replurkerID)
+    } yield replurkUser
+
+    itemView.update(plurk, owner, replurker, textViewImageGetter)
+
+    callbackHolder.foreach { callback =>
+      itemView.setOnCommentCountClickListener { callback(plurk, owner) }
+    }
+    itemView
   }
 
   def prependTimeline(newPlurks: Timeline) {
@@ -57,6 +75,11 @@ class PlurkAdapter(activity: Activity) extends BaseAdapter {
     plurks ++= timeline.plurks
     users ++= newUsers
     notifyDataSetChanged
+  }
+
+  def addOnlyOnePlurk(user: User, plurk: Plurk) {
+    plurks = Vector(plurk)
+    users = Map(user.id -> user)
   }
 
   def lastPlurkDate = plurks.last.posted

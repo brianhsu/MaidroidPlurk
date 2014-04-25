@@ -2,16 +2,21 @@ package idv.brianhsu.maidroid.plurk.activity
 
 import android.app.Activity
 import android.os.Bundle
+import android.content.Intent
+
 import android.view.View
 import android.support.v7.app.ActionBarActivity
 
 import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.util._
+import idv.brianhsu.maidroid.plurk.adapter._
 import idv.brianhsu.maidroid.ui.model._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
 import org.bone.soplurk.api.PlurkAPI.Timeline
+import org.bone.soplurk.model.Plurk
+import org.bone.soplurk.model.User
 import org.bone.soplurk.constant.Filter
 import org.bone.soplurk.constant.Filter._
 
@@ -22,7 +27,8 @@ import scala.concurrent._
 import scala.util.Try
 
 class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
-                    with ErrorNotice.Listener with Login.Listener with TimelinePlurksFragment.Listener
+                    with ErrorNotice.Listener with Login.Listener 
+                    with TimelinePlurksFragment.Listener with PlurkAdapter.Listener
 {
   implicit val activity = this
 
@@ -56,6 +62,14 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
       Message(MaidMaro.Half.Normal, s"對了，系統說這個錯誤是：「${error.getMessage}」造成的說") :: Nil
     )
 
+  }
+
+  override def onPlurkSelected(plurk: Plurk, user: User) {
+    val intent = new Intent(this, classOf[PlurkResponse])
+    PlurkResponse.plurk = plurk
+    PlurkResponse.user = user
+    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+    startActivity(intent)
   }
 
   def onLoginFailure(error: Exception) {
@@ -163,6 +177,7 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
   }
 
   override def onRefreshTimelineSuccess(newTimeline: Timeline) {
+
     if (newTimeline.plurks.size > 0) {
       dialogFrame.setMessages(
         Message(MaidMaro.Half.Happy, s"已經幫主人把河道上最新的噗抓下來囉！總共有 ${newTimeline.plurks.size} 則新的噗喲。", None) :: 
@@ -176,12 +191,16 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
     }
   }
 
-  private def switchToFragment(fragment: Fragment) {
-    loadingIndicator.setVisibility(View.VISIBLE)
-    getSupportFragmentManager.
-        beginTransaction.
-        replace(R.id.activityMaidroidPlurkFragmentContainer, fragment).
-        commit()
+  private def switchToFragment(fragment: Fragment, addToBackStack: Boolean = false) {
+
+    val transaction = getSupportFragmentManager.beginTransaction
+    transaction.replace(R.id.activityMaidroidPlurkFragmentContainer, fragment)
+
+    if (addToBackStack) {
+      transaction.addToBackStack(null)
+    }
+
+    transaction.commit()
   }
 
   private def retryLogin() {
