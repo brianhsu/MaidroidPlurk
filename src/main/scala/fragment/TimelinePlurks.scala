@@ -41,8 +41,6 @@ import scala.concurrent._
 object TimelinePlurksFragment {
   trait Listener {
     def onPlurkSelected(plurk: Plurk, owner: User): Unit
-    def onShowLoadingUI(): Unit
-    def onHideLoadingUI(): Unit
     def onShowTimelinePlurksFailure(e: Exception): Unit
     def onShowTimelinePlurksSuccess(timeline: Timeline, isNewFilter: Boolean, filter: Option[Filter], isOnlyUnread: Boolean): Unit
     def onRefreshTimelineSuccess(newTimeline: Timeline): Unit
@@ -120,7 +118,6 @@ class TimelinePlurksFragment extends Fragment {
 
     footerRetry.setOnClickListener { view: View => loadingMoreItem() }
 
-    activityCallback.onShowLoadingUI()
     setupPullToRefresh()
     updateTimeline()
   }
@@ -297,7 +294,6 @@ class TimelinePlurksFragment extends Fragment {
         }
 
         adapterHolder.foreach(_.appendTimeline(timeline))
-        activityCallback.onHideLoadingUI()
         activityCallback.onShowTimelinePlurksSuccess(timeline, isNewFilter, plurkFilter, isUnreadOnly)
         filterButtonHolder.foreach { _.setEnabled(true) }
         toggleButtonHolder.foreach { button =>

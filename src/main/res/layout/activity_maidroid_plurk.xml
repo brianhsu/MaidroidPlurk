@@ -10,13 +10,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <include layout="@layout/module_loading_indicator"/>
-    <fragment 
-      android:name="idv.brianhsu.maidroid.plurk.fragment.ErrorNotice"
-      android:id="@+id/activityMaidroidPlurkErrorNotice"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent" />
-
     <FrameLayout
       android:id="@+id/activityMaidroidPlurkFragmentContainer"
       android:layout_width="match_parent"
