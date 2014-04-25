@@ -54,15 +54,13 @@ class ResponseView(implicit val activity: Activity) extends LinearLayout(activit
     postedDate.setText(dateTimeFormatter.format(response.posted))
     displayName.setText(owner.displayName)
 
-    /*
-    QualifierDisplay(response) match {
+    QualifierDisplay(response.qualifier, activity) match {
       case None => qualifier.setVisibility(View.GONE)
       case Some((backgroundColor, translatedName)) =>
         qualifier.setBackgroundColor(backgroundColor)
         qualifier.setText(translatedName)
         qualifier.setVisibility(View.VISIBLE)
     }
-    */
 
     avatar.setImageResource(R.drawable.default_avatar)
     AvatarCache.getAvatarBitmap(owner) match {
