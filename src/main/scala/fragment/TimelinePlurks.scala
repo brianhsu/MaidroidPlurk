@@ -64,6 +64,8 @@ class TimelinePlurksFragment extends Fragment {
                                      inflate(R.layout.item_loading_footer, null, false)
 
   private var isLoadingMore = false
+  private var hasMoreItem = true
+
   private var adapterHolder: Option[PlurkAdapter] = None
   private var toggleButtonHolder: Option[MenuItem] = None
   private var filterButtonHolder: Option[MenuItem] = None
@@ -102,13 +104,16 @@ class TimelinePlurksFragment extends Fragment {
                    visibleItemCount: Int, totalItemCount: Int) {
 
         val isLastItem = (firstVisibleItem + visibleItemCount) == totalItemCount
-        val shouldLoadingMore = isLastItem && !isLoadingMore
+        val shouldLoadingMore = isLastItem && !isLoadingMore && hasMoreItem
+
+        DebugLog("====> shouldLoadingMore:" + shouldLoadingMore)
 
         if (shouldLoadingMore) {
           footerRetry.setEnabled(false)
           footerRetry.setVisibility(View.GONE)
           footerProgress.setVisibility(View.VISIBLE)
-          loadingMoreItem
+          DebugLog("====> start loadingMoreItem")
+          loadingMoreItem()
         }
       }
     })
@@ -135,7 +140,6 @@ class TimelinePlurksFragment extends Fragment {
   }
 
   override def onResume() {
-    DebugLog("====> onResume....")
     adapterHolder.foreach(_.notifyDataSetChanged())
     super.onResume()
   }
@@ -169,23 +173,17 @@ class TimelinePlurksFragment extends Fragment {
   }
 
   private def loadingMoreItem() {
-    this.isLoadingMore = true
 
-    footerProgress.setVisibility(View.VISIBLE)
+    this.isLoadingMore = true
 
     val olderTimelineFuture = future { getPlurks(offset = adapterHolder.map(_.lastPlurkDate)) }
 
     olderTimelineFuture.onSuccessInUI { timeline => 
       adapterHolder.foreach(_.appendTimeline(timeline))
-
+      footerProgress.setVisibility(View.GONE)
       footerRetry.setVisibility(View.GONE)
-      footerRetry.setEnabled(true)
-
-      timeline.plurks.isEmpty match {
-        case true   => footer.setVisibility(View.GONE)
-        case faslse => footer.setVisibility(View.VISIBLE)
-      }
-
+      footerRetry.setEnabled(false)
+      this.hasMoreItem = !timeline.plurks.isEmpty
       this.isLoadingMore = false
     }
 
@@ -274,6 +272,10 @@ class TimelinePlurksFragment extends Fragment {
   private var adapterVersion: Int = 0
 
   def updateTimeline(isNewFilter: Boolean = false) {
+
+    this.isLoadingMore = false
+    this.hasMoreItem = true
+    this.footerProgress.setVisibility(View.GONE)
 
     if (isNewFilter) {
       adapterVersion += 1
