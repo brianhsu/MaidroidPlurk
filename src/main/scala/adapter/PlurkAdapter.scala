@@ -50,8 +50,12 @@ class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false, callba
 
     val plurk = plurks(position)
     val owner = users(plurk.ownerID)
+    val replurker = for {
+      replurkerID <- plurk.replurkInfo.replurkerID
+      replurkUser <- users.get(replurkerID)
+    } yield replurkUser
 
-    itemView.update(plurk, owner, textViewImageGetter)
+    itemView.update(plurk, owner, replurker, textViewImageGetter)
 
     callbackHolder.foreach { callback =>
       itemView.setOnCommentCountClickListener { callback(plurk, owner) }

@@ -29,6 +29,13 @@ import java.net.URL
 class ResponseAdapter(activity: Activity, plurk: Plurk, owner: User) extends BaseAdapter {
 
   private implicit val mActivity = activity
+
+  private lazy val replurker = for {
+    replurkerID <- plurk.replurkInfo.replurkerID
+    friends <- friendsHolder
+    replurkUser <- friends.get(replurkerID)
+  } yield replurkUser
+
   private var responsesHolder: Option[Vector[Response]] = None
   private var friendsHolder: Option[Map[Long, User]] = None
   private val textViewImageGetter = new PlurkImageGetter(activity, this)
@@ -54,7 +61,7 @@ class ResponseAdapter(activity: Activity, plurk: Plurk, owner: User) extends Bas
       case _ => new PlurkView(true)
     }
 
-    itemView.update(plurk, owner, textViewImageGetter)
+    itemView.update(plurk, owner, replurker, textViewImageGetter)
     itemView
   }
 

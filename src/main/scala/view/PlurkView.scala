@@ -75,9 +75,12 @@ class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activi
   lazy val replurk = this.findView(TR.itemPlurkReplurk)
   lazy val mute = this.findView(TR.itemPlurkMute)
   lazy val favorite = this.findView(TR.itemPlurkFavorite)
+  lazy val replurkerName = this.findView(TR.itemPlurkReplurkerName)
+  lazy val replurkerBlock = this.findView(TR.itemPlurkReplurkerBlock)
 
   private var ownerID: Long = 0
   private var owner: User = _
+  private var replurker: Option[User] = None
   private def plurkAPI = PlurkAPIHelper.getPlurkAPI
 
   private def initView() {
@@ -257,6 +260,16 @@ class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activi
     }
   }
 
+  private def setReplurkerInfo(plurk: Plurk) {
+
+    replurker match {
+      case None => replurkerBlock.setVisibility(View.GONE)
+      case Some(user) =>
+        replurkerName.setText(user.displayName)
+        replurkerBlock.setVisibility(View.VISIBLE)
+    }
+  }
+
   private def setCommentInfo(plurk: Plurk) {
 
     val plurkCommentCount = PlurkView.plurkCommentCount.get(plurk.plurkID).getOrElse(plurk.responseCount).toString
@@ -274,12 +287,15 @@ class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activi
     }
   }
 
-  def update(plurk: Plurk, owner: User, imageGetter: PlurkImageGetter): View = {
+  def update(plurk: Plurk, owner: User, replurker: Option[User], imageGetter: PlurkImageGetter): View = {
     this.ownerID = owner.id
     this.owner = owner
+    this.replurker = replurker
+
     content.setText(Html.fromHtml(plurk.content, imageGetter, null))
     postedDate.setText(dateTimeFormatter.format(plurk.posted))
     displayName.setText(owner.displayName)
+
     QualifierDisplay(plurk) match {
       case None => qualifier.setVisibility(View.GONE)
       case Some((backgroundColor, translatedName)) =>
@@ -296,6 +312,7 @@ class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activi
 
     setCommentInfo(plurk)
     setReplurkInfo(plurk)
+    setReplurkerInfo(plurk)
     setFavoriteInfo(plurk)
     setMuteInfo(plurk)
     this
