@@ -38,7 +38,7 @@ import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener
 
 import scala.concurrent._
 
-object TimelinePlurksFragment {
+object TimelineFragment {
   trait Listener {
     def onPlurkSelected(plurk: Plurk, owner: User): Unit
     def onShowTimelinePlurksFailure(e: Exception): Unit
@@ -48,18 +48,21 @@ object TimelinePlurksFragment {
   }
 }
 
-class TimelinePlurksFragment extends Fragment {
+class TimelineFragment extends Fragment {
 
   private implicit def activity = getActivity
-  private var activityCallback: TimelinePlurksFragment.Listener = _
   private def plurkAPI = PlurkAPIHelper.getPlurkAPI
 
-  private def listView = getView.findView(TR.fragmentTimelinePlurksListView)
-  private def pullToRefresh = getView.findView(TR.fragementTimelinePullToRefresh)
-  private def footerProgress = getView.findView(TR.item_loading_footer_progress)
-  private def footerRetry = getView.findView(TR.item_loading_footer_retry)
-  private def footer = activity.getLayoutInflater.
-                                     inflate(R.layout.item_loading_footer, null, false)
+  private lazy val activityCallback = activity.asInstanceOf[TimelineFragment.Listener]
+
+  private lazy val listView = getView.findView(TR.fragmentTimelineListView)
+  private lazy val pullToRefresh = getView.findView(TR.fragementTimelinePullToRefresh)
+  private lazy val footerProgress = getView.findView(TR.item_loading_footer_progress)
+  private lazy val footerRetry = getView.findView(TR.item_loading_footer_retry)
+  private lazy val footer = activity.getLayoutInflater.inflate(R.layout.item_loading_footer, null, false)
+
+  private lazy val loadingIndicator = getView.findView(TR.moduleLoadingIndicator)
+  private lazy val errorNotice = getView.findView(TR.fragmentTimelineErrorNotice)
 
   private var isLoadingMore = false
   private var hasMoreItem = true
@@ -72,18 +75,6 @@ class TimelinePlurksFragment extends Fragment {
   private var isUnreadOnly = false
   private var plurkFilter: Option[Filter] = None
 
-  override def onAttach(activity: Activity) {
-    super.onAttach(activity)
-    try {
-      activityCallback = activity.asInstanceOf[TimelinePlurksFragment.Listener]
-    } catch {
-      case e: ClassCastException => 
-        throw new ClassCastException(
-          s"${activity} must mixed with TimelinePlurksFragment.Listener"
-        )
-    }
-  }
-
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
                             savedInstanceState: Bundle): View = {
     setHasOptionsMenu(true)
@@ -92,7 +83,7 @@ class TimelinePlurksFragment extends Fragment {
 
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
 
-    listView.setEmptyView(view.findView(TR.fragmentTimelinePlurksEmptyNotice))
+    listView.setEmptyView(view.findView(TR.fragmentTimelineEmptyNotice))
     listView.addFooterView(footer)
     updateListAdapter()
     listView.setOnScrollListener(new OnScrollListener() {
@@ -139,6 +130,17 @@ class TimelinePlurksFragment extends Fragment {
   override def onResume() {
     adapterHolder.foreach(_.notifyDataSetChanged())
     super.onResume()
+  }
+
+  private def showErrorNotice(message: String) {
+    loadingIndicator.setVisibility(View.GONE)
+    errorNotice.setVisibility(View.VISIBLE)
+    errorNotice.setMessageWithRetry(message) { retryButton =>
+      retryButton.setEnabled(false)
+      errorNotice.setVisibility(View.GONE)
+      loadingIndicator.setVisibility(View.VISIBLE)
+      updateTimeline()
+    }
   }
 
   private def setupPullToRefresh() {
@@ -301,11 +303,13 @@ class TimelinePlurksFragment extends Fragment {
           MenuItemCompat.setActionView(button, null)
           button.setTitle(if (isUnreadOnly) "未讀噗" else "所有噗")
         }
+        loadingIndicator.setVisibility(View.GONE)
       }
     }
 
     plurksFuture.onFailureInUI { case e: Exception =>
       activityCallback.onShowTimelinePlurksFailure(e)
+      showErrorNotice("無法讀取噗浪河道資料")
     }
   }
 }

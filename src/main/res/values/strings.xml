@@ -7,7 +7,7 @@
   <string name="moduleErrorMesssageTextDefault">發生錯誤了 :-(</string>
   <string name="moduleErrorMessageRetryButtonTitle">重試一次</string>
 
-  <string name="fragmentTimelinePlurksEmptyNoticeText">目前河道上沒東西呢……</string>
+  <string name="fragmentTimelineEmptyNoticeText">目前河道上沒東西呢……</string>
 
   <string name="fragmentResponseEmptyNoticeText">還沒有人回應哦，趕快來搶頭香囉！:)</string>
 

@@ -28,7 +28,7 @@ import scala.util.Try
 
 class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
                     with LoginFragment.Listener 
-                    with TimelinePlurksFragment.Listener with PlurkAdapter.Listener
+                    with TimelineFragment.Listener with PlurkAdapter.Listener
 {
   implicit val activity = this
 
@@ -61,7 +61,7 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
   }
 
   def onLoginSuccess() {
-    // switchToFragment(fragmentTimelinePlurks)
+    switchToFragment(new TimelineFragment)
     dialogFrame.setMessages(
       Message(MaidMaro.Half.Happy, "成功登入噗浪了呢！", None) :: 
       Message(MaidMaro.Half.Smile, "小鈴正在幫主人整理河道上的資料，請主人稍候一下喲。", None) ::
