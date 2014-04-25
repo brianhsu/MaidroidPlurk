@@ -29,22 +29,22 @@ import java.net.URL
 class ResponseAdapter(activity: Activity, plurk: Plurk, owner: User) extends BaseAdapter {
 
   private implicit val mActivity = activity
-  private var responses: Vector[Response] = Vector.empty
-  private var friends: Map[Long, User] = Map.empty
+  private var responsesHolder: Option[Vector[Response]] = None
+  private var friendsHolder: Option[Map[Long, User]] = None
   private val textViewImageGetter = new PlurkImageGetter(activity, this)
 
-  def getCount = responses.size + 2
+  def getCount = responsesHolder.map(_.size).getOrElse(0) + 2
 
   def getItem(position: Int) = position match {
     case 0 => plurk
-    case 1 => "Header"
-    case n => responses(n-2)
+    case 1 => None
+    case n => responsesHolder.get(n-2)
   }
 
   def getItemId(position: Int) = position match {
     case 0 => plurk.plurkID
-    case 1 => "Header".hashCode
-    case n => responses(n-2).id
+    case 1 => None.hashCode
+    case n => responsesHolder.get(n-2).id
   }
 
   def getPlurkView(convertView: View): View = {
@@ -65,7 +65,7 @@ class ResponseAdapter(activity: Activity, plurk: Plurk, owner: User) extends Bas
       case _ => new ResponseView
     }
 
-    val owner = friends(response.userID)
+    val owner = friendsHolder.get(response.userID)
     itemView.update(response, owner, textViewImageGetter)
     itemView
   }
@@ -74,11 +74,17 @@ class ResponseAdapter(activity: Activity, plurk: Plurk, owner: User) extends Bas
     val infalter = activity.getLayoutInflater
     val view = infalter.inflate(R.layout.item_header_response, parent, false)
     val loadingIndicator = view.findView(TR.itemHeaderResponseLoadingIndicator)
+    val emptyNotice = view.findView(TR.itemHeaderResponseEmptyNotice)
 
-    if (responses.isEmpty) {
+    if (responsesHolder.isEmpty) {
       loadingIndicator.setVisibility(View.VISIBLE)
+      emptyNotice.setVisibility(View.GONE)
+    } else if (responsesHolder.map(_.isEmpty).getOrElse(false)){
+      loadingIndicator.setVisibility(View.GONE)
+      emptyNotice.setVisibility(View.VISIBLE)
     } else {
       loadingIndicator.setVisibility(View.GONE)
+      emptyNotice.setVisibility(View.GONE)
     }
 
     view
@@ -89,13 +95,13 @@ class ResponseAdapter(activity: Activity, plurk: Plurk, owner: User) extends Bas
     position match {
       case 0 => getPlurkView(convertView)
       case 1 => getHeaderView(convertView, parent)
-      case n => getResponseView(responses(n-2), convertView)
+      case n => getResponseView(responsesHolder.get(n-2), convertView)
     }
   }
 
   def update(responses: List[Response], friends: Map[Long, User]) {
-    this.responses = responses.toVector
-    this.friends = friends
+    this.responsesHolder = Some(responses.toVector)
+    this.friendsHolder = Some(friends)
     notifyDataSetChanged()
   }
 }
