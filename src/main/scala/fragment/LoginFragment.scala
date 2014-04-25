@@ -14,13 +14,13 @@ import android.view.ViewGroup
 import android.view.View
 import android.webkit.WebViewClient
 import android.webkit.WebView
+import android.widget.Button
 
 import org.bone.soplurk.api._
 import scala.concurrent._
 
 object LoginFragment {
   trait Listener {
-    def onShowAuthorizationPage(url: String): Unit
     def onGetAuthURLFailure(error: Exception): Unit
     def onLoginFailure(error: Exception): Unit
     def onLoginSuccess(): Unit
@@ -34,6 +34,8 @@ class LoginFragment extends Fragment {
 
   private lazy val webView = getView.findView(TR.fragmentLoginWebView)
   private lazy val loadingIndicator = getView.findView(TR.moduleLoadingIndicator)
+  private lazy val errorNotice = getView.findView(TR.fragmentLoginErrorNotice)
+
   private lazy val activityCallback = activity.asInstanceOf[LoginFragment.Listener]
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
@@ -41,8 +43,20 @@ class LoginFragment extends Fragment {
     inflater.inflate(R.layout.fragment_login, container, false)
   }
 
-  override def onViewCreated(view: View, savedInstatnceState: Bundle) {
+  override def onStart() {
     startAuthorization()
+    super.onStart()
+  }
+
+  def showErrorNotice(message: String){
+    loadingIndicator.setVisibility(View.GONE)
+    errorNotice.setVisibility(View.VISIBLE)
+    errorNotice.setMessageWithRetry(message) { retryButton =>
+      retryButton.setEnabled(false)
+      errorNotice.setVisibility(View.GONE)
+      loadingIndicator.setVisibility(View.VISIBLE)
+      startAuthorization()
+    }
   }
 
   def startAuthorization() {
@@ -57,6 +71,7 @@ class LoginFragment extends Fragment {
       case error: Exception => {
         DebugLog("====> authorizationURL.onFailureInUI:" + error.getMessage, error) 
         activityCallback.onGetAuthURLFailure(error)
+        showErrorNotice("無法取得噗浪登入網址")
       }
     }
 
@@ -72,9 +87,15 @@ class LoginFragment extends Fragment {
       val isCallbackURL = url.startsWith("http://localhost/auth")
       
       url match {
-        case "http://www.plurk.com/" => activityCallback.onLoginFailure(new Exception("登入失敗，使用者拒絕授權")) ; false
-        case _ if isCallbackURL => startAuth(url); false
-        case _ => super.shouldOverrideUrlLoading(view, url)
+        case "http://www.plurk.com/" => 
+          activityCallback.onLoginFailure(new Exception("登入失敗，使用者拒絕授權"))
+          showErrorNotice("登入失敗，使用者拒絕授權")
+          false
+        case _ if isCallbackURL => 
+          startAuth(url)
+          false
+        case _ => 
+          super.shouldOverrideUrlLoading(view, url)
       }
     }
 
@@ -96,10 +117,8 @@ class LoginFragment extends Fragment {
         url != "http://www.plurk.com/" && url != "http://www.plurk.com/m/"
 
       if (shouldShowPage) {
-        activityCallback.onShowAuthorizationPage(url)
         loadingIndicator.setVisibility(View.GONE)
       } else {
-        loadingIndicator.setVisibility(View.VISIBLE)
         super.onPageFinished(view, url)
       }
     }
@@ -116,7 +135,10 @@ class LoginFragment extends Fragment {
         activityCallback.onLoginSuccess() 
       }
 
-      authStatusFuture.onFailureInUI{ case e: Exception => activityCallback.onLoginFailure(e) }
+      authStatusFuture.onFailureInUI{ case e: Exception => 
+        showErrorNotice("無法正確登入噗浪")
+        activityCallback.onLoginFailure(e) 
+      }
     }
   }
 }

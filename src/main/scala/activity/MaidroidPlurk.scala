@@ -35,9 +35,6 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
   private lazy val dialogFrame = findView(TR.dialogFrame)
   private lazy val fragmentContainer = findView(TR.activityMaidroidPlurkFragmentContainer)
 
-  def onShowAuthorizationPage(url: String) {
-  }
-
   def onGetAuthURLFailure(error: Exception) {
     dialogFrame.setMessages(
       Message(MaidMaro.Half.Panic, "咦咦咦咦？！怎麼會這樣，沒辦法找到噗浪的登入網頁耶……", None) :: 
