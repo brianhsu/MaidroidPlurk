@@ -4,6 +4,7 @@ import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.adapter._
 import idv.brianhsu.maidroid.plurk.cache._
 import idv.brianhsu.maidroid.plurk.util._
+import idv.brianhsu.maidroid.plurk.view._
 import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 import idv.brianhsu.maidroid.ui.util.CallbackConversions._
@@ -30,6 +31,7 @@ import android.widget.AbsListView
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.widget.Button
 import android.support.v4.view.MenuItemCompat
 
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh
@@ -57,12 +59,9 @@ class TimelineFragment extends Fragment {
 
   private lazy val listView = getView.findView(TR.fragmentTimelineListView)
   private lazy val pullToRefresh = getView.findView(TR.fragementTimelinePullToRefresh)
-  private lazy val footerProgress = getView.findView(TR.item_loading_footer_progress)
-  private lazy val footerRetry = getView.findView(TR.item_loading_footer_retry)
-  private lazy val footer = activity.getLayoutInflater.inflate(R.layout.item_loading_footer, null, false)
-
   private lazy val loadingIndicator = getView.findView(TR.moduleLoadingIndicator)
   private lazy val errorNotice = getView.findView(TR.fragmentTimelineErrorNotice)
+  private lazy val loadMoreFooter = new LoadMoreFooter(activity)
 
   private var isLoadingMore = false
   private var hasMoreItem = true
@@ -72,6 +71,8 @@ class TimelineFragment extends Fragment {
   private var filterButtonHolder: Option[MenuItem] = None
   private var filterButtonMap: Map[String, MenuItem] = Map()
 
+  // To avoid race condition, only update listView if adapterVersion is newer than current one.
+  private var adapterVersion: Int = 0  
   private var isUnreadOnly = false
   private var plurkFilter: Option[Filter] = None
 
@@ -84,7 +85,8 @@ class TimelineFragment extends Fragment {
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
 
     listView.setEmptyView(view.findView(TR.fragmentTimelineEmptyNotice))
-    listView.addFooterView(footer)
+    listView.addFooterView(loadMoreFooter)
+
     updateListAdapter()
     listView.setOnScrollListener(new OnScrollListener() {
 
@@ -95,19 +97,14 @@ class TimelineFragment extends Fragment {
         val isLastItem = (firstVisibleItem + visibleItemCount) == totalItemCount
         val shouldLoadingMore = isLastItem && !isLoadingMore && hasMoreItem
 
-        DebugLog("====> shouldLoadingMore:" + shouldLoadingMore)
-
         if (shouldLoadingMore) {
-          footerRetry.setEnabled(false)
-          footerRetry.setVisibility(View.GONE)
-          footerProgress.setVisibility(View.VISIBLE)
-          DebugLog("====> start loadingMoreItem")
+          loadMoreFooter.setStatus(LoadMoreFooter.Status.Loading)
           loadingMoreItem()
         }
       }
     })
 
-    footerRetry.setOnClickListener { view: View => loadingMoreItem() }
+    loadMoreFooter.setOnRetryClickListener { retryButton: Button => loadingMoreItem() }
 
     setupPullToRefresh()
     updateTimeline()
@@ -179,17 +176,13 @@ class TimelineFragment extends Fragment {
 
     olderTimelineFuture.onSuccessInUI { timeline => 
       adapterHolder.foreach(_.appendTimeline(timeline))
-      footerProgress.setVisibility(View.GONE)
-      footerRetry.setVisibility(View.GONE)
-      footerRetry.setEnabled(false)
+      loadMoreFooter.setStatus(LoadMoreFooter.Status.Loaded)
       this.hasMoreItem = !timeline.plurks.isEmpty
       this.isLoadingMore = false
     }
 
     olderTimelineFuture.onFailureInUI { case e: Exception => 
-      footerProgress.setVisibility(View.GONE)
-      footerRetry.setVisibility(View.VISIBLE)
-      footerRetry.setEnabled(true)
+      loadMoreFooter.setStatus(LoadMoreFooter.Status.Failed)
       this.isLoadingMore = true
     }
 
@@ -267,14 +260,11 @@ class TimelineFragment extends Fragment {
     case _ => super.onOptionsItemSelected(item)
   }
 
-
-  private var adapterVersion: Int = 0
-
   def updateTimeline(isNewFilter: Boolean = false) {
 
     this.isLoadingMore = false
     this.hasMoreItem = true
-    this.footerProgress.setVisibility(View.GONE)
+    this.loadMoreFooter.setStatus(LoadMoreFooter.Status.Idle)
 
     if (isNewFilter) {
       adapterVersion += 1

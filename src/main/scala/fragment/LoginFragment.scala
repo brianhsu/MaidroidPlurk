@@ -44,8 +44,8 @@ class LoginFragment extends Fragment {
   }
 
   override def onStart() {
-    startAuthorization()
     super.onStart()
+    startAuthorization()
   }
 
   def showErrorNotice(message: String){
