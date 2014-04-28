@@ -15,7 +15,11 @@ import java.net.URL
 
 object AvatarCache {
 
-  private val avatarCache = new LRUCache[Long, Bitmap](50)
+  private var avatarCache = new LRUCache[Long, Bitmap](50)
+
+  def clearCache() {
+    avatarCache = new LRUCache[Long, Bitmap](50)
+  }
 
   def getAvatarBitmap(user: User) = avatarCache.get(user.id)
 

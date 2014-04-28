@@ -72,9 +72,17 @@ class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false) extend
 
   def appendTimeline(timeline: Timeline) {
     val newUsers = timeline.users.filterKeys(userID => !(users.keySet contains userID))
-    plurks ++= timeline.plurks
-    users ++= newUsers
-    notifyDataSetChanged
+
+    val shouldSkip = (for {
+      newTimelineFirst <- timeline.plurks.headOption.map(_.plurkID)
+      oldTimelineFirst <- this.plurks.headOption.map(_.plurkID)
+    } yield newTimelineFirst == oldTimelineFirst).getOrElse(false)
+
+    if (!shouldSkip) {
+      plurks ++= timeline.plurks
+      users ++= newUsers
+      notifyDataSetChanged
+    }
   }
 
   def addOnlyOnePlurk(user: User, plurk: Plurk) {

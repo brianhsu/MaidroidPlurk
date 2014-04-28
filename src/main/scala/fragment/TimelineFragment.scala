@@ -44,6 +44,8 @@ import scala.util.Try
 object TimelineFragment {
 
   private var savedTimeline: Option[Timeline] = None
+  private var isUnreadOnly: Boolean = false
+  private var plurkFilter: Option[Filter] = None
 
   trait Listener {
     def onShowTimelinePlurksFailure(e: Exception): Unit
@@ -88,6 +90,11 @@ class TimelineFragment extends Fragment {
 
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
 
+    if (savedInstanceState != null) {
+      this.plurkFilter = TimelineFragment.plurkFilter
+      this.isUnreadOnly = TimelineFragment.isUnreadOnly
+    }
+
     loadMoreFooter = new LoadMoreFooter(activity)
     listViewHolder.foreach(_.setEmptyView(view.findView(TR.fragmentTimelineEmptyNotice)))
     listViewHolder.foreach(_.addFooterView(loadMoreFooter))
@@ -112,11 +119,16 @@ class TimelineFragment extends Fragment {
     loadMoreFooter.setOnRetryClickListener { retryButton: Button => loadingMoreItem() }
     updateListAdapter()
     setupPullToRefresh()
-    DebugLog("====> savedInstanceState.onCreatedView:" + savedInstanceState)
   }
 
   override def onViewStateRestored (savedInstanceState: Bundle) {
-    DebugLog("====> savedInstanceState.onViewStateRestored:" + savedInstanceState)
+    val isRecreate = savedInstanceState != null
+    DebugLog("====> onViewStateRestored.isRecreate:" + isRecreate)
+    if (isRecreate) {
+      updateTimeline(isRecreate = true)
+    } else {
+      updateTimeline()
+    }
     super.onViewStateRestored(savedInstanceState)
   }
 
@@ -140,12 +152,6 @@ class TimelineFragment extends Fragment {
       activity <- Option(activity)
       callback <- Try(activity.asInstanceOf[TimelineFragment.Listener]).toOption
     } yield callback
-  }
-
-  override def onStart() {
-    DebugLog("====> TimelineFragment onStart....")
-    super.onStart()
-    updateTimeline()
   }
 
   override def onResume() {
@@ -238,6 +244,7 @@ class TimelineFragment extends Fragment {
   }
 
   private def getPlurks(offset: Option[Date] = None, isRecreate: Boolean = false) = {
+    DebugLog("====> getPlurks:" + offset + "," + isRecreate)
     val shouldRecreate = isRecreate && TimelineFragment.savedTimeline.isDefined
     isUnreadOnly match {
       case _ if shouldRecreate => TimelineFragment.savedTimeline.get
@@ -258,6 +265,22 @@ class TimelineFragment extends Fragment {
 
   override def onPrepareOptionsMenu(menu: Menu) {
     updateFilterMark()
+    toggleButtonHolder.foreach { button =>
+      button.setTitle(if (isUnreadOnly) "未讀噗" else "所有噗")
+    }
+  }
+
+  override def onDestroy() {
+    TimelineFragment.savedTimeline = adapterHolder.map(_.getTimeline)
+    TimelineFragment.plurkFilter = this.plurkFilter
+    TimelineFragment.isUnreadOnly = this.isUnreadOnly
+    DebugLog("====> TimelineFragment.onDestroy()")
+    super.onDestroy()
+  }
+
+  override def onDetach() {
+    DebugLog("====> TimelineFragment.onDeatch()")
+    super.onDetach()
   }
 
   private def updateFilterMark() {
@@ -285,6 +308,13 @@ class TimelineFragment extends Fragment {
     true
   }
 
+  override def onLowMemory() {
+    TimelineFragment.savedTimeline = None
+    TimelineFragment.plurkFilter = None
+    AvatarCache.clearCache()
+    ImageCache.clearCache()
+  }
+
   override def onOptionsItemSelected(item: MenuItem) = item.getItemId match {
     case R.id.timelineActionAll => switchToFilter(None, this.isUnreadOnly)
     case R.id.timelineActionMine => switchToFilter(Some(OnlyUser), this.isUnreadOnly)
@@ -295,7 +325,7 @@ class TimelineFragment extends Fragment {
     case _ => super.onOptionsItemSelected(item)
   }
 
-  def updateTimeline(isNewFilter: Boolean = false) {
+  def updateTimeline(isNewFilter: Boolean = false, isRecreate: Boolean = false) {
 
     this.isLoadingMore = false
     this.hasMoreItem = true
@@ -305,7 +335,7 @@ class TimelineFragment extends Fragment {
       adapterVersion += 1
     }
 
-    val plurksFuture = future { (getPlurks(), adapterVersion) }
+    val plurksFuture = future { (getPlurks(isRecreate = isRecreate), adapterVersion) }
 
     plurksFuture.onSuccess { case (timeline, adapterVersion) => 
       if (adapterVersion >= this.adapterVersion) {

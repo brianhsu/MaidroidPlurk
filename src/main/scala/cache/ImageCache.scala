@@ -15,7 +15,7 @@ import java.net.URL
 
 object ImageCache {
 
-  private val imageCache = new LRUCache[String, Bitmap](5)
+  private var imageCache = new LRUCache[String, Bitmap](5)
 
   private def openStream(imageURL: String) = {
     if (imageURL.contains("images.plurk.com/tx_")) {
@@ -41,7 +41,7 @@ object ImageCache {
                                     requiredWidth: Int, requiredHeight: Int): Int = {
     var inSampleSize = 1
 
-    if (originHeight > requiredHeight || originWidth > requiredWidth) {
+    if (originHeight > requiredHeight && originWidth > requiredWidth) {
 
         val halfHeight = originHeight / 2
         val halfWidth = originWidth / 2
@@ -77,5 +77,9 @@ object ImageCache {
   }
 
   def getBitmapFromCache(url: String) = imageCache.get(url)
+
+  def clearCache() {
+    imageCache = new LRUCache[String, Bitmap](5)
+  }
 }
 
