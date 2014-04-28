@@ -42,12 +42,16 @@ import scala.concurrent._
 import scala.util.Try
 
 object TimelineFragment {
+
+  private var savedTimeline: Option[Timeline] = None
+
   trait Listener {
     def onShowTimelinePlurksFailure(e: Exception): Unit
     def onShowTimelinePlurksSuccess(timeline: Timeline, isNewFilter: Boolean, filter: Option[Filter], isOnlyUnread: Boolean): Unit
     def onRefreshTimelineSuccess(newTimeline: Timeline): Unit
     def onRefreshTimelineFailure(e: Exception): Unit
   }
+
 }
 
 class TimelineFragment extends Fragment {
@@ -108,7 +112,12 @@ class TimelineFragment extends Fragment {
     loadMoreFooter.setOnRetryClickListener { retryButton: Button => loadingMoreItem() }
     updateListAdapter()
     setupPullToRefresh()
-    updateTimeline()
+    DebugLog("====> savedInstanceState.onCreatedView:" + savedInstanceState)
+  }
+
+  override def onViewStateRestored (savedInstanceState: Bundle) {
+    DebugLog("====> savedInstanceState.onViewStateRestored:" + savedInstanceState)
+    super.onViewStateRestored(savedInstanceState)
   }
 
   override def onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -131,6 +140,12 @@ class TimelineFragment extends Fragment {
       activity <- Option(activity)
       callback <- Try(activity.asInstanceOf[TimelineFragment.Listener]).toOption
     } yield callback
+  }
+
+  override def onStart() {
+    DebugLog("====> TimelineFragment onStart....")
+    super.onStart()
+    updateTimeline()
   }
 
   override def onResume() {
@@ -185,7 +200,7 @@ class TimelineFragment extends Fragment {
 
     this.isLoadingMore = true
 
-    val olderTimelineFuture = future { getPlurks(offset = adapterHolder.map(_.lastPlurkDate)) }
+    val olderTimelineFuture = future { getPlurks(offset = adapterHolder.flatMap(_.lastPlurkDate)) }
 
     olderTimelineFuture.onSuccessInUI { timeline => 
       adapterHolder.foreach(_.appendTimeline(timeline))
@@ -222,8 +237,10 @@ class TimelineFragment extends Fragment {
     )
   }
 
-  private def getPlurks(offset: Option[Date] = None) = {
+  private def getPlurks(offset: Option[Date] = None, isRecreate: Boolean = false) = {
+    val shouldRecreate = isRecreate && TimelineFragment.savedTimeline.isDefined
     isUnreadOnly match {
+      case _ if shouldRecreate => TimelineFragment.savedTimeline.get
       case true  => plurkAPI.Timeline.getUnreadPlurks(filter = plurkFilter, offset = offset).get
       case false => plurkAPI.Timeline.getPlurks(filter = plurkFilter, offset = offset).get
     }

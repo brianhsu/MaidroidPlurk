@@ -36,6 +36,8 @@ class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false) extend
   
   def firstPlurkShow = plurks.headOption
 
+  def getTimeline = new Timeline(users, plurks.toList)
+
   def getView(position: Int, convertView: View, parent: ViewGroup): View = {
 
     val itemView = convertView match {
@@ -80,6 +82,6 @@ class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false) extend
     users = Map(user.id -> user)
   }
 
-  def lastPlurkDate = plurks.last.posted
+  def lastPlurkDate = plurks.lastOption.map(_.posted)
 }
 

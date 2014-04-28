@@ -53,7 +53,7 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
   }
 
   def onLoginSuccess() {
-    switchToFragment(new TimelineFragment)
+    switchToFragment(new TimelineFragment, isForcing = true)
     dialogFrame.setMessages(
       Message(MaidMaro.Half.Happy, "成功登入噗浪了呢！", None) :: 
       Message(MaidMaro.Half.Smile, "小鈴正在幫主人整理河道上的資料，請主人稍候一下喲。", None) ::
@@ -64,7 +64,7 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
 
   def onShowTimelinePlurksFailure(error: Exception) {
     if (error.getMessage.contains("invalid access token")) {
-      switchToFragment(new LoginFragment)
+      switchToFragment(new LoginFragment, isForcing = true)
     } else {
       dialogFrame.setMessages(
         Message(MaidMaro.Half.Panic, "糟糕，讀不到河道上的資料啊！", None) :: 
@@ -107,7 +107,7 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
     if (PlurkAPIHelper.isLoggedIn(this)) {
       switchToFragment(new TimelineFragment)
     } else {
-      switchToFragment(new LoginFragment)
+      switchToFragment(new LoginFragment, true)
     }
   }
 
@@ -135,16 +135,22 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
   }
 
 
-  private def switchToFragment[T <: Fragment](fragment: T, addToBackStack: Boolean = false) {
+  private def switchToFragment[T <: Fragment](fragment: T, addToBackStack: Boolean = false, isForcing: Boolean = false) {
 
-    val transaction = getSupportFragmentManager.beginTransaction
-    transaction.replace(R.id.activityMaidroidPlurkFragmentContainer, fragment)
 
-    if (addToBackStack) {
-      transaction.addToBackStack(null)
+    val topFragment = Try(getSupportFragmentManager.findFragmentById(R.id.activityMaidroidPlurkFragmentContainer).asInstanceOf[T]).filter(_ != null)
+
+    if (isForcing || topFragment.isFailure) {
+
+      val transaction = getSupportFragmentManager.beginTransaction
+      transaction.replace(R.id.activityMaidroidPlurkFragmentContainer, fragment)
+
+      if (addToBackStack) {
+        transaction.addToBackStack(null)
+      }
+
+      transaction.commit()
     }
-
-    transaction.commit()
   }
 
 

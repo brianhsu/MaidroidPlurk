@@ -12,6 +12,7 @@ import android.app.Activity
 import android.os.Bundle
 import android.view.View
 import android.support.v7.app.ActionBarActivity
+import scala.util.{Try, Success, Failure}
 
 object PlurkResponse {
   var plurk: Plurk = _
@@ -34,22 +35,29 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
       Message(MaidMaro.Half.Happy, "小鈴正在幫主人讀取噗浪上的回應，請主人稍候一下喲……", None) :: Nil
     )
 
+    val responseListFragment = Try(getSupportFragmentManager.findFragmentById(R.id.activityPlurkResponseFragmentContainer).asInstanceOf[ResponseList]).filter(_ != null)
+
+    responseListFragment match {
+      case Success(fragment) =>
+        fragment.plurk = PlurkResponse.plurk
+        fragment.owner = PlurkResponse.user
+      case Failure(e) =>
+        val fragment = new ResponseList
+
+        fragment.plurk = PlurkResponse.plurk
+        fragment.owner = PlurkResponse.user
+
+        getSupportFragmentManager.
+          beginTransaction.
+          replace(R.id.activityPlurkResponseFragmentContainer, fragment).
+          commit()
+    }
+
+
   }
 
   override def onStart() {
-
     super.onStart()
-
-    val fragment = new ResponseList
-
-    fragment.plurk = PlurkResponse.plurk
-    fragment.owner = PlurkResponse.user
-
-    getSupportFragmentManager.
-      beginTransaction.
-      replace(R.id.activityPlurkResponseFragmentContainer, fragment).
-      commit()
-
   }
 
   override def onGetResponseSuccess(responses: PlurkResponses) {
