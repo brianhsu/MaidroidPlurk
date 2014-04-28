@@ -31,8 +31,7 @@ object LoginFragment {
 class LoginFragment extends Fragment {
 
   private implicit def activity = getActivity
-  private def plurkAPI = PlurkAPIHelper.getPlurkAPI
-
+  private lazy val plurkAPI = PlurkAPIHelper.getNewPlurkAPI
   private lazy val webViewHolder = Option(getView).map(_.findView(TR.fragmentLoginWebView))
   private lazy val loadingIndicatorHolder = Option(getView).map(_.findView(TR.moduleLoadingIndicator))
   private lazy val errorNoticeHolder = Option(getView).map(_.findView(TR.fragmentLoginErrorNotice))
@@ -143,6 +142,7 @@ class LoginFragment extends Fragment {
       loadingIndicatorHolder.foreach(_.setVisibility(View.VISIBLE))
 
       authStatusFuture.onSuccessInUI{ _ => 
+        PlurkAPIHelper.saveAccessToken(activity)
         callbackHolder.foreach(_.onLoginSuccess())
       }
 

@@ -53,7 +53,7 @@ object TimelineFragment {
 class TimelineFragment extends Fragment {
 
   private implicit def activity = getActivity
-  private def plurkAPI = PlurkAPIHelper.getPlurkAPI
+  private def plurkAPI = PlurkAPIHelper.getPlurkAPI(activity)
 
   private var callbackHolder: Option[TimelineFragment.Listener] = None
 

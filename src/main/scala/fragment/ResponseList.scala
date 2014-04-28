@@ -36,7 +36,7 @@ class ResponseList extends Fragment {
 
   private implicit def activity = getActivity
 
-  private def plurkAPI = PlurkAPIHelper.getPlurkAPI
+  private def plurkAPI = PlurkAPIHelper.getPlurkAPI(activity)
 
   private var callbackHolder: Option[ResponseList.Listener] = None
   private lazy val adapter = new ResponseAdapter(activity, plurk, owner)

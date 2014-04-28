@@ -63,11 +63,15 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
   }
 
   def onShowTimelinePlurksFailure(error: Exception) {
-    dialogFrame.setMessages(
-      Message(MaidMaro.Half.Panic, "糟糕，讀不到河道上的資料啊！", None) :: 
-      Message(MaidMaro.Half.Normal, "會不會是網路有問題呢？", None) ::
-      Message(MaidMaro.Half.Normal, s"對了，系統說這個錯誤是：「${error.getMessage}」造成的說") :: Nil
-    )
+    if (error.getMessage.contains("invalid access token")) {
+      switchToFragment(new LoginFragment)
+    } else {
+      dialogFrame.setMessages(
+        Message(MaidMaro.Half.Panic, "糟糕，讀不到河道上的資料啊！", None) :: 
+        Message(MaidMaro.Half.Normal, "會不會是網路有問題呢？", None) ::
+        Message(MaidMaro.Half.Normal, s"對了，系統說這個錯誤是：「${error.getMessage}」造成的說") :: Nil
+      )
+    }
   }
 
   def onShowTimelinePlurksSuccess(timeline: Timeline, isNewFilter: Boolean, 
@@ -100,7 +104,11 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
       Message(MaidMaro.Half.Normal, "看起來主人還沒登入噗浪呢，可以請主人先登入嗎？這樣小鈴才有辦法幫主人整理大家的聊天的說。", None) :: Nil
     )
 
-    switchToFragment(new LoginFragment)
+    if (PlurkAPIHelper.isLoggedIn(this)) {
+      switchToFragment(new TimelineFragment)
+    } else {
+      switchToFragment(new LoginFragment)
+    }
   }
 
   override def onRefreshTimelineFailure(e: Exception) {

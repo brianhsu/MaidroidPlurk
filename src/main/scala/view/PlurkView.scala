@@ -81,7 +81,7 @@ class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activi
   private var ownerID: Long = 0
   private var owner: User = _
   private var replurker: Option[User] = None
-  private def plurkAPI = PlurkAPIHelper.getPlurkAPI
+  private def plurkAPI = PlurkAPIHelper.getPlurkAPI(activity)
 
   private def initView() {
     inflater.inflate(R.layout.item_plurk, this, true)
