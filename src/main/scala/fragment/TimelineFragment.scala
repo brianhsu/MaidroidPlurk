@@ -2,6 +2,7 @@ package idv.brianhsu.maidroid.plurk.fragment
 
 import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.adapter._
+import idv.brianhsu.maidroid.plurk.activity._
 import idv.brianhsu.maidroid.plurk.cache._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.view._
@@ -22,6 +23,8 @@ import org.bone.soplurk.constant.Filter._
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import android.content.Intent
+
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -314,7 +317,14 @@ class TimelineFragment extends Fragment {
     case R.id.timelineActionResponded => switchToFilter(Some(OnlyResponded), this.isUnreadOnly)
     case R.id.timelineActionFavorite => switchToFilter(Some(OnlyFavorite), this.isUnreadOnly)
     case R.id.timelineActionToggleUnreadOnly => switchToFilter(plurkFilter, !this.isUnreadOnly)
+    case R.id.timelineActionPost => startPostPlurkActivity()
     case _ => super.onOptionsItemSelected(item)
+  }
+
+  private def startPostPlurkActivity() = {
+    val intent = new Intent(activity, classOf[PostPlurkActivity])
+    activity.startActivity(intent)
+    false
   }
 
   def updateTimeline(isNewFilter: Boolean = false, isRecreate: Boolean = false) {

@@ -33,6 +33,7 @@
   </item>
   <item
     android:icon="@drawable/ic_action_edit"
+    android:id="@+id/timelineActionPost"
     android:title="發新噗"
     maidroid:showAsAction="always" />
 
