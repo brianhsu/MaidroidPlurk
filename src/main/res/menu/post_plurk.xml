@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu 
+  xmlns:android="http://schemas.android.com/apk/res/android" 
+  xmlns:maidroid="http://schemas.android.com/apk/res-auto">
+
+  <item
+    android:id="@+id/postPlurkActionEmoticon"
+    android:title="表情符號"
+    android:icon="@drawable/ic_action_emoticon"
+    maidroid:showAsAction="always" />
+
+  <item
+    android:id="@+id/postPlurkActionPhoto"
+    android:title="表情符號"
+    android:icon="@drawable/ic_action_photo"
+    maidroid:showAsAction="always" />
+
+  <item
+    android:id="@+id/postPlurkActionSend"
+    android:title="立刻發送"
+    android:icon="@drawable/ic_action_send_now"
+    maidroid:showAsAction="always" />
+
+</menu>
