@@ -329,12 +329,6 @@ class TimelineFragment extends Fragment {
 
     val plurksFuture = future { (getPlurks(isRecreate = isRecreate), adapterVersion) }
 
-    plurksFuture.onSuccess { case (timeline, adapterVersion) => 
-      if (adapterVersion >= this.adapterVersion) {
-        timeline.users.values.foreach(AvatarCache.getAvatarBitmapFromNetwork)
-      }
-    }
-
     plurksFuture.onSuccessInUI { case (timeline, adapterVersion) => 
       if (adapterVersion >= this.adapterVersion) {
 

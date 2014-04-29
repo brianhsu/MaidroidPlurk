@@ -65,7 +65,7 @@ class PlurkImageGetter(activity: Activity, adapter: BaseAdapter) extends Html.Im
 
     val urlDrawable = new URLDrawable(activity.getResources, placeHolder)
 
-    ImageCache.getBitmapFromNetwork(source, thumbnailSize).onSuccessInUI { bitmap =>
+    ImageCache.getBitmapFromNetwork(activity, source, thumbnailSize).onSuccessInUI { bitmap =>
       urlDrawable.updateDrawable(bitmap)
       adapter.notifyDataSetChanged()
     }
@@ -80,7 +80,7 @@ class PlurkImageGetter(activity: Activity, adapter: BaseAdapter) extends Html.Im
   }
 
   override def getDrawable(source: String): Drawable = {
-    ImageCache.getBitmapFromCache(source) match {
+    ImageCache.getBitmapFromCache(activity, source) match {
       case Some(bitmap) => getDrawableFromBitmap(bitmap)
       case None => getDrawableFromNetwork(source)
     }

@@ -63,9 +63,9 @@ class ResponseView(implicit val activity: Activity) extends LinearLayout(activit
     }
 
     avatar.setImageResource(R.drawable.default_avatar)
-    AvatarCache.getAvatarBitmap(owner) match {
+    AvatarCache.getAvatarBitmapFromCache(activity, owner) match {
       case Some(avatarBitmap) => setAvatarFromCache(avatarBitmap)
-      case None => setAvatarFromNetwork(owner)
+      case None => setAvatarFromNetwork(activity, owner)
     }
 
     this
@@ -75,8 +75,8 @@ class ResponseView(implicit val activity: Activity) extends LinearLayout(activit
     avatar.setImageBitmap(avatarBitmap)
   }
 
-  def setAvatarFromNetwork(user: User) {
-    val avatarFuture = AvatarCache.getAvatarBitmapFromNetwork(user)
+  def setAvatarFromNetwork(context: Context, user: User) {
+    val avatarFuture = AvatarCache.getAvatarBitmapFromNetwork(activity, user)
     avatarFuture.onSuccessInUI { case(userID, bitmap) =>
       // Prevent race condition that cause display incorrect avatar for
       // recylced row view.
