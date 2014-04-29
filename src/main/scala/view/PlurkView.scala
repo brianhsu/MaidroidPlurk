@@ -81,7 +81,7 @@ class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activi
   private var ownerID: Long = 0
   private var owner: User = _
   private var replurker: Option[User] = None
-  private def plurkAPI = PlurkAPIHelper.getPlurkAPI
+  private def plurkAPI = PlurkAPIHelper.getPlurkAPI(activity)
 
   private def initView() {
     inflater.inflate(R.layout.item_plurk, this, true)
@@ -305,9 +305,9 @@ class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activi
     }
 
     avatar.setImageResource(R.drawable.default_avatar)
-    AvatarCache.getAvatarBitmap(owner) match {
+    AvatarCache.getAvatarBitmapFromCache(activity, owner) match {
       case Some(avatarBitmap) => setAvatarFromCache(avatarBitmap)
-      case None => setAvatarFromNetwork(owner)
+      case None => setAvatarFromNetwork(activity, owner)
     }
 
     setCommentInfo(plurk)
@@ -322,8 +322,8 @@ class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activi
     avatar.setImageBitmap(avatarBitmap)
   }
 
-  def setAvatarFromNetwork(user: User) {
-    val avatarFuture = AvatarCache.getAvatarBitmapFromNetwork(user)
+  def setAvatarFromNetwork(context: Context, user: User) {
+    val avatarFuture = AvatarCache.getAvatarBitmapFromNetwork(context, user)
     avatarFuture.onSuccessInUI { case(userID, bitmap) =>
       // Prevent race condition that cause display incorrect avatar for
       // recylced row view.

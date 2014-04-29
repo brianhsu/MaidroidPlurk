@@ -1,11 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="app_name">MaidroidPlurk</string>
-  <string name="moduleLoadingIndicatorText">讀取中，請稍候……</string>
-  <string name="fragmentErrorMesssageTextDefault">發生錯誤了 :-(</string>
-  <string name="fragmentErrorMessageRetryButtonTitle">重試一次</string>
 
-  <string name="fragmentTimelinePlurksEmptyNoticeText">目前河道上沒東西呢……</string>
+  <string name="moduleLoadingIndicatorText">讀取中，請稍候……</string>
+
+  <string name="moduleErrorMesssageTextDefault">發生錯誤了 :-(</string>
+  <string name="moduleErrorMessageRetryButtonTitle">重試一次</string>
+
+  <string name="fragmentTimelineEmptyNoticeText">目前河道上沒東西呢……</string>
 
   <string name="fragmentResponseEmptyNoticeText">還沒有人回應哦，趕快來搶頭香囉！:)</string>
+
+  <string name="qAsks">問</string>
+  <string name="qFeels">覺得</string>
+  <string name="qGives">給</string>
+  <string name="qHas">已經</string>
+  <string name="qHates">討厭</string>
+  <string name="qHopes">希望</string>
+  <string name="qIs">正在</string>
+  <string name="qLikes">喜歡</string>
+  <string name="qLoves">愛</string>
+  <string name="qNeeds">需要</string>
+  <string name="qSays">說</string>
+  <string name="qShares">分享</string>
+  <string name="qThinks">想</string>
+  <string name="qWants">想要</string>
+  <string name="qWas">曾經</string>
+  <string name="qWhispers">偷偷說</string>
+  <string name="qWill">打算</string>
+  <string name="qWishes">期待</string>
+  <string name="qWonders">好奇</string>
+
 </resources>

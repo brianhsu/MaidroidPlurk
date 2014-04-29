@@ -12,10 +12,11 @@ import android.graphics.Bitmap
 import org.bone.soplurk.model._
 
 import java.net.URL
+import android.content.Context
 
 object ImageCache {
 
-  private val imageCache = new LRUCache[String, Bitmap](5)
+  private var imageCache = new LRUCache[String, Bitmap](5)
 
   private def openStream(imageURL: String) = {
     if (imageURL.contains("images.plurk.com/tx_")) {
@@ -41,7 +42,7 @@ object ImageCache {
                                     requiredWidth: Int, requiredHeight: Int): Int = {
     var inSampleSize = 1
 
-    if (originHeight > requiredHeight || originWidth > requiredWidth) {
+    if (originHeight > requiredHeight && originWidth > requiredWidth) {
 
         val halfHeight = originHeight / 2
         val halfWidth = originWidth / 2
@@ -57,7 +58,7 @@ object ImageCache {
     inSampleSize
   }
 
-  def getBitmapFromNetwork(url: String, thumbnailSize: Int): Future[Bitmap] = future {
+  def getBitmapFromNetwork(context: Context, url: String, thumbnailSize: Int): Future[Bitmap] = future {
     val (originWidth, originHeight) = calculateOriginSize(url)
     val inSampleSize = calculateInSampleSize(originWidth, originHeight, thumbnailSize, thumbnailSize)
     val imgStream = openStream(url)
@@ -72,10 +73,24 @@ object ImageCache {
 
     val imgBitmap = BitmapFactory.decodeStream(imgStream, null, options)
     imgStream.close()
-    imageCache += (url -> imgBitmap)
+
+    if (imgBitmap != null) {
+      imageCache += (url -> imgBitmap)
+      future {
+        DiskCacheHelper.writeBitmapToCache(context, url, imgBitmap)
+      }
+    }
+
     imgBitmap
   }
 
-  def getBitmapFromCache(url: String) = imageCache.get(url)
+  def getBitmapFromCache(context: Context, url: String) = {
+    imageCache.get(url) orElse DiskCacheHelper.readBitmapFromCache(context, url)
+  }
+
+  def clearCache() {
+    imageCache = new LRUCache[String, Bitmap](5)
+  }
 }
+
 

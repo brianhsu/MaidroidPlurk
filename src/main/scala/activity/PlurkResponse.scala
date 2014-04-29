@@ -2,6 +2,7 @@ package idv.brianhsu.maidroid.plurk.activity
 
 import idv.brianhsu.maidroid.ui.model._
 import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.util.DebugLog
 import idv.brianhsu.maidroid.plurk.fragment._
 
 import org.bone.soplurk.api.PlurkAPI._
@@ -11,6 +12,7 @@ import android.app.Activity
 import android.os.Bundle
 import android.view.View
 import android.support.v7.app.ActionBarActivity
+import scala.util.{Try, Success, Failure}
 
 object PlurkResponse {
   var plurk: Plurk = _
@@ -18,39 +20,47 @@ object PlurkResponse {
 }
 
 class PlurkResponse extends ActionBarActivity with TypedViewHolder 
-                    with ErrorNotice.Listener with ResponseList.Listener
+                    with ResponseList.Listener
 {
 
   private lazy val dialogFrame = findView(TR.activityPlurkResponseDialogFrame)
   private lazy val fragmentContainer = findView(TR.activityPlurkResponseFragmentContainer)
-  private lazy val errorNoticeFragment = getSupportFragmentManager().findFragmentById(R.id.activityPlurkResponseErrorNotice).asInstanceOf[ErrorNotice]
-
-  private lazy val fragment = new ResponseList(PlurkResponse.plurk, PlurkResponse.user)
 
   override def onCreate(savedInstanceState: Bundle) {
 
     super.onCreate(savedInstanceState)
 
     setContentView(R.layout.activity_plurk_response)
-    errorNoticeFragment.setVisibility(View.GONE)
     dialogFrame.setMessages(
       Message(MaidMaro.Half.Happy, "小鈴正在幫主人讀取噗浪上的回應，請主人稍候一下喲……", None) :: Nil
     )
 
-    getSupportFragmentManager.
-      beginTransaction.
-      replace(R.id.activityPlurkResponseFragmentContainer, fragment).
-      commit()
+    val responseListFragment = Try(getSupportFragmentManager.findFragmentById(R.id.activityPlurkResponseFragmentContainer).asInstanceOf[ResponseList]).filter(_ != null)
+
+    responseListFragment match {
+      case Success(fragment) =>
+        fragment.plurk = PlurkResponse.plurk
+        fragment.owner = PlurkResponse.user
+      case Failure(e) =>
+        val fragment = new ResponseList
+
+        fragment.plurk = PlurkResponse.plurk
+        fragment.owner = PlurkResponse.user
+
+        getSupportFragmentManager.
+          beginTransaction.
+          replace(R.id.activityPlurkResponseFragmentContainer, fragment).
+          commit()
+    }
+
 
   }
 
-  override def onHideOtherUI() {
-    setErrorNoticeEnabled(true)
+  override def onStart() {
+    super.onStart()
   }
 
   override def onGetResponseSuccess(responses: PlurkResponses) {
-
-    setErrorNoticeEnabled(false)
 
     val dialog = responses.responses.size match {
       case 0 => 
@@ -68,25 +78,8 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
     dialogFrame.setMessages(dialog)
   }
 
-  private def setErrorNoticeEnabled(isEnabled: Boolean) {
-    if (isEnabled) {
-      errorNoticeFragment.setVisibility(View.VISIBLE)
-      fragmentContainer.setVisibility(View.GONE)
-    } else {
-      errorNoticeFragment.setVisibility(View.GONE)
-      fragmentContainer.setVisibility(View.VISIBLE)
-    }
-  }
-
   override def onGetResponseFailure(e: Exception) {
-
-    setErrorNoticeEnabled(true)
-
-    errorNoticeFragment.showMessageWithRetry("無法讀取噗浪回應", e) { 
-      setErrorNoticeEnabled(false)
-      fragment.loadResponses()
-    }
-
+    DebugLog("====> onGetResponseFailure....")
     dialogFrame.setMessages(
       Message(MaidMaro.Half.Normal, "好像怪怪的，沒辦法讀噗浪上的回應耶……", None) ::
       Message(MaidMaro.Half.Normal, s"系統說錯誤是：「${e.getMessage}」造成的說。", None) ::

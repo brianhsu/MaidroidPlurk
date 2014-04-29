@@ -1,8 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<WebView
+<LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
-  android:id="@+id/fragmentLoginWebView"
-  android:layout_margin="5dp"
+  android:orientation="vertical"
   android:layout_width="match_parent"
-  android:layout_height="match_parent"/>
+  android:layout_height="match_parent">
+
+  <include layout="@layout/module_loading_indicator"/>
+
+  <idv.brianhsu.maidroid.plurk.view.ErrorNoticeView
+    android:id="@+id/fragmentLoginErrorNotice"
+    android:visibility="gone"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"/>
+
+  <WebView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fragmentLoginWebView"
+    android:layout_margin="5dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"/>
+
+</LinearLayout>

@@ -6,6 +6,7 @@ import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
 import scala.concurrent._
 
+import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.Bitmap
 
@@ -15,22 +16,38 @@ import java.net.URL
 
 object AvatarCache {
 
-  private val avatarCache = new LRUCache[Long, Bitmap](50)
+  private var avatarCache = new LRUCache[Long, Bitmap](50)
 
-  def getAvatarBitmap(user: User) = avatarCache.get(user.id)
+  def clearCache() {
+    avatarCache = new LRUCache[Long, Bitmap](50)
+  }
 
-  def getAvatarBitmapFromNetwork(user: User): Future[(Long, Bitmap)] = {
+  def getAvatarBitmapFromCache(context: Context, user: User) = {
+    avatarCache.get(user.id) orElse 
+    DiskCacheHelper.readBitmapFromCache(context, user.bigAvatar)
+  }
 
+  def getAvatarBitmapFromNetwork(context: Context, user: User): Future[(Long, Bitmap)] = {
+
+    val avatarURL = user.bigAvatar
     val avatarBitmapFuture = future {
-      val avatarURLStream = new URL(user.bigAvatar).openStream()
+      val avatarURLStream = new URL(avatarURL).openStream()
       val avatarBitmap = BitmapFactory.decodeStream(avatarURLStream)
       avatarURLStream.close()
+      if (avatarBitmap == null) {
+        throw new Exception(s"Cannot get avatar bitmap from ${avatarURL}")
+      }
       (user.id, avatarBitmap)
     }
 
     avatarBitmapFuture.foreach { 
-      case (userID, bitmap) => avatarCache += (user.id -> bitmap) 
+      case (userID, bitmap) => 
+        avatarCache += (user.id -> bitmap) 
+        future {
+          DiskCacheHelper.writeBitmapToCache(context, avatarURL, bitmap)
+        }
     }
+
     avatarBitmapFuture
   }
 

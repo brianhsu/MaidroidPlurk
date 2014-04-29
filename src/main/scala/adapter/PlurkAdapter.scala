@@ -1,6 +1,7 @@
 package idv.brianhsu.maidroid.plurk.adapter
 
 import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.activity._
 import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.view.PlurkView
@@ -11,6 +12,7 @@ import scala.concurrent._
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.view.View
 import android.view.ViewGroup
 import android.view.LayoutInflater
@@ -22,14 +24,7 @@ import org.bone.soplurk.model._
 
 import java.net.URL
 
-object PlurkAdapter {
-  trait Listener {
-    def onPlurkSelected(plurk: Plurk, user: User) {}
-  }
-  type OnSelectedCallback = (Plurk, User) => Unit
-}
-
-class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false, callbackHolder: Option[PlurkAdapter.OnSelectedCallback] = None) extends BaseAdapter {
+class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false) extends BaseAdapter {
   private implicit val mActivity = activity
   private var plurks: Vector[Plurk] = Vector.empty
   private var users: Map[Long, User] = Map.empty
@@ -40,6 +35,8 @@ class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false, callba
   def getItemId(position: Int) = plurks(position).plurkID
   
   def firstPlurkShow = plurks.headOption
+
+  def getTimeline = new Timeline(users, plurks.toList)
 
   def getView(position: Int, convertView: View, parent: ViewGroup): View = {
 
@@ -56,9 +53,12 @@ class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false, callba
     } yield replurkUser
 
     itemView.update(plurk, owner, replurker, textViewImageGetter)
-
-    callbackHolder.foreach { callback =>
-      itemView.setOnCommentCountClickListener { callback(plurk, owner) }
+    itemView.setOnCommentCountClickListener { 
+      val intent = new Intent(activity, classOf[PlurkResponse])
+      PlurkResponse.plurk = plurk
+      PlurkResponse.user = owner
+      intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+      activity.startActivity(intent)
     }
     itemView
   }
@@ -72,9 +72,17 @@ class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false, callba
 
   def appendTimeline(timeline: Timeline) {
     val newUsers = timeline.users.filterKeys(userID => !(users.keySet contains userID))
-    plurks ++= timeline.plurks
-    users ++= newUsers
-    notifyDataSetChanged
+
+    val shouldSkip = (for {
+      newTimelineFirst <- timeline.plurks.headOption.map(_.plurkID)
+      oldTimelineFirst <- this.plurks.headOption.map(_.plurkID)
+    } yield newTimelineFirst == oldTimelineFirst).getOrElse(false)
+
+    if (!shouldSkip) {
+      plurks ++= timeline.plurks
+      users ++= newUsers
+      notifyDataSetChanged
+    }
   }
 
   def addOnlyOnePlurk(user: User, plurk: Plurk) {
@@ -82,6 +90,6 @@ class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false, callba
     users = Map(user.id -> user)
   }
 
-  def lastPlurkDate = plurks.last.posted
+  def lastPlurkDate = plurks.lastOption.map(_.posted)
 }
 
