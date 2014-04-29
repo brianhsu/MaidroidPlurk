@@ -81,5 +81,6 @@ object ImageCache {
   def clearCache() {
     imageCache = new LRUCache[String, Bitmap](5)
   }
+
 }
 

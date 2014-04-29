@@ -123,7 +123,6 @@ class TimelineFragment extends Fragment {
 
   override def onViewStateRestored (savedInstanceState: Bundle) {
     val isRecreate = savedInstanceState != null
-    DebugLog("====> onViewStateRestored.isRecreate:" + isRecreate)
     if (isRecreate) {
       updateTimeline(isRecreate = true)
     } else {
@@ -244,7 +243,6 @@ class TimelineFragment extends Fragment {
   }
 
   private def getPlurks(offset: Option[Date] = None, isRecreate: Boolean = false) = {
-    DebugLog("====> getPlurks:" + offset + "," + isRecreate)
     val shouldRecreate = isRecreate && TimelineFragment.savedTimeline.isDefined
     isUnreadOnly match {
       case _ if shouldRecreate => TimelineFragment.savedTimeline.get
@@ -274,13 +272,7 @@ class TimelineFragment extends Fragment {
     TimelineFragment.savedTimeline = adapterHolder.map(_.getTimeline)
     TimelineFragment.plurkFilter = this.plurkFilter
     TimelineFragment.isUnreadOnly = this.isUnreadOnly
-    DebugLog("====> TimelineFragment.onDestroy()")
     super.onDestroy()
-  }
-
-  override def onDetach() {
-    DebugLog("====> TimelineFragment.onDeatch()")
-    super.onDetach()
   }
 
   private def updateFilterMark() {
