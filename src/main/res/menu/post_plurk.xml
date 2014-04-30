@@ -10,10 +10,22 @@
     maidroid:showAsAction="always" />
 
   <item
-    android:id="@+id/postPlurkActionPhoto"
-    android:title="表情符號"
+    android:id="@+id/postPlurkActionUploadPhoto"
+    android:title="上傳圖片"
     android:icon="@drawable/ic_action_photo"
-    maidroid:showAsAction="always" />
+    maidroid:showAsAction="always">
+    <menu>
+      <item
+        android:id="@+id/postPlurkActionPhotoFromGallery"
+        android:icon="@drawable/ic_action_photo"
+        android:title="自相簿選取" />
+      <item
+        android:id="@+id/postPlurkActionPhotoFromCamera"
+        android:icon="@drawable/ic_action_camera"
+        android:title="拍攝新照片" />
+
+    </menu>
+  </item>
 
   <item
     android:id="@+id/postPlurkActionSend"

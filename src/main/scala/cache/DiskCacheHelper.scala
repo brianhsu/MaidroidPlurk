@@ -36,7 +36,7 @@ object DiskCacheHelper {
     (new BigInteger(1, messageDigest)).toString
   }
 
-  def writeBitmapToCache(context: Context, url: String, bitmap: Bitmap) {
+  def writeBitmapToCache(context: Context, url: String, bitmap: Bitmap): Option[File] = {
     synchronized {
 
       try {
@@ -46,8 +46,11 @@ object DiskCacheHelper {
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
         fileOutputStream.flush()
         fileOutputStream.close()
+        Some(cacheFile)
       } catch {
-        case e: Exception => DebugLog(s"write [$url] failed: $e", e)
+        case e: Exception => 
+          DebugLog(s"write [$url] failed: $e", e)
+          None
       }
     }
   }

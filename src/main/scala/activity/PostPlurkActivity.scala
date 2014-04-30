@@ -2,75 +2,41 @@ package idv.brianhsu.maidroid.plurk.activity
 
 import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.TypedResource._
+import idv.brianhsu.maidroid.plurk.adapter._
+import idv.brianhsu.maidroid.plurk.cache._
+import idv.brianhsu.maidroid.plurk.fragment._
+import idv.brianhsu.maidroid.plurk.util._
+import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
 import android.app.Activity
+import android.app.ProgressDialog
+import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.View
-import android.support.v7.app.ActionBarActivity
-import android.support.v4.app.Fragment
-
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.Menu
+import android.view.MenuItem
+import android.graphics.Bitmap
+
+import android.support.v7.app.ActionBarActivity
+import android.support.v7.app.ActionBar
 import android.support.v7.app.ActionBar.TabListener
 import android.support.v7.app.ActionBar.Tab
+import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
-import android.widget.ArrayAdapter
-import android.view.Menu
-
-class PostPublicFragment extends Fragment {
-
-  override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
-                            savedInstanceState: Bundle): View = {
-    val view = inflater.inflate(R.layout.fragment_post_public, container, false)
-    val qualifierAdapter = new ArrayAdapter(getActivity, android.R.layout.simple_spinner_item, Array("說", "覺得", "喜歡", "分享"))
-    val respondAdapter = new ArrayAdapter(getActivity, android.R.layout.simple_spinner_item, Array("開放回應", "只有朋友可以回應", "關閉回應功能"))
-
-    val qualifierSpinner = view.findView(TR.fragmentPostPublicQualifier)
-    val respondSpinner = view.findView(TR.fragmentPostPublicRespond)
-
-    qualifierSpinner.setAdapter(qualifierAdapter)
-    respondSpinner.setAdapter(respondAdapter)
-    view
-  }
-}
-
-class PostPrivateFragment extends Fragment {
-
-  override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
-                            savedInstanceState: Bundle): View = {
-    inflater.inflate(R.layout.fragment_post_private, container, false)
-  }
-}
-
-class PostBackstabFragment extends Fragment {
-
-  override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
-                            savedInstanceState: Bundle): View = {
-    inflater.inflate(R.layout.fragment_post_backstab, container, false)
-  }
-}
-
-import android.support.v4.app.FragmentPagerAdapter
-import android.support.v4.app.FragmentManager
-import android.app.ActionBar
 import android.support.v4.view.ViewPager.OnPageChangeListener
 
-class PostPlurkAdapter(fragmentManager: FragmentManager) extends FragmentPagerAdapter(fragmentManager) {
-  override def getItem(position: Int) = position match {
-    case 0 => new PostPublicFragment
-    case 1 => new PostPrivateFragment
-    case 2 => new PostBackstabFragment
-  }
+import java.util.UUID
 
-  override def getCount = 3
-  override def getPageTitle(position: Int) = {
-    
-    (position % 3) match {
-      case 0 => "一般"
-      case 1 => "私噗"
-      case 2 => "背刺"
-    }
-  }
+import scala.concurrent._
+import android.net.Uri
+import java.io.File
+
+object PostPlurkActivity {
+  val REQUEST_PHOTO_PICKER = 1
 }
 
 class PostPlurkActivity extends ActionBarActivity 
@@ -78,7 +44,10 @@ class PostPlurkActivity extends ActionBarActivity
                         with TypedViewHolder 
 {
 
+  private implicit def activity = this
   private lazy val viewPager = findView(TR.activityPostPlurkViewPager)
+  private lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
+  private lazy val adapter = new PlurkEditorAdapter(getSupportFragmentManager)
 
   override def onCreate(savedInstanceState: Bundle) {
     super.onCreate(savedInstanceState)
@@ -90,7 +59,6 @@ class PostPlurkActivity extends ActionBarActivity
     actionbar.addTab(actionbar.newTab().setText("私噗").setTabListener(this))
     actionbar.addTab(actionbar.newTab().setText("背刺").setTabListener(this))
  
-    val adapter = new PostPlurkAdapter(getSupportFragmentManager)
     viewPager.setAdapter(adapter)
     viewPager.setOnPageChangeListener(this)
   }
@@ -99,6 +67,12 @@ class PostPlurkActivity extends ActionBarActivity
     val inflater = getMenuInflater
     inflater.inflate(R.menu.post_plurk, menu)
     super.onCreateOptionsMenu(menu)
+  }
+
+  override def onOptionsItemSelected(menuItem: MenuItem): Boolean = menuItem.getItemId match {
+    case R.id.postPlurkActionPhotoFromGallery => startPhotoPicker(); false
+    case R.id.postPlurkActionPhotoFromCamera => startCamera(); false
+    case _ => super.onOptionsItemSelected(menuItem)
   }
 
   override def onTabReselected(tab: Tab, ft: FragmentTransaction) {  }
@@ -111,7 +85,81 @@ class PostPlurkActivity extends ActionBarActivity
   }
 
   override def onPageSelected(position: Int) {
-    getSupportActionBar().setSelectedNavigationItem(position)
+    getSupportActionBar.setSelectedNavigationItem(position)
   }
 
+  override def onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+
+    requestCode match {
+      case PostPlurkActivity.REQUEST_PHOTO_PICKER => processImage(resultCode, data)
+      case _ => super.onActivityResult(requestCode, resultCode, data)
+    }
+  }
+
+  private def startCamera() {
+    val intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+    startActivityForResult(intent, PostPlurkActivity.REQUEST_PHOTO_PICKER)
+  }
+
+  private def startPhotoPicker() {
+    val photoPickerIntent = new Intent(Intent.ACTION_GET_CONTENT)
+    photoPickerIntent.addCategory(Intent.CATEGORY_OPENABLE)
+    photoPickerIntent.setType("image/*")
+    val photoChooserIntent = Intent.createChooser(photoPickerIntent, "選擇一張圖片")
+    startActivityForResult(photoChooserIntent, PostPlurkActivity.REQUEST_PHOTO_PICKER)
+  }
+
+  private def getFileFromUri(uri: Uri) = {
+    val column = Array(android.provider.MediaStore.MediaColumns.DATA)
+    val cursor = getContentResolver().query(uri, column, null, null, null)
+    cursor.moveToFirst()
+    val file = new File(cursor.getString(0))
+    cursor.close()
+    file
+  }
+
+  private def uploadFile(file: File) {
+
+    val progressDialog = ProgressDialog.show(this, "上傳圖檔", "請稍候……")
+    val oldRequestedOrientation = getRequestedOrientation
+    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR)
+
+    new Thread() {
+
+      private def writeToCache(bitmap: Bitmap) = {
+        DiskCacheHelper.writeBitmapToCache(PostPlurkActivity.this, UUID.randomUUID.toString, bitmap)
+      }
+
+      private def getCurrentEditor = {
+        val tag = s"android:switcher:${R.id.activityPostPlurkViewPager}:${viewPager.getCurrentItem}"
+        getSupportFragmentManager().findFragmentByTag(tag).asInstanceOf[PlurkEditor]
+      }
+
+      override def run() {
+        try {
+          val resizedBitmap = ImageSampleFactor.resizeImageFile(file, 800)
+
+          for {
+            newFile <- writeToCache(resizedBitmap)
+            (imageURL, _) <- plurkAPI.Timeline.uploadPicture(newFile).toOption
+          } {
+            PostPlurkActivity.this.runOnUIThread { getCurrentEditor.insertImage(imageURL) }
+          }
+
+        } catch {
+          case e: Exception => DebugLog(s"====> uploadFileError:$e", e)
+        } finally {
+          progressDialog.dismiss()
+          setRequestedOrientation(oldRequestedOrientation)
+        }
+      }
+    }.start
+  }
+
+
+  private def processImage(resultCode: Int, data: Intent) {
+    if (resultCode == Activity.RESULT_OK) {
+      uploadFile(getFileFromUri(data.getData))
+    }
+  }
 }
