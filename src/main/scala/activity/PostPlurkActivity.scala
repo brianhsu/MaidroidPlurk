@@ -10,6 +10,7 @@ import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
 import android.app.Activity
 import android.app.ProgressDialog
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
@@ -20,6 +21,7 @@ import android.view.ViewGroup
 import android.view.Menu
 import android.view.MenuItem
 import android.graphics.Bitmap
+import android.content.DialogInterface
 
 import android.support.v7.app.ActionBarActivity
 import android.support.v7.app.ActionBar
@@ -72,6 +74,7 @@ class PostPlurkActivity extends ActionBarActivity
   override def onOptionsItemSelected(menuItem: MenuItem): Boolean = menuItem.getItemId match {
     case R.id.postPlurkActionPhotoFromGallery => startPhotoPicker(); false
     case R.id.postPlurkActionPhotoFromCamera => startCamera(); false
+    case R.id.postPlurkActionSend => postPlurk(); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 
@@ -94,6 +97,33 @@ class PostPlurkActivity extends ActionBarActivity
       case PostPlurkActivity.REQUEST_PHOTO_PICKER => processImage(resultCode, data)
       case _ => super.onActivityResult(requestCode, resultCode, data)
     }
+  }
+
+  private def getCurrentEditor = {
+    val tag = s"android:switcher:${R.id.activityPostPlurkViewPager}:${viewPager.getCurrentItem}"
+    getSupportFragmentManager().findFragmentByTag(tag).asInstanceOf[PlurkEditor]
+  }
+
+  private def postPlurk() {
+    val progressDialog = ProgressDialog.show(this, "發噗中", "請稍候……")
+    val oldRequestedOrientation = getRequestedOrientation
+    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR)
+    val postedPlurkFuture = getCurrentEditor.postPlurk()
+
+    postedPlurkFuture.onSuccessInUI { case content =>
+      setResult(Activity.RESULT_OK)
+      progressDialog.dismiss()
+      setRequestedOrientation(oldRequestedOrientation)
+      finish()
+    }
+
+    postedPlurkFuture.onFailureInUI { case e =>
+      setResult(Activity.RESULT_CANCELED)
+      progressDialog.dismiss()
+      setRequestedOrientation(oldRequestedOrientation)
+      finish()
+    }
+
   }
 
   private def startCamera() {
@@ -130,11 +160,6 @@ class PostPlurkActivity extends ActionBarActivity
         DiskCacheHelper.writeBitmapToCache(PostPlurkActivity.this, UUID.randomUUID.toString, bitmap)
       }
 
-      private def getCurrentEditor = {
-        val tag = s"android:switcher:${R.id.activityPostPlurkViewPager}:${viewPager.getCurrentItem}"
-        getSupportFragmentManager().findFragmentByTag(tag).asInstanceOf[PlurkEditor]
-      }
-
       override def run() {
         try {
           val resizedBitmap = ImageSampleFactor.resizeImageFile(file, 800)
@@ -157,6 +182,23 @@ class PostPlurkActivity extends ActionBarActivity
   }
 
 
+  override def onBackPressed() {
+    val alertDialog = new AlertDialog.Builder(this).setCancelable(true).setTitle("取消").setMessage("確定要取消發噗嗎？這會造成目前的內容永遠消失喲！")
+    alertDialog.setPositiveButton("是", new DialogInterface.OnClickListener() {
+      override def onClick(dialog: DialogInterface, which: Int) {
+        setResult(Activity.RESULT_CANCELED)
+        dialog.dismiss()
+        PostPlurkActivity.this.finish()
+      }
+    })
+    alertDialog.setNegativeButton("否", new DialogInterface.OnClickListener() {
+      override def onClick(dialog: DialogInterface, which: Int) {
+        dialog.dismiss()
+      }
+    })
+    alertDialog.show()
+
+  }
   private def processImage(resultCode: Int, data: Intent) {
     if (resultCode == Activity.RESULT_OK) {
       uploadFile(getFileFromUri(data.getData))

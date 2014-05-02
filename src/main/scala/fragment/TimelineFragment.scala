@@ -9,33 +9,33 @@ import idv.brianhsu.maidroid.plurk.view._
 import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 import idv.brianhsu.maidroid.ui.util.CallbackConversions._
-import org.bone.soplurk.api.PlurkAPI.Timeline
 
 import org.bone.soplurk.api.PlurkAPI.Timeline
 import org.bone.soplurk.model.Plurk
 import org.bone.soplurk.model.User
-
-import java.util.Date
 import org.bone.soplurk.constant.Filter
 import org.bone.soplurk.constant.Filter._
 
+import java.util.Date
 
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.content.Intent
 
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.View
-import android.widget.AbsListView.OnScrollListener
-import android.widget.AbsListView
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.widget.AbsListView.OnScrollListener
+import android.widget.AbsListView
 import android.widget.Button
+import android.widget.Toast
+
 import android.support.v4.view.MenuItemCompat
+import android.support.v4.app.Fragment
 
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh
 import uk.co.senab.actionbarpulltorefresh.library.Options
@@ -57,6 +57,7 @@ object TimelineFragment {
     def onRefreshTimelineFailure(e: Exception): Unit
   }
 
+  val REQUEST_POST_PLURK = 1
 }
 
 class TimelineFragment extends Fragment {
@@ -177,22 +178,8 @@ class TimelineFragment extends Fragment {
   private def setupPullToRefresh() {
     val options = Options.create.refreshOnUp(true).scrollDistance(0.3f).noMinimize().build()
     val onRefresh = new OnRefreshListener() {
-      override def onRefreshStarted(view: View) {
-
-        val newTimelineFuture = future { refreshTimeline(adapterHolder.get.firstPlurkShow) }
-
-        newTimelineFuture.onFailureInUI {
-          case e: Exception => 
-            DebugLog(s"error: $e", e)
-            callbackHolder.foreach(_.onRefreshTimelineFailure(e))
-            pullToRefreshHolder.foreach(_.setRefreshComplete())
-        }
-
-        newTimelineFuture.onSuccessInUI { newTimeline: Timeline => 
-          adapterHolder.foreach(_.prependTimeline(newTimeline))
-          callbackHolder.foreach(_.onRefreshTimelineSuccess(newTimeline))
-          pullToRefreshHolder.foreach(_.setRefreshComplete())
-        }
+      override def onRefreshStarted(view: View) { 
+        refreshTimeline() 
       }
     }
 
@@ -201,6 +188,23 @@ class TimelineFragment extends Fragment {
         from(activity).options(options).
         allChildrenArePullable.listener(onRefresh).
         setup(view)
+    }
+  }
+
+  private def refreshTimeline() {
+    val newTimelineFuture = future { refreshTimeline(adapterHolder.get.firstPlurkShow) }
+
+    newTimelineFuture.onFailureInUI {
+      case e: Exception => 
+        DebugLog(s"error: $e", e)
+        callbackHolder.foreach(_.onRefreshTimelineFailure(e))
+        pullToRefreshHolder.foreach(_.setRefreshComplete())
+      }
+
+    newTimelineFuture.onSuccessInUI { newTimeline: Timeline => 
+      adapterHolder.foreach(_.prependTimeline(newTimeline))
+      callbackHolder.foreach(_.onRefreshTimelineSuccess(newTimeline))
+      pullToRefreshHolder.foreach(_.setRefreshComplete())
     }
   }
 
@@ -321,9 +325,20 @@ class TimelineFragment extends Fragment {
     case _ => super.onOptionsItemSelected(item)
   }
 
+  override def onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    if (requestCode == TimelineFragment.REQUEST_POST_PLURK && 
+        resultCode == Activity.RESULT_OK) {
+      Toast.makeText(this.getActivity, "發噗成功", Toast.LENGTH_SHORT)
+      pullToRefreshHolder.foreach { pullToRefresh =>
+        pullToRefresh.setRefreshing(true)
+        refreshTimeline()
+      }
+    }
+  }
+
   private def startPostPlurkActivity() = {
     val intent = new Intent(activity, classOf[PostPlurkActivity])
-    activity.startActivity(intent)
+    startActivityForResult(intent, TimelineFragment.REQUEST_POST_PLURK)
     false
   }
 
