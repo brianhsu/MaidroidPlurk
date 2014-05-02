@@ -1,6 +1,7 @@
 package idv.brianhsu.maidroid.plurk.fragment
 
 import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.adapter._
 import idv.brianhsu.maidroid.plurk.TypedResource._
 
 import android.view.LayoutInflater
@@ -18,14 +19,8 @@ class PostPublicFragment extends Fragment with PlurkEditor {
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
                             savedInstanceState: Bundle): View = {
     val view = inflater.inflate(R.layout.fragment_post_public, container, false)
-    val qualifierAdapter = new ArrayAdapter(getActivity, android.R.layout.simple_spinner_item, Array("說", "覺得", "喜歡", "分享"))
     val respondAdapter = new ArrayAdapter(getActivity, android.R.layout.simple_spinner_item, Array("開放回應", "只有朋友可以回應", "關閉回應功能"))
 
-    val qualifierSpinner = view.findView(TR.fragmentPostPublicQualifier)
-    val respondSpinner = view.findView(TR.fragmentPostPublicRespond)
-
-    qualifierSpinner.setAdapter(qualifierAdapter)
-    respondSpinner.setAdapter(respondAdapter)
     view
   }
 }

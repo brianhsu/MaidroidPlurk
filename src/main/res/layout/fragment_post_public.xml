@@ -10,7 +10,8 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
-    <Spinner
+
+    <idv.brianhsu.maidroid.plurk.view.QualifierSpinner
       android:id="@+id/fragmentPostPublicQualifier"
       android:gravity="center"
       android:layout_width="wrap_content"
@@ -21,7 +22,7 @@
       android:gravity="right"
       android:layout_width="match_parent"
       android:layout_height="match_parent">
-      <Spinner
+      <idv.brianhsu.maidroid.plurk.view.ResponseTypeSpinner
         android:id="@+id/fragmentPostPublicRespond"
         android:gravity="center"
         android:layout_width="wrap_content"
