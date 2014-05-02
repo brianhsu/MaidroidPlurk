@@ -72,6 +72,7 @@ class PostPlurkActivity extends ActionBarActivity
   }
 
   override def onOptionsItemSelected(menuItem: MenuItem): Boolean = menuItem.getItemId match {
+    case R.id.postPlurkActionEmoticon => toggleEmoticonSelector(); false
     case R.id.postPlurkActionPhotoFromGallery => startPhotoPicker(); false
     case R.id.postPlurkActionPhotoFromCamera => startCamera(); false
     case R.id.postPlurkActionSend => postPlurk(); false
@@ -97,6 +98,31 @@ class PostPlurkActivity extends ActionBarActivity
       case PostPlurkActivity.REQUEST_PHOTO_PICKER => processImage(resultCode, data)
       case _ => super.onActivityResult(requestCode, resultCode, data)
     }
+  }
+
+  private def toggleEmoticonSelector() {
+    val fm = getSupportFragmentManager
+    val selectorHolder = Option(fm.findFragmentById(R.id.activityPostPlurkEmtoicon))
+
+    selectorHolder match {
+      case Some(selector) if selector.isHidden =>
+        fm.beginTransaction.
+          setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).
+          show(selector).commit()
+
+      case Some(selector)  =>
+        fm.beginTransaction.
+          setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE).
+          hide(selector).commit()
+
+      case None =>
+        fm.beginTransaction.
+          setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).
+          replace(R.id.activityPostPlurkEmtoicon, new EmoticonFragment).
+          commit()
+
+    }
+
   }
 
   private def getCurrentEditor = {
