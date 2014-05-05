@@ -38,7 +38,7 @@ object ImageCache {
     val options = new BitmapFactory.Options
     options.inSampleSize = factor
 
-    if (originWidth <= 48 && originHeight <= 48) {
+    if (originWidth <= 48 || originHeight <= 48) {
       options.inDensity = 160
       options.inScaled = false
       options.inTargetDensity = 160
