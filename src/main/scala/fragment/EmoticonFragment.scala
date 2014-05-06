@@ -2,35 +2,23 @@ package idv.brianhsu.maidroid.plurk.fragment
 
 import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.TypedResource._
+import idv.brianhsu.maidroid.plurk.adapter.IconPagerAdapter
 import idv.brianhsu.maidroid.plurk.util.PlurkAPIHelper
-import idv.brianhsu.maidroid.plurk.util.DebugLog
-import idv.brianhsu.maidroid.plurk.view.IconView
-
-import idv.brianhsu.maidroid.plurk.TypedResource._
+import idv.brianhsu.maidroid.plurk.util.EmoticonTabs
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
+
+import org.bone.soplurk.api.PlurkAPI.EmoticonsList
+import org.bone.soplurk.model.Icon
 
 import android.app.Activity
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.View
 import android.os.Bundle
-import android.widget.BaseAdapter
 
 import android.support.v4.app.Fragment
+
 import scala.concurrent._
-import org.bone.soplurk.api.PlurkAPI.EmoticonsList
-import org.bone.soplurk.model.Icon
-
-
-import android.support.v4.view.PagerAdapter
-
-import android.support.v4.app.FragmentPagerAdapter
-import android.support.v4.app.FragmentManager
-
-case class EmoticonTabs(
-  basicPage: Vector[Icon], morePage: Vector[Icon], 
-  hiddenPage: Vector[Icon], customPage: Vector[Icon]
-)
 
 object EmoticonFragment {
   val hiddenName = Set(
@@ -48,43 +36,7 @@ object EmoticonFragment {
   )
 }
 
-import android.widget.LinearLayout
-import android.view.LayoutInflater
 
-class IconGrid(activity: Activity, icons: Vector[Icon]) extends LinearLayout(activity) {
-  private lazy val inflater = LayoutInflater.from(activity)
-  inflater.inflate(R.layout.view_icon_grid, this, true)
-}
-
-import android.support.v4.view.PagerAdapter
-class IconPagerAdapter(activity: Activity, tabs: EmoticonTabs)  extends PagerAdapter {
-
-  val tabsGrid = Vector(
-    tabs.customPage, tabs.basicPage, 
-    tabs.morePage, tabs.hiddenPage
-  ).map(new IconGrid(activity, _))
-
-  override def getCount = 4
-  override def instantiateItem(container: ViewGroup, position: Int): Object = {
-    val iconGrid = tabsGrid(position)
-    iconGrid.setTag(position)
-    container.addView(iconGrid)
-    position.toString
-  }
-  override def destroyItem(container: ViewGroup, position: Int, obj: Object) {
-    container.removeView(tabsGrid(position))
-  }
-  override def isViewFromObject(view: View, obj: Object) = {
-    view.getTag.toString == obj.toString
-  }
- 
-  override def getPageTitle(position: Int) = position match {
-    case 0 => "自訂表情"
-    case 1 => "常用表情"
-    case 2 => "更多表情"
-    case 3 => "隱藏表情"
-  }
-}
 
 class EmoticonFragment extends Fragment {
 

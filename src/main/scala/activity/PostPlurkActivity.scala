@@ -120,9 +120,7 @@ class PostPlurkActivity extends ActionBarActivity
           setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).
           replace(R.id.activityPostPlurkEmtoicon, new EmoticonFragment).
           commit()
-
     }
-
   }
 
   private def getCurrentEditor = {
