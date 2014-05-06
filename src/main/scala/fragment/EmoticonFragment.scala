@@ -37,7 +37,7 @@ object EmoticonFragment {
   )
 
   trait Listener {
-    def onIconSelected(icon: Icon, drawable: Drawable): Unit
+    def onIconSelected(icon: Icon, drawable: Option[Drawable]): Unit
   }
 }
 

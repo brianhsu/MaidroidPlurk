@@ -57,14 +57,15 @@ class IconView(activity: Activity) extends LinearLayout(activity) {
   import android.graphics.Canvas
   import android.content.Context
 
-  def getClonedDrawable(context: Context): Drawable = {
-    val drawable = imageView.getDrawable
-    val bitmap = Bitmap.createBitmap(
-      drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), 
-      Bitmap.Config.ARGB_8888
-    )
-    val canvas = new Canvas(bitmap)
-    drawable.draw(canvas)
-    new BitmapDrawable(context.getResources, bitmap)
+  def getClonedDrawable(context: Context): Option[Drawable] = {
+    Option(imageView.getDrawable).map { drawable =>
+      val bitmap = Bitmap.createBitmap(
+        drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), 
+        Bitmap.Config.ARGB_8888
+      )
+      val canvas = new Canvas(bitmap)
+      drawable.draw(canvas)
+      new BitmapDrawable(context.getResources, bitmap)
+    }
   }
 }

@@ -108,7 +108,7 @@ class PostPlurkActivity extends ActionBarActivity
     }
   }
 
-  override def onIconSelected(icon: Icon, drawable: Drawable) {
+  override def onIconSelected(icon: Icon, drawable: Option[Drawable]) {
     toggleEmoticonSelector()
     getCurrentEditor.insertIcon(icon, drawable)
   }

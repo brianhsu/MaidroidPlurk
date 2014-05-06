@@ -31,13 +31,22 @@ trait PlurkEditor {
 
   protected def limitedTo: List[Long] = Nil
 
-  def insertIcon(icon: Icon, drawable: Drawable) {
+  def insertIconDrawable(icon: Icon, drawable: Drawable) {
     contentEditor.foreach { editor =>
       drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight())
       val stringSpan = new SpannableString(s" ${icon.insertText} ")
       val imageSpan = new ImageSpan(drawable, DynamicDrawableSpan.ALIGN_BASELINE)
-      stringSpan.setSpan(imageSpan, 0, icon.insertText.size + 2, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+      val start = 0
+      val end = icon.insertText.size + 2
+      stringSpan.setSpan(imageSpan, start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
       editor.getText.insert(editor.getSelectionStart.max(0), stringSpan)
+    }
+  }
+
+  def insertIcon(icon: Icon, drawableHolder: Option[Drawable]) {
+    drawableHolder match {
+      case Some(drawable) => insertIconDrawable(icon, drawable)
+      case None => insertText(icon.insertText)
     }
   }
 

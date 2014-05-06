@@ -44,7 +44,7 @@ class IconGrid(activity: Activity, icons: Vector[Icon]) extends LinearLayout(act
   inflater.inflate(R.layout.view_icon_grid, this, true)
   gridView.setAdapter(adapter)
 
-  def setOnIconClickListener(callback: (Icon, Drawable) => Any) {
+  def setOnIconClickListener(callback: (Icon, Option[Drawable]) => Any) {
     gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
       override def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long) {
         val drawable = view.asInstanceOf[IconView].getClonedDrawable(activity)
