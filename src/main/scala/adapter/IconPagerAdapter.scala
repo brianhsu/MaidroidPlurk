@@ -1,5 +1,8 @@
 package idv.brianhsu.maidroid.plurk.adapter
 
+import org.bone.soplurk.model.Icon
+
+import idv.brianhsu.maidroid.plurk.fragment.EmoticonFragment
 import idv.brianhsu.maidroid.plurk.view.IconGrid
 import idv.brianhsu.maidroid.plurk.util.EmoticonTabs
 
@@ -10,10 +13,13 @@ import android.support.v4.view.PagerAdapter
 
 class IconPagerAdapter(activity: Activity, tabs: EmoticonTabs)  extends PagerAdapter {
 
-  val tabsGrid = Vector(
-    tabs.customPage, tabs.basicPage, 
-    tabs.morePage, tabs.hiddenPage
-  ).map(new IconGrid(activity, _))
+  val orderedTab = Vector(tabs.customPage, tabs.basicPage, tabs.morePage, tabs.hiddenPage)
+  val tabsGrid = orderedTab.map { icons =>
+    val iconGrid = new IconGrid(activity, icons)
+    val activityCallback = activity.asInstanceOf[EmoticonFragment.Listener]
+    iconGrid.setOnIconClickListener(activityCallback.onIconSelected _)
+    iconGrid
+  }
 
   override def getCount = 4
   override def instantiateItem(container: ViewGroup, position: Int): Object = {

@@ -15,6 +15,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.View
 import android.os.Bundle
+import android.graphics.drawable.Drawable
 
 import android.support.v4.app.Fragment
 
@@ -34,6 +35,10 @@ object EmoticonFragment {
     "(xmas15)", "(cny1)", "(cny2)", "(cny3)", "(cny4)", "(cny5)", "(cny6)", "(cny7)",
     "(cny8)", "(cny9)", "(cny10)", "(cny11)", "(cny12)"
   )
+
+  trait Listener {
+    def onIconSelected(icon: Icon, drawable: Drawable): Unit
+  }
 }
 
 
