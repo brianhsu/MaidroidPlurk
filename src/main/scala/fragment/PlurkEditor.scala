@@ -2,6 +2,7 @@ package idv.brianhsu.maidroid.plurk.fragment
 
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 import idv.brianhsu.maidroid.plurk.view._
+import idv.brianhsu.maidroid.plurk.util.DebugLog
 
 import scala.concurrent._
 
@@ -66,9 +67,10 @@ trait PlurkEditor {
     }
 
     val content = contentEditor.map(_.getText.toString).getOrElse("")
-    Thread.sleep(1000 * 10)
-    //plurkAPI.Timeline.plurkAdd(content, qualifier, limitedTo, commentSetting).get
-    (content, qualifierSpinner.map(_.getSelectedQualifier), responseTypeSpinner.map(_.getSelectedCommentSetting))
+    val language = plurkAPI.Users.currUser.get._1.basicInfo.defaultLanguage
+    val qualifier = qualifierSpinner.map(_.getSelectedQualifier).getOrElse(Qualifier.::)
+    val commentSetting = responseTypeSpinner.map(_.getSelectedCommentSetting).getOrElse(None)
+    plurkAPI.Timeline.plurkAdd(content, qualifier, limitedTo, commentSetting, Some(language)).get
   }
 
 }

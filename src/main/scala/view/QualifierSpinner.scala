@@ -8,7 +8,9 @@ import android.content.Context
 import android.util.AttributeSet
 
 class QualifierSpinner(context: Context, attrs: AttributeSet) extends Spinner(context, attrs) {
+
   this.setAdapter(new QualifierSpinnerAdapter(context))
+  this.setSelection(17)
 
   def getSelectedQualifier = this.getSelectedItem.asInstanceOf[Qualifier]
 }

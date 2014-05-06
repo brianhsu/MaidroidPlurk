@@ -4,6 +4,7 @@ import idv.brianhsu.maidroid.plurk.adapter._
 
 import org.bone.soplurk.constant.Qualifier
 import org.bone.soplurk.constant.CommentSetting
+import org.bone.soplurk.constant.WritableCommentSetting
 
 import android.widget.Spinner
 
@@ -49,6 +50,6 @@ class ResponseTypeSpinner(context: Context, attrs: AttributeSet) extends
   val adapter = new ResponseTypeAdapter(context)
   this.setAdapter(adapter)
 
-  def getSelectedCommentSetting = this.getSelectedItem.asInstanceOf[Option[CommentSetting]]
+  def getSelectedCommentSetting = this.getSelectedItem.asInstanceOf[Option[WritableCommentSetting]]
 
 }

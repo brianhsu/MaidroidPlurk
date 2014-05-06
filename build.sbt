@@ -30,7 +30,7 @@ libraryDependencies ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.bone" %% "soplurk" % "0.2.4",
+  "org.bone" %% "soplurk" % "0.2.5",
   "com.typesafe.akka" %% "akka-actor" % "2.3.2"
 )
 
