@@ -53,6 +53,9 @@ class PostPlurkActivity extends ActionBarActivity
   private lazy val viewPager = findView(TR.activityPostPlurkViewPager)
   private lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
   private lazy val adapter = new PlurkEditorAdapter(getSupportFragmentManager)
+  private lazy val sendingIndicator = findView(TR.moduleLoadingIndicator)
+
+  private var sendActionButton: Option[MenuItem] = None
 
   override def onCreate(savedInstanceState: Bundle) {
     super.onCreate(savedInstanceState)
@@ -66,11 +69,13 @@ class PostPlurkActivity extends ActionBarActivity
  
     viewPager.setAdapter(adapter)
     viewPager.setOnPageChangeListener(this)
+    sendingIndicator.setVisibility(View.GONE)
   }
 
   override def onCreateOptionsMenu(menu: Menu): Boolean = {
     val inflater = getMenuInflater
     inflater.inflate(R.menu.post_plurk, menu)
+    this.sendActionButton = Option(menu.findItem(R.id.postPlurkActionSend))
     super.onCreateOptionsMenu(menu)
   }
 
@@ -136,25 +141,31 @@ class PostPlurkActivity extends ActionBarActivity
     getSupportFragmentManager().findFragmentByTag(tag).asInstanceOf[PlurkEditor]
   }
 
+  private def test() = {
+    ProgressDialog.show(this, "發噗中", "請稍候……")
+  }
   private def postPlurk() {
-    val progressDialog = ProgressDialog.show(this, "發噗中", "請稍候……")
     val oldRequestedOrientation = getRequestedOrientation
-    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR)
+    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
+
+    sendActionButton.foreach(_.setEnabled(false))
+    sendingIndicator.setVisibility(View.VISIBLE)
+
     val postedPlurkFuture = getCurrentEditor.postPlurk()
 
     postedPlurkFuture.onSuccessInUI { case content =>
       setResult(Activity.RESULT_OK)
-      DebugLog("====> content:" + content)
-      progressDialog.dismiss()
+      sendActionButton.foreach(_.setEnabled(true))
+      sendingIndicator.setVisibility(View.GONE)
       setRequestedOrientation(oldRequestedOrientation)
       finish()
     }
 
     postedPlurkFuture.onFailureInUI { case e =>
       setResult(Activity.RESULT_CANCELED)
-      progressDialog.dismiss()
+      sendActionButton.foreach(_.setEnabled(true))
+      sendingIndicator.setVisibility(View.GONE)
       setRequestedOrientation(oldRequestedOrientation)
-      finish()
     }
 
   }

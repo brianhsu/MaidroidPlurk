@@ -45,5 +45,10 @@ class ResponseTypeAdapter(context: Context) extends BaseAdapter {
 
 class ResponseTypeSpinner(context: Context, attrs: AttributeSet) extends 
       Spinner(context, attrs){
-  this.setAdapter(new ResponseTypeAdapter(context))
+
+  val adapter = new ResponseTypeAdapter(context)
+  this.setAdapter(adapter)
+
+  def getSelectedCommentSetting = this.getSelectedItem.asInstanceOf[Option[CommentSetting]]
+
 }

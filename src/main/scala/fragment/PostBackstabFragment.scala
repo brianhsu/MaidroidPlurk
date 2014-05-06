@@ -14,7 +14,9 @@ import android.support.v4.app.Fragment
 class PostBackstabFragment extends Fragment with PlurkEditor {
 
   protected def plurkAPI = PlurkAPIHelper.getPlurkAPI(getActivity)
-  protected def contentEditor = Option(getView).map(_.findView(TR.fragmentPostPublicContent))
+  protected def contentEditor = Option(getView).map(_.findView(TR.fragmentPostBackstabContent))
+  protected def qualifierSpinner = Option(getView).map(_.findView(TR.fragmentPostBackstabQualifier))
+  protected def responseTypeSpinner = Option(getView).map(_.findView(TR.fragmentPostBackstabResponseTypeSpinner))
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
                             savedInstanceState: Bundle): View = {

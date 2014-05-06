@@ -1,6 +1,7 @@
 package idv.brianhsu.maidroid.plurk.fragment
 
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
+import idv.brianhsu.maidroid.plurk.view._
 
 import scala.concurrent._
 
@@ -25,11 +26,10 @@ trait PlurkEditor {
 
   protected def plurkAPI: PlurkAPI
   protected def contentEditor: Option[EditText]
+  protected def qualifierSpinner: Option[QualifierSpinner]
+  protected def responseTypeSpinner: Option[ResponseTypeSpinner]
 
-  def getContentEditor = contentEditor
   protected def limitedTo: List[Long] = Nil
-  protected def commentSetting: Option[WritableCommentSetting] = None
-  protected def qualifier: Qualifier = Qualifier.::
 
   def insertIcon(icon: Icon, drawable: Drawable) {
     contentEditor.foreach { editor =>
@@ -49,16 +49,17 @@ trait PlurkEditor {
 
 
   def postPlurk() = future {
+
     val isEmpty = contentEditor.map(_.getText.toString.trim.isEmpty).getOrElse(true)
+
     if (isEmpty) {
       throw PlurkEditor.NoContentException
     }
 
     val content = contentEditor.map(_.getText.toString).getOrElse("")
-    //plurkAPI.Timeline.plurkAdd(content, qualifier, limitedTo, commentSetting)
     Thread.sleep(1000 * 10)
-    content
+    //plurkAPI.Timeline.plurkAdd(content, qualifier, limitedTo, commentSetting).get
+    (content, qualifierSpinner.map(_.getSelectedQualifier), responseTypeSpinner.map(_.getSelectedCommentSetting))
   }
-
 
 }

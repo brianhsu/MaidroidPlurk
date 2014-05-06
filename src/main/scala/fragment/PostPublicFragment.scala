@@ -17,6 +17,8 @@ class PostPublicFragment extends Fragment with PlurkEditor {
 
   protected def plurkAPI = PlurkAPIHelper.getPlurkAPI(getActivity)
   protected def contentEditor = Option(getView).map(_.findView(TR.fragmentPostPublicContent))
+  protected def qualifierSpinner = Option(getView).map(_.findView(TR.fragmentPostPublicQualifier))
+  protected def responseTypeSpinner = Option(getView).map(_.findView(TR.fragmentPostPublicResponseTypeSpinner))
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
                             savedInstanceState: Bundle): View = {

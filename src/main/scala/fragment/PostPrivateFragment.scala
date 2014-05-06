@@ -14,7 +14,10 @@ import android.support.v4.app.Fragment
 class PostPrivateFragment extends Fragment with PlurkEditor {
 
   protected def plurkAPI = PlurkAPIHelper.getPlurkAPI(getActivity)
-  protected def contentEditor = Option(getView).map(_.findView(TR.fragmentPostPublicContent))
+  protected def contentEditor = Option(getView).map(_.findView(TR.fragmentPostPrivateContent))
+  protected def qualifierSpinner = Option(getView).map(_.findView(TR.fragmentPostPrivateQualifier))
+  protected def responseTypeSpinner = Option(getView).map(_.findView(TR.fragmentPostPrivateResponseTypeSpinner))
+
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
                             savedInstanceState: Bundle): View = {
