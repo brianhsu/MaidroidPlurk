@@ -8,12 +8,15 @@ import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
+import org.bone.soplurk.model.Icon
+
 import android.app.Activity
 import android.app.ProgressDialog
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
+import android.graphics.drawable.Drawable
 import android.provider.MediaStore
 import android.view.View
 import android.view.LayoutInflater
@@ -43,7 +46,7 @@ object PostPlurkActivity {
 
 class PostPlurkActivity extends ActionBarActivity 
                         with TabListener with OnPageChangeListener
-                        with TypedViewHolder 
+                        with TypedViewHolder with EmoticonFragment.Listener
 {
 
   private implicit def activity = this
@@ -72,6 +75,7 @@ class PostPlurkActivity extends ActionBarActivity
   }
 
   override def onOptionsItemSelected(menuItem: MenuItem): Boolean = menuItem.getItemId match {
+    case R.id.postPlurkActionEmoticon => toggleEmoticonSelector(); false
     case R.id.postPlurkActionPhotoFromGallery => startPhotoPicker(); false
     case R.id.postPlurkActionPhotoFromCamera => startCamera(); false
     case R.id.postPlurkActionSend => postPlurk(); false
@@ -99,6 +103,34 @@ class PostPlurkActivity extends ActionBarActivity
     }
   }
 
+  override def onIconSelected(icon: Icon, drawable: Drawable) {
+    toggleEmoticonSelector()
+    getCurrentEditor.insertIcon(icon, drawable)
+  }
+
+  private def toggleEmoticonSelector() {
+    val fm = getSupportFragmentManager
+    val selectorHolder = Option(fm.findFragmentById(R.id.activityPostPlurkEmtoicon))
+
+    selectorHolder match {
+      case Some(selector) if selector.isHidden =>
+        fm.beginTransaction.
+          setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).
+          show(selector).commit()
+
+      case Some(selector)  =>
+        fm.beginTransaction.
+          setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).
+          hide(selector).commit()
+
+      case None =>
+        fm.beginTransaction.
+          setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).
+          replace(R.id.activityPostPlurkEmtoicon, new EmoticonFragment).
+          commit()
+    }
+  }
+
   private def getCurrentEditor = {
     val tag = s"android:switcher:${R.id.activityPostPlurkViewPager}:${viewPager.getCurrentItem}"
     getSupportFragmentManager().findFragmentByTag(tag).asInstanceOf[PlurkEditor]
@@ -112,6 +144,7 @@ class PostPlurkActivity extends ActionBarActivity
 
     postedPlurkFuture.onSuccessInUI { case content =>
       setResult(Activity.RESULT_OK)
+      DebugLog("====> content:" + content)
       progressDialog.dismiss()
       setRequestedOrientation(oldRequestedOrientation)
       finish()
@@ -168,7 +201,7 @@ class PostPlurkActivity extends ActionBarActivity
             newFile <- writeToCache(resizedBitmap)
             (imageURL, _) <- plurkAPI.Timeline.uploadPicture(newFile).toOption
           } {
-            PostPlurkActivity.this.runOnUIThread { getCurrentEditor.insertImage(imageURL) }
+            PostPlurkActivity.this.runOnUIThread { getCurrentEditor.insertText(imageURL) }
           }
 
         } catch {
@@ -182,7 +215,7 @@ class PostPlurkActivity extends ActionBarActivity
   }
 
 
-  override def onBackPressed() {
+  private def showWarningDialog() {
     val alertDialog = new AlertDialog.Builder(this).setCancelable(true).setTitle("取消").setMessage("確定要取消發噗嗎？這會造成目前的內容永遠消失喲！")
     alertDialog.setPositiveButton("是", new DialogInterface.OnClickListener() {
       override def onClick(dialog: DialogInterface, which: Int) {
@@ -197,6 +230,19 @@ class PostPlurkActivity extends ActionBarActivity
       }
     })
     alertDialog.show()
+  }
+
+  override def onBackPressed() {
+
+    val isEmoticonSelectedShown = Option(
+      getSupportFragmentManager.findFragmentById(R.id.activityPostPlurkEmtoicon)
+    ).exists(_.isVisible)
+
+    if (isEmoticonSelectedShown) {
+      toggleEmoticonSelector()
+    } else {
+      showWarningDialog()
+    }
 
   }
   private def processImage(resultCode: Int, data: Intent) {
