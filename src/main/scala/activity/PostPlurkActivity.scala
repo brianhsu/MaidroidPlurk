@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import android.view.Menu
 import android.view.MenuItem
 import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.content.DialogInterface
 
 import android.support.v7.app.ActionBarActivity
@@ -102,9 +103,11 @@ class PostPlurkActivity extends ActionBarActivity
 
   override def onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
 
+    super.onActivityResult(requestCode, resultCode, data)
+
     requestCode match {
       case PostPlurkActivity.REQUEST_PHOTO_PICKER => processImage(resultCode, data)
-      case _ => super.onActivityResult(requestCode, resultCode, data)
+      case _ => 
     }
   }
 
@@ -141,9 +144,6 @@ class PostPlurkActivity extends ActionBarActivity
     getSupportFragmentManager().findFragmentByTag(tag).asInstanceOf[PlurkEditor]
   }
 
-  private def test() = {
-    ProgressDialog.show(this, "發噗中", "請稍候……")
-  }
   private def postPlurk() {
     val oldRequestedOrientation = getRequestedOrientation
     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
@@ -194,35 +194,36 @@ class PostPlurkActivity extends ActionBarActivity
 
   private def uploadFile(file: File) {
 
-    val progressDialog = ProgressDialog.show(this, "上傳圖檔", "請稍候……")
+    val progressDialogFragment = new ProgressDialogFragment("上傳圖檔", "請稍候……")
+    progressDialogFragment.show(getSupportFragmentManager.beginTransaction, "uploadFileProgress")
     val oldRequestedOrientation = getRequestedOrientation
-    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR)
+    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
-    new Thread() {
+    val imageURLFuture = future {
+      val resizedBitmap = ImageSampleFactor.resizeImageFile(file, 800)
+      val thumbnailBitmap = ImageSampleFactor.resizeImageFile(file, 100)
 
-      private def writeToCache(bitmap: Bitmap) = {
-        DiskCacheHelper.writeBitmapToCache(PostPlurkActivity.this, UUID.randomUUID.toString, bitmap)
-      }
+      val randomUUID = UUID.randomUUID.toString
+      val newFile = DiskCacheHelper.writeBitmapToCache(
+        PostPlurkActivity.this, randomUUID, resizedBitmap
+      ).get
+      
+      val bitmapDrawable = new BitmapDrawable(getResources, thumbnailBitmap)
+      val imageURL = plurkAPI.Timeline.uploadPicture(newFile).get._1
+      (imageURL, bitmapDrawable)
+    }
 
-      override def run() {
-        try {
-          val resizedBitmap = ImageSampleFactor.resizeImageFile(file, 800)
+    imageURLFuture.onSuccessInUI { case (imageURL, bitmapDrawable) => 
+      getCurrentEditor.insertDrawable(s" ${imageURL} ", bitmapDrawable) 
+      progressDialogFragment.dismiss()
+      setRequestedOrientation(oldRequestedOrientation)
+    }
 
-          for {
-            newFile <- writeToCache(resizedBitmap)
-            (imageURL, _) <- plurkAPI.Timeline.uploadPicture(newFile).toOption
-          } {
-            PostPlurkActivity.this.runOnUIThread { getCurrentEditor.insertText(imageURL) }
-          }
-
-        } catch {
-          case e: Exception => DebugLog(s"====> uploadFileError:$e", e)
-        } finally {
-          progressDialog.dismiss()
-          setRequestedOrientation(oldRequestedOrientation)
-        }
-      }
-    }.start
+    imageURLFuture.onFailureInUI { case e: Exception => 
+      DebugLog(s"====> upload image failed:$e", e)
+      progressDialogFragment.dismiss()
+      setRequestedOrientation(oldRequestedOrientation)
+    }
   }
 
 
