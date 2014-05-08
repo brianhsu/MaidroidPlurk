@@ -30,8 +30,7 @@ trait PlurkEditor {
 
   protected def limitedTo: List[Long] = Nil
 
-  def setSelectedCliques(cliques: Set[String]) {}
-  def setSelectedUsers(usersWithTitle: Set[(Long, String)]) {}
+  def setSelected(cliques: Set[String], users: Set[(Long, String)]) {}
 
   def insertDrawable(originString: String, drawable: Drawable) {
     contentEditor.foreach { editor =>

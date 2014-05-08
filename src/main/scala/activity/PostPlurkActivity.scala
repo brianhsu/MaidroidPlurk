@@ -117,8 +117,7 @@ class PostPlurkActivity extends ActionBarActivity
 
     DebugLog("====> onDialogConfirmed:" + selectedCliques + "," + selectedUsers)
     val editor = getCurrentEditor
-    editor.setSelectedCliques(selectedCliques)
-    editor.setSelectedUsers(selectedUsers)
+    editor.setSelected(selectedCliques, selectedUsers)
   }
 
   private def toggleEmoticonSelector() {
@@ -256,6 +255,7 @@ class PostPlurkActivity extends ActionBarActivity
     }
 
   }
+
   private def processImage(resultCode: Int, data: Intent) {
     if (resultCode == Activity.RESULT_OK) {
       uploadFile(getFileFromUri(data.getData))
