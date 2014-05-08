@@ -28,7 +28,7 @@ class PostPrivateFragment extends Fragment with PlurkEditor {
 
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
     addLimitedToHolder.foreach(_.setOnClickListener({ view: View =>
-      new ProgressDialogFragment("AAA", "QQQ").show(getActivity.getSupportFragmentManager(), "tag")
+      new AddLimitedToDialogFragment().show(getActivity.getSupportFragmentManager(), "tag")
     }))
   }
 

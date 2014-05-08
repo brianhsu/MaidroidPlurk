@@ -48,6 +48,7 @@ object PostPlurkActivity {
 class PostPlurkActivity extends ActionBarActivity 
                         with TabListener with OnPageChangeListener
                         with TypedViewHolder with EmoticonFragment.Listener
+                        with AddLimitedToDialogFragment.Listener
 {
 
   private implicit def activity = this
@@ -109,6 +110,10 @@ class PostPlurkActivity extends ActionBarActivity
   override def onIconSelected(icon: Icon, drawable: Option[Drawable]) {
     toggleEmoticonSelector()
     getCurrentEditor.insertIcon(icon, drawable)
+  }
+
+  override def onDialogConfirmed(selectedCliques: Set[String], 
+                                 selectedUsers: Set[(Long, String)]) {
   }
 
   private def toggleEmoticonSelector() {
