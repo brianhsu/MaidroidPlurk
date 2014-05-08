@@ -114,6 +114,11 @@ class PostPlurkActivity extends ActionBarActivity
 
   override def onDialogConfirmed(selectedCliques: Set[String], 
                                  selectedUsers: Set[(Long, String)]) {
+
+    DebugLog("====> onDialogConfirmed:" + selectedCliques + "," + selectedUsers)
+    val editor = getCurrentEditor
+    editor.setSelectedCliques(selectedCliques)
+    editor.setSelectedUsers(selectedUsers)
   }
 
   private def toggleEmoticonSelector() {

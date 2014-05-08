@@ -8,8 +8,6 @@ import scala.concurrent._
 
 import android.graphics.drawable.Drawable
 import android.widget.EditText
-import android.text.SpannableString
-import android.text.Spannable
 import android.text.Spanned
 import android.text.style.ImageSpan
 import android.text.style.DynamicDrawableSpan
@@ -23,7 +21,6 @@ object PlurkEditor {
   object NoContentException extends Exception("無內容可以發噗")
 }
 
-import      android.text.SpannableStringBuilder
 trait PlurkEditor {
 
   protected def plurkAPI: PlurkAPI
@@ -32,6 +29,9 @@ trait PlurkEditor {
   protected def responseTypeSpinner: Option[ResponseTypeSpinner]
 
   protected def limitedTo: List[Long] = Nil
+
+  def setSelectedCliques(cliques: Set[String]) {}
+  def setSelectedUsers(usersWithTitle: Set[(Long, String)]) {}
 
   def insertDrawable(originString: String, drawable: Drawable) {
     contentEditor.foreach { editor =>

@@ -70,13 +70,6 @@ class AddLimitedToDialogFragment(defaultSelectedCliques: Set[String],
 
   private def getOnCancelListener = new DialogInterface.OnClickListener() {
     override def onClick(dialog: DialogInterface, which: Int) {
-      adapterFuture.foreach { adapter =>
-        val activityCallback = activity.asInstanceOf[AddLimitedToDialogFragment.Listener]
-        activityCallback.onDialogConfirmed(
-          adapter.getSelectedCliques, 
-          adapter.getSelectedUsersWithTitle
-        )
-      }
       dialog.dismiss()
     }
   }
@@ -84,8 +77,11 @@ class AddLimitedToDialogFragment(defaultSelectedCliques: Set[String],
   private def getOnOKListener = new DialogInterface.OnClickListener() {
     override def onClick(dialog: DialogInterface, which: Int) {
       adapterFuture.foreach { adapter =>
-        DebugLog("====> clique:" + adapter.getSelectedCliques.toList)
-        DebugLog("====> name:" + adapter.getSelectedUsers.toList)
+        val activityCallback = activity.asInstanceOf[AddLimitedToDialogFragment.Listener]
+        activityCallback.onDialogConfirmed(
+          adapter.getSelectedCliques, 
+          adapter.getSelectedUsersWithTitle
+        )
       }
       dialog.dismiss()
     }
