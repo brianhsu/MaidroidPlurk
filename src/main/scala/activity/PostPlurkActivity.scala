@@ -54,9 +54,6 @@ class PostPlurkActivity extends ActionBarActivity
   private lazy val viewPager = findView(TR.activityPostPlurkViewPager)
   private lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
   private lazy val adapter = new PlurkEditorAdapter(getSupportFragmentManager)
-  private lazy val sendingIndicator = findView(TR.moduleLoadingIndicator)
-
-  private var sendActionButton: Option[MenuItem] = None
 
   override def onCreate(savedInstanceState: Bundle) {
     super.onCreate(savedInstanceState)
@@ -70,13 +67,11 @@ class PostPlurkActivity extends ActionBarActivity
  
     viewPager.setAdapter(adapter)
     viewPager.setOnPageChangeListener(this)
-    sendingIndicator.setVisibility(View.GONE)
   }
 
   override def onCreateOptionsMenu(menu: Menu): Boolean = {
     val inflater = getMenuInflater
     inflater.inflate(R.menu.post_plurk, menu)
-    this.sendActionButton = Option(menu.findItem(R.id.postPlurkActionSend))
     super.onCreateOptionsMenu(menu)
   }
 
@@ -145,29 +140,23 @@ class PostPlurkActivity extends ActionBarActivity
   }
 
   private def postPlurk() {
+    val progressDialogFragment = new ProgressDialogFragment("發噗中", "請稍候……")
+    progressDialogFragment.show(getSupportFragmentManager.beginTransaction, "uploadFileProgress")
     val oldRequestedOrientation = getRequestedOrientation
     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
-
-    sendActionButton.foreach(_.setEnabled(false))
-    sendingIndicator.setVisibility(View.VISIBLE)
 
     val postedPlurkFuture = getCurrentEditor.postPlurk()
 
     postedPlurkFuture.onSuccessInUI { case content =>
       setResult(Activity.RESULT_OK)
-      sendActionButton.foreach(_.setEnabled(true))
-      sendingIndicator.setVisibility(View.GONE)
-      setRequestedOrientation(oldRequestedOrientation)
+      progressDialogFragment.dismiss()
       finish()
     }
 
     postedPlurkFuture.onFailureInUI { case e =>
       setResult(Activity.RESULT_CANCELED)
-      sendActionButton.foreach(_.setEnabled(true))
-      sendingIndicator.setVisibility(View.GONE)
-      setRequestedOrientation(oldRequestedOrientation)
+      progressDialogFragment.dismiss()
     }
-
   }
 
   private def startCamera() {

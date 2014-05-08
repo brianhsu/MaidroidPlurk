@@ -23,6 +23,7 @@ object PlurkEditor {
   object NoContentException extends Exception("無內容可以發噗")
 }
 
+import      android.text.SpannableStringBuilder
 trait PlurkEditor {
 
   protected def plurkAPI: PlurkAPI
@@ -35,10 +36,13 @@ trait PlurkEditor {
   def insertDrawable(originString: String, drawable: Drawable) {
     contentEditor.foreach { editor =>
       drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight())
-      val stringSpan = new SpannableString(originString)
       val imageSpan = new ImageSpan(drawable, DynamicDrawableSpan.ALIGN_BASELINE)
-      stringSpan.setSpan(imageSpan, 0, originString.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
-      editor.getText.insert(editor.getSelectionStart.max(0), stringSpan)
+
+      val start = editor.getSelectionStart.max(0)
+      val end = editor.getSelectionEnd.max(0)
+      val message = editor.getEditableText
+      message.replace(start, end, originString)
+      message.setSpan(imageSpan, start, start + originString.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
   }
 
@@ -51,7 +55,7 @@ trait PlurkEditor {
 
   def insertText(text: String) {
     contentEditor.foreach { editor =>
-      editor.getText.insert(editor.getSelectionStart.max(0), text)
+      editor.getEditableText.insert(editor.getSelectionStart.max(0), text)
     }
   }
 
@@ -68,7 +72,8 @@ trait PlurkEditor {
     val language = plurkAPI.Users.currUser.get._1.basicInfo.defaultLanguage
     val qualifier = qualifierSpinner.map(_.getSelectedQualifier).getOrElse(Qualifier.::)
     val commentSetting = responseTypeSpinner.map(_.getSelectedCommentSetting).getOrElse(None)
-    plurkAPI.Timeline.plurkAdd(content, qualifier, limitedTo, commentSetting, Some(language)).get
+    //plurkAPI.Timeline.plurkAdd(content, qualifier, limitedTo, commentSetting, Some(language)).get
+    DebugLog("====> content:" + content)
   }
 
 }
