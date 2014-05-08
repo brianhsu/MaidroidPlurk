@@ -1,6 +1,7 @@
 package idv.brianhsu.maidroid.plurk.adapter
 
 import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.TypedResource._
 
 import android.widget.BaseAdapter
@@ -17,17 +18,21 @@ class PeopleListAdapter(context: Context,
                         usersCompletion: Vector[(Long, String)]) extends BaseAdapter 
 {
 
-  private type RowItem = Either[String, (Long, String)]
+  sealed abstract class RowItem(title: String)
 
-  case class ViewTag(checkbox: CheckBox, title: TextView, var isClique: Boolean) {
+  case object AllFriends extends RowItem("[所有好友]")
+  case class Clique(name: String) extends RowItem(name)
+  case class Friend(userID: Long, name: String) extends RowItem(name)
+
+  case class ViewTag(checkbox: CheckBox, title: TextView) {
     def update(item: RowItem, isSelected: Boolean) {
       item match {
-        case Left(cliqueTitle) => title.setText(s"[小圈圈] ${cliqueTitle}")
-        case Right((userID, userTitle)) => title.setText(s"${userTitle}")
+        case AllFriends => title.setText(s"[所有好友]")
+        case Clique(cliqueTitle) => title.setText(s"[小圈圈] ${cliqueTitle}")
+        case Friend(userID, name) => title.setText(s"${name}")
       }
 
       checkbox.setChecked(isSelected)
-      isClique = item.isLeft
     }
   }
 
@@ -51,15 +56,25 @@ class PeopleListAdapter(context: Context,
   }
 
   private def getIsSelected(item: RowItem): Boolean = item match {
-    case Left(cliqueName) => selectedCliques.contains(cliqueName)
-    case Right((userID, title)) => selectedUsers.contains(userID)
+    case AllFriends => selectedCliques.contains("[所有好友]")
+    case Clique(cliqueName) => selectedCliques.contains(cliqueName)
+    case Friend(userID, title) => selectedUsers.contains(userID)
   }
 
-  override def getCount = cliques.size + usersCompletion.size
+  override def getCount = cliques.size + usersCompletion.size + 1
   override def getItem(position: Int): RowItem = {
-    (position < cliques.size) match {
-      case true  => Left(cliques(position))
-      case false => Right(usersCompletion(position - cliques.size))
+
+    DebugLog("====> position:" + position)
+    if (position <= 0) {
+      AllFriends
+    } else {
+
+      (position < (cliques.size + 1)) match {
+        case true  => Clique(cliques(position-1))
+        case false => 
+          val user = usersCompletion(position - cliques.size - 1)
+          Friend(user._1, user._2)
+      }
     }
   }
 
@@ -82,7 +97,7 @@ class PeopleListAdapter(context: Context,
     val view = inflater.inflate(R.layout.item_people, parent, false)
     val title = view.findView(TR.itemPeopleTitle)
     val checkBox = view.findView(TR.itemPeopleCheckBox)
-    val viewTag = ViewTag(checkBox, title, item.isLeft)
+    val viewTag = ViewTag(checkBox, title)
     viewTag.update(item, getIsSelected(item))
     view.setTag(viewTag)
     view
@@ -90,10 +105,12 @@ class PeopleListAdapter(context: Context,
 
   private def setSelected(item: RowItem, isSelected: Boolean) {
     item match {
-      case Left(cliqueName) if isSelected    => selectedCliques += cliqueName
-      case Left(cliqueName) if !isSelected   => selectedCliques -= cliqueName
-      case Right((userID, _)) if isSelected  => selectedUsers += userID
-      case Right((userID, _)) if !isSelected => selectedUsers -= userID
+      case AllFriends if isSelected => selectedCliques += "[所有好友]"
+      case AllFriends if !isSelected => selectedCliques -= "[所有好友]"
+      case Clique(cliqueName) if isSelected    => selectedCliques += cliqueName
+      case Clique(cliqueName) if !isSelected   => selectedCliques -= cliqueName
+      case Friend(userID, _) if isSelected  => selectedUsers += userID
+      case Friend(userID, _) if !isSelected => selectedUsers -= userID
     }
   }
 

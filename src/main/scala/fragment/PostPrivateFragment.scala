@@ -42,7 +42,9 @@ class PostPrivateFragment extends Fragment with PlurkEditor {
         viewGroup.removeAllViews()
 
         for (clique <- selectedCliques) {
-          val button = createButton(s"[小圈圈] ${clique}")
+
+          val title = if (clique == "[所有好友]") clique else s"[小圈圈] ${clique}"
+          val button = createButton(title)
           val layoutParams = new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
           layoutParams.setMargins(10, 10, 10, 10)
           viewGroup.addView(button, layoutParams)
