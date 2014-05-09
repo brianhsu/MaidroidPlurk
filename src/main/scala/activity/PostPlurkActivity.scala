@@ -48,7 +48,7 @@ object PostPlurkActivity {
 class PostPlurkActivity extends ActionBarActivity 
                         with TabListener with OnPageChangeListener
                         with TypedViewHolder with EmoticonFragment.Listener
-                        with AddLimitedToDialog.Listener
+                        with SelectLimitedToDialog.Listener
                         with SelectBlockPeopleDialog.Listener
 {
 

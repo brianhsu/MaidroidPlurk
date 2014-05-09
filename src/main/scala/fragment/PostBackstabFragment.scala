@@ -24,25 +24,51 @@ object PostBackstabFragment
 
 }
 
-class PostBackstabFragment extends Fragment with PlurkEditor with SelectLimitedToUI
+class PostBackstabFragment extends Fragment with PlurkEditor
 {
   import PostBackstabFragment._
+
+  protected lazy val inflater = LayoutInflater.from(getActivity)
 
   protected def plurkAPI = PlurkAPIHelper.getPlurkAPI(getActivity)
   protected def contentEditor = Option(getView).map(_.findView(TR.fragmentPostBackstabContent))
   protected def qualifierSpinner = Option(getView).map(_.findView(TR.fragmentPostBackstabQualifier))
   protected def responseTypeSpinner = Option(getView).map(_.findView(TR.fragmentPostBackstabResponseTypeSpinner))
 
-  private def addBlockHolder = Option(getView).map(_.findView(TR.fragmentPostBackstabAddBlock))
+  protected def limitedButtonHolder = Option(getView).map(_.findView(TR.fragmentPostBackstabLimitedButton))
+  protected def limitedListHolder = Option(getView).map(_.findView(TR.fragmentPostBlackstabLimitedList))
+  protected def blockButtonHolder = Option(getView).map(_.findView(TR.fragmentPostBackstabBlockButton))
+  protected def blockListHolder = Option(getView).map(_.findView(TR.fragmentPostBackstabBlockList))
 
-  protected def addLimitedToHolder = Option(getView).map(_.findView(TR.fragmentPostBackstabAddLimitedTo))
-  protected def limitedToList = Option(getView).map(_.findView(TR.fragmentPostBlackstabLimitedToList))
-  protected lazy val inflater = LayoutInflater.from(getActivity)
+  private lazy val selectLimitedUI = {
+    new SelectUserUI(
+      fragment = this, plurkAPI, 
+      buttonResID = R.layout.view_people_button,
+      limitedButtonHolder, limitedListHolder) 
+    {
+      protected def createDialog(selectedCliques: Set[String], selectedUsers: Set[Long]) = {
+        new SelectLimitedToDialog(selectedCliques, selectedUsers)
+      }
+    }
+  }
 
-  override def setSelected(cliques: Set[String], users: Set[(Long, String)]) {
-    this.selectedCliques = cliques
-    this.selectedUsers = users
-    updateLimitedToList()
+  private lazy val selectBlockUI = {
+    new SelectUserUI(
+       fragment = this, plurkAPI, 
+       buttonResID = R.layout.view_block_button,
+       blockButtonHolder, 
+       blockListHolder
+    ) {
+      protected def createDialog(selectedCliques: Set[String], selectedUsers: Set[Long]) = {
+        new SelectBlockPeopleDialog(selectedCliques, selectedUsers)
+      }
+
+      override protected def updateUISelectedNone() {
+        getActivity.runOnUIThread { 
+          blockListHolder.foreach { viewGroup => viewGroup.removeAllViews() }
+        }
+      }
+    }
   }
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
@@ -50,25 +76,44 @@ class PostBackstabFragment extends Fragment with PlurkEditor with SelectLimitedT
     inflater.inflate(R.layout.fragment_post_backstab, container, false)
   }
 
+  override def setSelected(cliques: Set[String], users: Set[(Long, String)]) {
+    selectLimitedUI.selectedCliques = cliques
+    selectLimitedUI.selectedUsers = users
+    selectLimitedUI.updateUI()
+  }
+
+  override def setBlocked(cliques: Set[String], users: Set[(Long, String)]) {
+    selectBlockUI.selectedCliques = cliques
+    selectBlockUI.selectedUsers = users
+    selectBlockUI.updateUI()
+  }
+
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
-    for {
-      addLimitedToButton <- addLimitedToHolder
-      addBlockButton <- addBlockHolder
-    } {
-      addLimitedToButton.setOnClickListener { view: View => showSelectPeopleDialog() }
-    }
 
     if (savedInstanceState != null) {
-      restoreLimitedToUIState(savedInstanceState)
+      selectLimitedUI.restoreUIState(savedInstanceState)
+      selectBlockUI.restoreUIState(savedInstanceState)
     }
 
-    updateLimitedToList()
+    selectLimitedUI.updateUI()
+    selectBlockUI.updateUI()
   }
 
   override def onSaveInstanceState(outState: Bundle) {
-    saveLimitedToUIState(outState)
+    selectLimitedUI.saveUIState(outState)
+    selectBlockUI.saveUIState(outState)
   }
 
+  override def limitedTo: List[Long] = {
+
+    val blockUsers = selectBlockUI.getSelectedUsers
+    val limitedToUser = selectLimitedUI.getSelectedUsers match {
+      case users if users.isEmpty => plurkAPI.FriendsFans.getCompletion.get.keys.toSet
+      case users => users
+    }
+
+    (limitedToUser -- blockUsers).toList
+  }
 
 }
 

@@ -47,7 +47,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
     <ImageButton
-      android:id="@+id/fragmentPostPrivateAddLimitedTo"
+      android:id="@+id/fragmentPostPrivateLimitedButton"
       android:src="@drawable/ic_action_add_group"
       android:hint="01/02/1999"
       android:ellipsize="start"
@@ -57,7 +57,7 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content">
       <LinearLayout
-        android:id="@+id/fragmentPostPrivateLimitedToList"
+        android:id="@+id/fragmentPostPrivateLimitedList"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

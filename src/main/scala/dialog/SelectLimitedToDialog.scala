@@ -2,13 +2,13 @@ package idv.brianhsu.maidroid.plurk.fragment
 
 import idv.brianhsu.maidroid.plurk.adapter._
 
-object AddLimitedToDialog {
+object SelectLimitedToDialog {
   trait Listener {
     def onPeopleSelected(selectedCliques: Set[String], selectedUsers: Set[(Long, String)])
   }
 }
 
-class AddLimitedToDialog(
+class SelectLimitedToDialog(
   defaultSelectedCliques: Set[String], 
   defaultSelectedUsers: Set[Long]) extends SelectPeopleDialog("誰可以看到這則發文？", 
                                                               defaultSelectedCliques, 
@@ -17,7 +17,10 @@ class AddLimitedToDialog(
   def this() = this(Set.empty, Set.empty)
 
   override def onDialogConfirmed(adapter: PeopleListAdapter) {
-    val activityCallback = getActivity.asInstanceOf[AddLimitedToDialog.Listener]
-    activityCallback.onPeopleSelected(adapter.getSelectedCliques, adapter.getSelectedUsersWithTitle)
+    val activityCallback = getActivity.asInstanceOf[SelectLimitedToDialog.Listener]
+    activityCallback.onPeopleSelected(
+      adapter.getSelectedCliques, 
+      adapter.getSelectedUsersWithTitle
+    )
   }
 }
