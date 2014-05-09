@@ -9,15 +9,17 @@ import idv.brianhsu.maidroid.plurk.adapter._
 import org.bone.soplurk.model.Completion
 
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
 import android.app.ProgressDialog
 import android.app.Dialog
 import android.app.AlertDialog
+import android.content.DialogInterface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
-import android.content.DialogInterface
+import android.widget.Toast
+
+import android.support.v4.app.DialogFragment
 
 import scala.concurrent._
 
@@ -130,8 +132,11 @@ class AddLimitedToDialogFragment(defaultSelectedCliques: Set[String],
     }
 
     adapterFuture.onFailureInUI { case e: Exception =>
-      loadingIndicator.setVisibility(View.GONE)
-      content.setVisibility(View.VISIBLE)
+      Toast.makeText(
+        getActivity, "無法取得小圈圈與朋友列表，請檢查網路後重試一次", 
+        Toast.LENGTH_LONG
+      ).show()
+      dialog.dismiss()
     }
 
     dialog
