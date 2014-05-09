@@ -16,6 +16,7 @@ import org.bone.soplurk.api.PlurkAPI
 import org.bone.soplurk.model.Icon
 import org.bone.soplurk.constant.WritableCommentSetting
 import org.bone.soplurk.constant.Qualifier
+import android.text.Editable
 
 object PlurkEditor {
   object NoContentException extends Exception("無內容可以發噗")
@@ -32,6 +33,17 @@ trait PlurkEditor {
 
   def setSelected(cliques: Set[String], users: Set[(Long, String)]) {}
   def setBlocked(cliques: Set[String], users: Set[(Long, String)]) {}
+
+  def setEditorContent(content: (Editable, Int)) {
+    contentEditor.foreach { editor => 
+      editor.setText(content._1, android.widget.TextView.BufferType.SPANNABLE) 
+      editor.setSelection(content._2)
+    }
+  }
+
+  def getEditorContent = contentEditor.map { editor => 
+    (editor.getText, editor.getSelectionStart.max(0))
+  }
 
   def insertDrawable(originString: String, drawable: Drawable) {
     contentEditor.foreach { editor =>

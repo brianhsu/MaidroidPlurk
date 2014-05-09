@@ -33,6 +33,7 @@ import android.support.v7.app.ActionBar.TabListener
 import android.support.v7.app.ActionBar.Tab
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
+import android.support.v4.view.ViewPager
 import android.support.v4.view.ViewPager.OnPageChangeListener
 
 import java.util.UUID
@@ -40,6 +41,7 @@ import java.util.UUID
 import scala.concurrent._
 import android.net.Uri
 import java.io.File
+import android.text.Editable
 
 object PostPlurkActivity {
   val REQUEST_PHOTO_PICKER = 1
@@ -56,6 +58,7 @@ class PostPlurkActivity extends ActionBarActivity
   private lazy val viewPager = findView(TR.activityPostPlurkViewPager)
   private lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
   private lazy val adapter = new PlurkEditorAdapter(getSupportFragmentManager)
+  private var prevEditorContentHolder: Option[(Editable, Int)] = None
 
   override def onCreate(savedInstanceState: Bundle) {
     super.onCreate(savedInstanceState)
@@ -87,11 +90,19 @@ class PostPlurkActivity extends ActionBarActivity
 
   override def onTabReselected(tab: Tab, ft: FragmentTransaction) {  }
   override def onTabUnselected(tab: Tab, ft: FragmentTransaction) {}
-  override def onPageScrollStateChanged(state: Int) {}
   override def onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
-
   override def onTabSelected(tab: Tab, ft: FragmentTransaction) {
     viewPager.setCurrentItem(tab.getPosition)
+  }
+
+  override def onPageScrollStateChanged(state: Int) {
+    if (state == ViewPager.SCROLL_STATE_IDLE) {
+      prevEditorContentHolder.foreach { content =>
+        getCurrentEditor.setEditorContent(content)
+      }
+    } else if (state == ViewPager.SCROLL_STATE_DRAGGING ) {
+      prevEditorContentHolder = getCurrentEditor.getEditorContent
+    }
   }
 
   override def onPageSelected(position: Int) {
@@ -115,16 +126,12 @@ class PostPlurkActivity extends ActionBarActivity
 
   override def onPeopleSelected(selectedCliques: Set[String], 
                                 selectedUsers: Set[(Long, String)]) {
-
-    DebugLog("====> onDialogConfirmed:" + selectedCliques + "," + selectedUsers)
     val editor = getCurrentEditor
     editor.setSelected(selectedCliques, selectedUsers)
   }
 
   override def onBlockSelected(selectedCliques: Set[String], 
                                 selectedUsers: Set[(Long, String)]) {
-
-    DebugLog("====> onDialogConfirmed:" + selectedCliques + "," + selectedUsers)
     val editor = getCurrentEditor
     editor.setBlocked(selectedCliques, selectedUsers)
   }
