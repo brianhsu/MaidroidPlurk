@@ -73,6 +73,7 @@ trait PlurkEditor {
     val commentSetting = responseTypeSpinner.map(_.getSelectedCommentSetting).getOrElse(None)
     //plurkAPI.Timeline.plurkAdd(content, qualifier, limitedTo, commentSetting, Some(language)).get
     DebugLog("====> content:" + content)
+    DebugLog("====> limitedTo:" + limitedTo)
   }
 
 }

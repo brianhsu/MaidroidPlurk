@@ -172,5 +172,19 @@ class PostPrivateFragment extends Fragment with PlurkEditor
 
   }
 
+  override protected def limitedTo: List[Long] = {
+    if (selectedUsers.isEmpty && selectedCliques.isEmpty) {
+      List(0)
+    } else {
+      val userInCliques = for {
+        cliqueName <- selectedCliques
+        users <- plurkAPI.Cliques.getClique(cliqueName).get
+      } yield users.id
+
+      DebugLog("====> userInCliques:" + userInCliques)
+      userInCliques.toList ++ selectedUsers.map(_._1).toList
+    }
+  }
+
 }
 
