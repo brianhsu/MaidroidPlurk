@@ -19,6 +19,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.Toast
 
+import android.support.v7.widget.SearchView
 import android.support.v4.app.DialogFragment
 
 import scala.concurrent._
@@ -73,6 +74,12 @@ class AddLimitedToDialogFragment(defaultSelectedCliques: Set[String],
     }
   }
 
+  private def startSearching(text: String) {
+    adapterFuture.foreach { adapter =>
+      activity.runOnUIThread { adapter.getFilter.filter(text) }
+    }
+  }
+
   override def onSaveInstanceState(outState: Bundle) {
     for {
       adapter <- adapterFuture
@@ -121,6 +128,7 @@ class AddLimitedToDialogFragment(defaultSelectedCliques: Set[String],
           adapter.setSelectedUsers(selectedUsers.toSet)
       }
 
+      listView.setEmptyView(view.findView(TR.dialogSelectPeopleEmptyNotice))
       listView.setAdapter(adapter)
       listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
         override def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long) {
@@ -138,6 +146,17 @@ class AddLimitedToDialogFragment(defaultSelectedCliques: Set[String],
       ).show()
       dialog.dismiss()
     }
+
+    searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+      override def onQueryTextChange(newText: String) = {
+        startSearching(newText)
+        false
+      }
+      override def onQueryTextSubmit(text: String) = {
+        startSearching(text)
+        true
+      }
+    })
 
     dialog
   }

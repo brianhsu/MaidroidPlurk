@@ -13,9 +13,13 @@ import android.view.LayoutInflater
 import android.widget.AdapterView
 import android.content.Context
 
+import android.widget.Filterable
+import android.widget.Filter
+
 class PeopleListAdapter(context: Context, 
                         cliques: Vector[String], 
                         usersCompletion: Vector[(Long, String)]) extends BaseAdapter 
+                                                                 with Filterable
 {
 
   sealed abstract class RowItem(title: String)
@@ -38,6 +42,13 @@ class PeopleListAdapter(context: Context,
 
   private var selectedCliques: Set[String] = Set.empty
   private var selectedUsers: Set[Long] = Set.empty
+  private var listedCliques: Vector[String] = cliques
+  private var listedUsers: Vector[(Long, String)] = usersCompletion
+
+  private def getIsSelected(item: RowItem): Boolean = item match {
+    case Clique(cliqueName) => selectedCliques.contains(cliqueName)
+    case Friend(userID, title) => selectedUsers.contains(userID)
+  }
 
   def setSelectedCliques(cliques: Set[String]) = {
     selectedCliques = cliques
@@ -53,23 +64,62 @@ class PeopleListAdapter(context: Context,
     selectedUsers.map { userID => usersCompletion.filter(_._1 == userID).head }
   }
 
-  private def getIsSelected(item: RowItem): Boolean = item match {
-    case Clique(cliqueName) => selectedCliques.contains(cliqueName)
-    case Friend(userID, title) => selectedUsers.contains(userID)
+  override def getFilter = filter
+
+  private lazy val filter = new Filter() {
+    import Filter.FilterResults
+
+    private def getDefaultResults = {
+      val results = new FilterResults
+      results.count = cliques.size + usersCompletion.size
+      results.values = (cliques, usersCompletion)
+      results
+    }
+
+    private def getSearchResults(constraint: String) = {
+      val results = new FilterResults
+      val filteredCliques = cliques.filter(_.toLowerCase contains constraint.trim.toLowerCase)
+      val filteredUsers = usersCompletion.filter(_._2.toLowerCase contains constraint.trim.toLowerCase)
+      results.count = filteredCliques.size + filteredUsers.size
+      results.values = (filteredCliques, filteredUsers)
+      results
+    }
+
+    override def performFiltering(constraint: CharSequence): FilterResults = {
+
+      val isEmptySearchBar = (constraint == null || constraint.toString.trim.isEmpty)
+      isEmptySearchBar match {
+        case true  => getDefaultResults
+        case false => getSearchResults(constraint.toString)
+      }
+    }
+
+    override def publishResults(constraint: CharSequence, results: FilterResults) {
+
+      val (filteredCliques, filteredUsers) = 
+        results.values.asInstanceOf[(Vector[String], Vector[(Long, String)])]
+
+      if (filteredCliques != listedCliques || filteredUsers != listedUsers ) {
+        listedCliques = filteredCliques
+        listedUsers = filteredUsers
+        notifyDataSetChanged()
+      }
+    }
+
   }
 
-  override def getCount = cliques.size + usersCompletion.size
+  override def getCount = listedCliques.size + listedUsers.size
   override def getItem(position: Int): RowItem = {
 
-    (position < cliques.size) match {
-      case true  => Clique(cliques(position))
+    (position < listedCliques.size) match {
+      case true  => Clique(listedCliques(position))
       case false => 
-        val user = usersCompletion(position - cliques.size)
+        val user = listedUsers(position - listedCliques.size)
         Friend(user._1, user._2)
     }
   }
 
-  override def getItemId(position: Int) = position
+  override def getItemId(position: Int) = getItem(position).hashCode
 
   override def getView(position: Int, convertView: View, parent: ViewGroup): View = {
     val item = getItem(position)

@@ -24,6 +24,20 @@
       android:id="@+id/dialogSelectPeopleListView"
       android:layout_width="match_parent"
       android:layout_height="match_parent"/>
+    <LinearLayout 
+      android:id="@+id/dialogSelectPeopleEmptyNotice"
+      android:orientation="vertical"
+      android:gravity="center"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:visibility="gone">
+
+      <TextView
+        android:text="@string/dialogSelectPeopleDialogEmptyNoticeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    </LinearLayout>
+
   </LinearLayout>
 
   
