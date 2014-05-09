@@ -265,7 +265,7 @@ class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activi
     replurker match {
       case None => replurkerBlock.setVisibility(View.GONE)
       case Some(user) =>
-        replurkerName.setText(user.displayName)
+        replurkerName.setText(user.displayName getOrElse user.nickname)
         replurkerBlock.setVisibility(View.VISIBLE)
     }
   }
@@ -294,7 +294,7 @@ class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activi
 
     content.setText(Html.fromHtml(plurk.content, imageGetter, null))
     postedDate.setText(dateTimeFormatter.format(plurk.posted))
-    displayName.setText(owner.displayName)
+    displayName.setText(owner.displayName getOrElse owner.nickname)
 
     QualifierDisplay(plurk) match {
       case None => qualifier.setVisibility(View.GONE)
