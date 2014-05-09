@@ -16,7 +16,17 @@ import android.widget.PopupWindow
 import android.widget.Button
 import android.widget.LinearLayout
 
-class PostPrivateFragment extends Fragment with PlurkEditor {
+object PostPrivateFragment 
+{
+  private val SelectedCliquesBundle = "idv.brianhsu.maidroid.plurk.SELECTED_CLIQUES" 
+  private val SelectedUsersNameBundle = "idv.brianhsu.maidroid.plurk.SELECTED_USERS_NAME" 
+  private val SelectedUsersIDBundle = "idv.brianhsu.maidroid.plurk.SELECTED_USERS_ID" 
+
+}
+
+class PostPrivateFragment extends Fragment with PlurkEditor 
+{
+  import PostPrivateFragment._
 
   private var selectedUsers: Set[(Long, String)] = Set.empty
   private var selectedCliques: Set[String] = Set.empty
@@ -108,6 +118,16 @@ class PostPrivateFragment extends Fragment with PlurkEditor {
     }
   }
 
+  private def showSelectPeopleDialog() {
+
+    val dialogFragment = new AddLimitedToDialogFragment(
+      selectedCliques, 
+      selectedUsers.map(_._1)
+    )
+
+    dialogFragment.show(getActivity.getSupportFragmentManager(), "selectedPeople")
+  }
+
   override def setSelected(cliques: Set[String], users: Set[(Long, String)]) {
     this.selectedCliques = cliques
     this.selectedUsers = users
@@ -123,17 +143,33 @@ class PostPrivateFragment extends Fragment with PlurkEditor {
     addLimitedToHolder.foreach { button =>
       button.setOnClickListener { view: View => showSelectPeopleDialog() }
     }
+
+    if (savedInstanceState != null) {
+      restoreInstanceState(savedInstanceState)
+    }
+
     updateLimitedToList()
   }
 
-  private def showSelectPeopleDialog() {
+  override def onSaveInstanceState(outState: Bundle) {
+    val sortedUsers = selectedUsers.toVector
+    outState.putLongArray(SelectedUsersIDBundle, sortedUsers.map(_._1).toArray)
+    outState.putStringArray(SelectedUsersNameBundle, sortedUsers.map(_._2).toArray)
+    outState.putStringArray(SelectedCliquesBundle, selectedCliques.toArray)
+  }
 
-    val dialogFragment = new AddLimitedToDialogFragment(
-      selectedCliques, 
-      selectedUsers.map(_._1)
-    )
+  private def restoreInstanceState(state: Bundle) {
+    val savedCliques = Option(state.getStringArray(SelectedCliquesBundle)).map(_.toSet)
+    this.selectedCliques = savedCliques getOrElse Set.empty[String]
 
-    dialogFragment.show(getActivity.getSupportFragmentManager(), "selectedPeople")
+    for {
+      savedUsersID <- Option(state.getLongArray(SelectedUsersIDBundle))
+      savedUsersName <- Option(state.getStringArray(SelectedUsersNameBundle))
+      savedUsers = (savedUsersID zip savedUsersName).toSet
+    } {
+      this.selectedUsers = savedUsers
+    }
+
   }
 
 }
