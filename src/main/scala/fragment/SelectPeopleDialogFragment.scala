@@ -21,16 +21,16 @@ import android.support.v4.app.DialogFragment
 
 import scala.concurrent._
 
-object SelectPeopleDialogFragment {
+object SelectPeopleDialog {
   val SelectedCliquesBundle = "idv.brianhsu.maidroid.plurk.SelectedCliquesBundle"
   val SelectedUsersBundle = "idv.brianhsu.maidroid.plurk.SelectedUsersBundle"
 }
 
-abstract class SelectPeopleDialogFragment(title: String,
+abstract class SelectPeopleDialog(title: String,
                                  defaultSelectedCliques: Set[String], 
                                  defaultSelectedUsers: Set[Long]) extends DialogFragment {
 
-  import SelectPeopleDialogFragment._
+  import SelectPeopleDialog._
 
   private lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(getActivity)
   private implicit def activity = getActivity

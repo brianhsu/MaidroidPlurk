@@ -40,6 +40,51 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"/>
 
+  <LinearLayout
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <ImageButton
+      android:id="@+id/fragmentPostBackstabAddLimitedTo"
+      android:src="@drawable/ic_action_add_group"
+      android:hint="01/02/1999"
+      android:ellipsize="start"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"/>
+    <HorizontalScrollView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content">
+      <LinearLayout
+        android:id="@+id/fragmentPostBlackstabLimitedToList"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    </HorizontalScrollView>
+  </LinearLayout>
+
+  <LinearLayout
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <ImageButton
+      android:id="@+id/fragmentPostBackstabAddBlock"
+      android:src="@drawable/ic_action_add_group"
+      android:hint="01/02/1999"
+      android:ellipsize="start"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"/>
+    <HorizontalScrollView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content">
+      <LinearLayout
+        android:id="@+id/fragmentPostBackstabBlockList"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    </HorizontalScrollView>
+  </LinearLayout>
 
 </LinearLayout>
 

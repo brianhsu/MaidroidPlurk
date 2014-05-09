@@ -48,7 +48,8 @@ object PostPlurkActivity {
 class PostPlurkActivity extends ActionBarActivity 
                         with TabListener with OnPageChangeListener
                         with TypedViewHolder with EmoticonFragment.Listener
-                        with AddLimitedToDialogFragment.Listener
+                        with AddLimitedToDialog.Listener
+                        with SelectBlockPeopleDialog.Listener
 {
 
   private implicit def activity = this
@@ -112,12 +113,20 @@ class PostPlurkActivity extends ActionBarActivity
     getCurrentEditor.insertIcon(icon, drawable)
   }
 
-  override def onDialogConfirmed(selectedCliques: Set[String], 
-                                 selectedUsers: Set[(Long, String)]) {
+  override def onPeopleSelected(selectedCliques: Set[String], 
+                                selectedUsers: Set[(Long, String)]) {
 
     DebugLog("====> onDialogConfirmed:" + selectedCliques + "," + selectedUsers)
     val editor = getCurrentEditor
     editor.setSelected(selectedCliques, selectedUsers)
+  }
+
+  override def onBlockSelected(selectedCliques: Set[String], 
+                                selectedUsers: Set[(Long, String)]) {
+
+    DebugLog("====> onDialogConfirmed:" + selectedCliques + "," + selectedUsers)
+    val editor = getCurrentEditor
+    editor.setBlocked(selectedCliques, selectedUsers)
   }
 
   private def toggleEmoticonSelector() {

@@ -6,6 +6,8 @@ import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.ui.util.CallbackConversions._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
+import org.bone.soplurk.api._
+
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
@@ -14,9 +16,10 @@ import android.view.ViewGroup.LayoutParams._
 import android.view.View
 import android.widget.PopupWindow
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.LinearLayout
 
-object PostPrivateFragment 
+object SelectLimitedToUI
 {
   private val SelectedCliquesBundle = "idv.brianhsu.maidroid.plurk.SELECTED_CLIQUES" 
   private val SelectedUsersNameBundle = "idv.brianhsu.maidroid.plurk.SELECTED_USERS_NAME" 
@@ -24,29 +27,28 @@ object PostPrivateFragment
 
 }
 
-class PostPrivateFragment extends Fragment with PlurkEditor 
-{
-  import PostPrivateFragment._
+trait SelectLimitedToUI {
 
-  private var selectedUsers: Set[(Long, String)] = Set.empty
-  private var selectedCliques: Set[String] = Set.empty
+  this: Fragment =>
 
-  protected def plurkAPI = PlurkAPIHelper.getPlurkAPI(getActivity)
-  protected def contentEditor = Option(getView).map(_.findView(TR.fragmentPostPrivateContent))
-  protected def qualifierSpinner = Option(getView).map(_.findView(TR.fragmentPostPrivateQualifier))
-  protected def responseTypeSpinner = Option(getView).map(_.findView(TR.fragmentPostPrivateResponseTypeSpinner))
+  import SelectLimitedToUI._
 
-  private def addLimitedToHolder = Option(getView).map(_.findView(TR.fragmentPostPrivateAddLimitedTo))
-  private def limitedToList = Option(getView).map(_.findView(TR.fragmentPostPrivateLimitedToList))
-  private lazy val inflater = LayoutInflater.from(getActivity)
+  protected def inflater: LayoutInflater
+  protected def plurkAPI: PlurkAPI
 
-  private def createButton(title: String) = {
+  protected var selectedUsers: Set[(Long, String)] = Set.empty
+  protected var selectedCliques: Set[String] = Set.empty
+
+  protected def addLimitedToHolder: Option[ImageButton]
+  protected def limitedToList: Option[LinearLayout]
+
+  protected def createButton(title: String) = {
     val button = inflater.inflate(R.layout.view_people_button, null).asInstanceOf[Button]
     button.setText(title)
     button
   }
 
-  private def updateLimitedToList() {
+  protected def updateLimitedToList() {
     if (selectedCliques.isEmpty && selectedUsers.isEmpty) {
       updateLimitedToListSelectedAll()
     } else {
@@ -54,7 +56,7 @@ class PostPrivateFragment extends Fragment with PlurkEditor
     }
   }
 
-  private def updateLimitedToListSelectedAll() {
+  protected def updateLimitedToListSelectedAll() {
 
     getActivity.runOnUIThread { 
       limitedToList.foreach { viewGroup =>
@@ -71,7 +73,7 @@ class PostPrivateFragment extends Fragment with PlurkEditor
  
   }
 
-  private def updateLimitedToListSelectedSome() {
+  protected def updateLimitedToListSelectedSome() {
     getActivity.runOnUIThread { 
       limitedToList.foreach { viewGroup =>
 
@@ -118,15 +120,53 @@ class PostPrivateFragment extends Fragment with PlurkEditor
     }
   }
 
-  private def showSelectPeopleDialog() {
-
-    val dialogFragment = new AddLimitedToDialogFragment(
-      selectedCliques, 
-      selectedUsers.map(_._1)
-    )
-
+  protected def showSelectPeopleDialog() {
+    val dialogFragment = new AddLimitedToDialog(selectedCliques, selectedUsers.map(_._1))
     dialogFragment.show(getActivity.getSupportFragmentManager(), "selectedPeople")
   }
+
+  protected def saveLimitedToUIState(outState: Bundle) {
+    val sortedUsers = selectedUsers.toVector
+    outState.putLongArray(SelectedUsersIDBundle, sortedUsers.map(_._1).toArray)
+    outState.putStringArray(SelectedUsersNameBundle, sortedUsers.map(_._2).toArray)
+    outState.putStringArray(SelectedCliquesBundle, selectedCliques.toArray)
+  }
+
+  protected def restoreLimitedToUIState(state: Bundle) {
+    val savedCliques = Option(state.getStringArray(SelectedCliquesBundle)).map(_.toSet)
+    this.selectedCliques = savedCliques getOrElse Set.empty[String]
+
+    for {
+      savedUsersID <- Option(state.getLongArray(SelectedUsersIDBundle))
+      savedUsersName <- Option(state.getStringArray(SelectedUsersNameBundle))
+      savedUsers = (savedUsersID zip savedUsersName).toSet
+    } {
+      this.selectedUsers = savedUsers
+    }
+  }
+
+  protected def getSelectedLimitedTo: Set[Long] = {
+    val userInCliques = for {
+      cliqueName <- selectedCliques
+      users <- plurkAPI.Cliques.getClique(cliqueName).get
+    } yield users.id
+
+    selectedUsers.map(_._1) ++ userInCliques
+  }
+
+}
+
+class PostPrivateFragment extends Fragment with PlurkEditor with SelectLimitedToUI
+{
+  protected def plurkAPI = PlurkAPIHelper.getPlurkAPI(getActivity)
+  protected def contentEditor = Option(getView).map(_.findView(TR.fragmentPostPrivateContent))
+  protected def qualifierSpinner = Option(getView).map(_.findView(TR.fragmentPostPrivateQualifier))
+  protected def responseTypeSpinner = Option(getView).map(_.findView(TR.fragmentPostPrivateResponseTypeSpinner))
+
+  protected def addLimitedToHolder = Option(getView).map(_.findView(TR.fragmentPostPrivateAddLimitedTo))
+  protected def limitedToList = Option(getView).map(_.findView(TR.fragmentPostPrivateLimitedToList))
+  protected lazy val inflater = LayoutInflater.from(getActivity)
+
 
   override def setSelected(cliques: Set[String], users: Set[(Long, String)]) {
     this.selectedCliques = cliques
@@ -140,49 +180,27 @@ class PostPrivateFragment extends Fragment with PlurkEditor
   }
 
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
+
     addLimitedToHolder.foreach { button =>
       button.setOnClickListener { view: View => showSelectPeopleDialog() }
     }
 
     if (savedInstanceState != null) {
-      restoreInstanceState(savedInstanceState)
+      restoreLimitedToUIState(savedInstanceState)
     }
 
     updateLimitedToList()
   }
 
   override def onSaveInstanceState(outState: Bundle) {
-    val sortedUsers = selectedUsers.toVector
-    outState.putLongArray(SelectedUsersIDBundle, sortedUsers.map(_._1).toArray)
-    outState.putStringArray(SelectedUsersNameBundle, sortedUsers.map(_._2).toArray)
-    outState.putStringArray(SelectedCliquesBundle, selectedCliques.toArray)
-  }
-
-  private def restoreInstanceState(state: Bundle) {
-    val savedCliques = Option(state.getStringArray(SelectedCliquesBundle)).map(_.toSet)
-    this.selectedCliques = savedCliques getOrElse Set.empty[String]
-
-    for {
-      savedUsersID <- Option(state.getLongArray(SelectedUsersIDBundle))
-      savedUsersName <- Option(state.getStringArray(SelectedUsersNameBundle))
-      savedUsers = (savedUsersID zip savedUsersName).toSet
-    } {
-      this.selectedUsers = savedUsers
-    }
-
+    saveLimitedToUIState(outState)
   }
 
   override protected def limitedTo: List[Long] = {
-    if (selectedUsers.isEmpty && selectedCliques.isEmpty) {
-      List(0)
-    } else {
-      val userInCliques = for {
-        cliqueName <- selectedCliques
-        users <- plurkAPI.Cliques.getClique(cliqueName).get
-      } yield users.id
-
-      DebugLog("====> userInCliques:" + userInCliques)
-      userInCliques.toList ++ selectedUsers.map(_._1).toList
+    val selectedUsers = getSelectedLimitedTo
+    selectedUsers.isEmpty match {
+      case true  => List(0)
+      case false => selectedUsers.toList
     }
   }
 
