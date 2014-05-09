@@ -20,14 +20,12 @@ class PeopleListAdapter(context: Context,
 
   sealed abstract class RowItem(title: String)
 
-  case object AllFriends extends RowItem("[所有好友]")
   case class Clique(name: String) extends RowItem(name)
   case class Friend(userID: Long, name: String) extends RowItem(name)
 
   case class ViewTag(checkbox: CheckBox, title: TextView) {
     def update(item: RowItem, isSelected: Boolean) {
       item match {
-        case AllFriends => title.setText(s"[所有好友]")
         case Clique(cliqueTitle) => title.setText(s"[小圈圈] ${cliqueTitle}")
         case Friend(userID, name) => title.setText(s"${name}")
       }
@@ -56,25 +54,18 @@ class PeopleListAdapter(context: Context,
   }
 
   private def getIsSelected(item: RowItem): Boolean = item match {
-    case AllFriends => selectedCliques.contains("[所有好友]")
     case Clique(cliqueName) => selectedCliques.contains(cliqueName)
     case Friend(userID, title) => selectedUsers.contains(userID)
   }
 
-  override def getCount = cliques.size + usersCompletion.size + 1
+  override def getCount = cliques.size + usersCompletion.size
   override def getItem(position: Int): RowItem = {
 
-    DebugLog("====> position:" + position)
-    if (position <= 0) {
-      AllFriends
-    } else {
-
-      (position < (cliques.size + 1)) match {
-        case true  => Clique(cliques(position-1))
-        case false => 
-          val user = usersCompletion(position - cliques.size - 1)
-          Friend(user._1, user._2)
-      }
+    (position < cliques.size) match {
+      case true  => Clique(cliques(position))
+      case false => 
+        val user = usersCompletion(position - cliques.size)
+        Friend(user._1, user._2)
     }
   }
 
@@ -105,8 +96,6 @@ class PeopleListAdapter(context: Context,
 
   private def setSelected(item: RowItem, isSelected: Boolean) {
     item match {
-      case AllFriends if isSelected => selectedCliques += "[所有好友]"
-      case AllFriends if !isSelected => selectedCliques -= "[所有好友]"
       case Clique(cliqueName) if isSelected    => selectedCliques += cliqueName
       case Clique(cliqueName) if !isSelected   => selectedCliques -= cliqueName
       case Friend(userID, _) if isSelected  => selectedUsers += userID

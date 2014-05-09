@@ -37,31 +37,71 @@ class PostPrivateFragment extends Fragment with PlurkEditor {
   }
 
   private def updateLimitedToList() {
+    if (selectedCliques.isEmpty && selectedUsers.isEmpty) {
+      updateLimitedToListSelectedAll()
+    } else {
+      updateLimitedToListSelectedSome()
+    }
+  }
+
+  private def updateLimitedToListSelectedAll() {
+
     getActivity.runOnUIThread { 
       limitedToList.foreach { viewGroup =>
         viewGroup.removeAllViews()
+        val button = createButton("[所有好友]")
+        val layoutParams = new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+        layoutParams.setMargins(10, 10, 10, 10)
+        viewGroup.addView(button, layoutParams)
+        button.setOnClickListener { button: View =>
+          showSelectPeopleDialog()
+        }
+      }
+    }
+ 
+  }
 
-        for (clique <- selectedCliques) {
+  private def updateLimitedToListSelectedSome() {
+    getActivity.runOnUIThread { 
+      limitedToList.foreach { viewGroup =>
 
-          val title = if (clique == "[所有好友]") clique else s"[小圈圈] ${clique}"
+        viewGroup.removeAllViews()
+        val sortedClique = selectedCliques.filterNot(_ == "[所有好友]").toVector.sortWith(_ < _)
+        val sortedUsers = selectedUsers.toVector.sortWith(_._2 < _._2)
+
+        for (clique <- sortedClique) {
+
+          val title = s"[小圈圈] ${clique}"
           val button = createButton(title)
           val layoutParams = new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
           layoutParams.setMargins(10, 10, 10, 10)
           viewGroup.addView(button, layoutParams)
           button.setOnClickListener { button: View =>
             selectedCliques -= clique
-            viewGroup.removeView(button)
+
+            if (selectedCliques.isEmpty && selectedUsers.isEmpty) {
+              updateLimitedToListSelectedAll()
+            } else {
+              viewGroup.removeView(button)
+            }
+
           }
         }
 
-        for (user <- selectedUsers) {
+        for (user <- sortedUsers) {
           val button = createButton(user._2)
           val layoutParams = new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
           layoutParams.setMargins(10, 10, 10, 10)
           viewGroup.addView(button, layoutParams)
           button.setOnClickListener { button: View =>
             selectedUsers -= user
-            viewGroup.removeView(button)
+
+            if (selectedCliques.isEmpty && selectedUsers.isEmpty) {
+              updateLimitedToListSelectedAll()
+            } else {
+              viewGroup.removeView(button)
+            }
+
           }
         }
       }
@@ -80,13 +120,20 @@ class PostPrivateFragment extends Fragment with PlurkEditor {
   }
 
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
-    addLimitedToHolder.foreach(_.setOnClickListener({ view: View =>
-      val dialogFragment = new AddLimitedToDialogFragment(
-        selectedCliques, 
-        selectedUsers.map(_._1)
-      )
-      dialogFragment.show(getActivity.getSupportFragmentManager(), "tag")
-    }))
+    addLimitedToHolder.foreach { button =>
+      button.setOnClickListener { view: View => showSelectPeopleDialog() }
+    }
+    updateLimitedToList()
+  }
+
+  private def showSelectPeopleDialog() {
+
+    val dialogFragment = new AddLimitedToDialogFragment(
+      selectedCliques, 
+      selectedUsers.map(_._1)
+    )
+
+    dialogFragment.show(getActivity.getSupportFragmentManager(), "selectedPeople")
   }
 
 }

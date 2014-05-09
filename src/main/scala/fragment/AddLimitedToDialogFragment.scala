@@ -47,7 +47,7 @@ class AddLimitedToDialogFragment(defaultSelectedCliques: Set[String],
     val friends = completion.map { case(userID, completion) =>
       val displayName = completion.displayName getOrElse completion.nickname
       (userID, s"${completion.fullName} (${displayName})")
-    }.toVector
+    }.toVector.sortWith(_._2 < _._2)
 
     new PeopleListAdapter(activity, cliques.toVector, friends)
   }
