@@ -36,7 +36,7 @@ object DiskCacheHelper {
     (new BigInteger(1, messageDigest)).toString
   }
 
-  def writeBitmapToCache(context: Context, url: String, bitmap: Bitmap) {
+  def writeBitmapToCache(context: Context, url: String, bitmap: Bitmap): Option[File] = {
     synchronized {
 
       try {
@@ -46,16 +46,36 @@ object DiskCacheHelper {
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
         fileOutputStream.flush()
         fileOutputStream.close()
+        Some(cacheFile)
       } catch {
-        case e: Exception => DebugLog(s"write [$url] failed: $e", e)
+        case e: Exception => 
+          DebugLog(s"write [$url] failed: $e", e)
+          None
       }
     }
   }
 
+  private def readBitmap(cacheFile: File) = {
+    val ResizeFactor(originWidth, originHeight, factor) = ImageSampleFactor(cacheFile, 1000, 1000)
+    val options = new BitmapFactory.Options
+
+    if (originWidth <= 48 || originHeight <= 48) {
+      options.inDensity = 160
+      options.inScaled = false
+      options.inTargetDensity = 160
+    }
+
+    Option(BitmapFactory.decodeFile(cacheFile.getAbsolutePath, options))
+  }
+
   def readBitmapFromCache(context: Context, url: String): Option[Bitmap] = {
     val filename = getMD5Hash(url) + ".jpg"
-    val cacheFile = new File(getCacheFolder(context), filename).getAbsolutePath
-    Option(BitmapFactory.decodeFile(cacheFile))
+    val cacheFile = new File(getCacheFolder(context), filename)
+
+    cacheFile.exists match {
+      case true  => readBitmap(cacheFile)
+      case false => None
+    }
   }
 
 

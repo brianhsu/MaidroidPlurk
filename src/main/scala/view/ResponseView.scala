@@ -52,7 +52,7 @@ class ResponseView(implicit val activity: Activity) extends LinearLayout(activit
     this.owner = owner
     content.setText(Html.fromHtml(response.content, imageGetter, null))
     postedDate.setText(dateTimeFormatter.format(response.posted))
-    displayName.setText(owner.displayName)
+    displayName.setText(owner.displayName getOrElse owner.nickname)
 
     QualifierDisplay(response.qualifier, activity) match {
       case None => qualifier.setVisibility(View.GONE)

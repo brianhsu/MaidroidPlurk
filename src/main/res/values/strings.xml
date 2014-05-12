@@ -8,6 +8,7 @@
   <string name="moduleErrorMessageRetryButtonTitle">重試一次</string>
 
   <string name="fragmentTimelineEmptyNoticeText">目前河道上沒東西呢……</string>
+  <string name="dialogSelectPeopleDialogEmptyNoticeText">沒有符合條件的人……</string>
 
   <string name="fragmentResponseEmptyNoticeText">還沒有人回應哦，趕快來搶頭香囉！:)</string>
 

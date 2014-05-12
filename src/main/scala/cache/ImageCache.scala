@@ -14,6 +14,7 @@ import org.bone.soplurk.model._
 import java.net.URL
 import android.content.Context
 
+
 object ImageCache {
 
   private var imageCache = new LRUCache[String, Bitmap](5)
@@ -29,63 +30,44 @@ object ImageCache {
     }
   }
 
-  private def calculateOriginSize(url: String): (Int, Int) = {
-    val imgStream = openStream(url)
-    val options = new BitmapFactory.Options
-    options.inJustDecodeBounds = true
-    BitmapFactory.decodeStream(imgStream, null, options)
-    imgStream.close()
-    (options.outWidth, options.outHeight)
-  }
-
-  private def calculateInSampleSize(originWidth: Int, originHeight: Int, 
-                                    requiredWidth: Int, requiredHeight: Int): Int = {
-    var inSampleSize = 1
-
-    if (originHeight > requiredHeight && originWidth > requiredWidth) {
-
-        val halfHeight = originHeight / 2
-        val halfWidth = originWidth / 2
-
-        // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-        // height and width larger than the requested height and width.
-        while ((halfHeight / inSampleSize) > requiredHeight && 
-               (halfWidth / inSampleSize) > requiredWidth) {
-            inSampleSize *= 2
-        }
-    }
-
-    inSampleSize
-  }
 
   def getBitmapFromNetwork(context: Context, url: String, thumbnailSize: Int): Future[Bitmap] = future {
-    val (originWidth, originHeight) = calculateOriginSize(url)
-    val inSampleSize = calculateInSampleSize(originWidth, originHeight, thumbnailSize, thumbnailSize)
-    val imgStream = openStream(url)
-    val options = new BitmapFactory.Options
-    options.inSampleSize = inSampleSize
 
-    if (originWidth <= 48 && originHeight <= 48) {
+    val fixedURL = fixPlurkURL(url)
+    val ResizeFactor(originWidth, originHeight, factor) = ImageSampleFactor(fixedURL, thumbnailSize, thumbnailSize)
+    val options = new BitmapFactory.Options
+    options.inSampleSize = factor
+
+    if (originWidth <= 48 || originHeight <= 48) {
       options.inDensity = 160
       options.inScaled = false
       options.inTargetDensity = 160
     }
 
+    val imgStream = new URL(fixedURL).openConnection().getInputStream
     val imgBitmap = BitmapFactory.decodeStream(imgStream, null, options)
     imgStream.close()
 
     if (imgBitmap != null) {
-      imageCache += (url -> imgBitmap)
+      imageCache += (fixedURL -> imgBitmap)
       future {
-        DiskCacheHelper.writeBitmapToCache(context, url, imgBitmap)
+        DiskCacheHelper.writeBitmapToCache(context, fixedURL, imgBitmap)
       }
     }
 
     imgBitmap
   }
 
+  private def fixPlurkURL(url: String) = {
+    url.contains("images.plurk.com/tx_") match {
+      case true  => url.replace("/tx_", "/").replace(".gif", ".jpg")
+      case false => url
+    }
+  }
+
   def getBitmapFromCache(context: Context, url: String) = {
-    imageCache.get(url) orElse DiskCacheHelper.readBitmapFromCache(context, url)
+    val fixedURL = fixPlurkURL(url)
+    imageCache.get(fixedURL) orElse DiskCacheHelper.readBitmapFromCache(context, fixedURL)
   }
 
   def clearCache() {

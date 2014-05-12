@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout 
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+
+  <LinearLayout 
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <idv.brianhsu.maidroid.plurk.view.QualifierSpinner
+      android:id="@+id/fragmentPostPrivateQualifier"
+      android:gravity="center"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"/>
+
+    <idv.brianhsu.maidroid.plurk.view.ResponseTypeSpinner
+      android:id="@+id/fragmentPostPrivateResponseTypeSpinner"
+      android:gravity="center"
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"/>
+
+    <LinearLayout 
+      android:orientation="horizontal"
+      android:gravity="right"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
+      <TextView 
+        android:id="@+id/fragmentPostPrivateCharCounter"
+        android:text="210"
+        android:gravity="center|center_vertical"
+        android:layout_marginRight="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:textAppearance="?android:attr/textAppearanceMedium"/>
+    </LinearLayout>
+
+  </LinearLayout>
+
+  <EditText
+    android:id="@+id/fragmentPostPrivateContent"
+    android:gravity="top"
+    android:layout_weight="1"
+    android:inputType="textMultiLine" 
+    android:layout_marginTop="5dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"/>
+
+
+  <LinearLayout
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <ImageButton
+      android:id="@+id/fragmentPostPrivateLimitedButton"
+      android:src="@drawable/ic_btn_viewable"
+      android:hint="01/02/1999"
+      android:ellipsize="start"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"/>
+    <HorizontalScrollView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content">
+      <LinearLayout
+        android:id="@+id/fragmentPostPrivateLimitedList"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    </HorizontalScrollView>
+  </LinearLayout>
+
+</LinearLayout>
+
+
