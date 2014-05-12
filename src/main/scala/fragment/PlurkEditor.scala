@@ -20,6 +20,10 @@ import android.text.Editable
 
 object PlurkEditor {
   object NoContentException extends Exception("無內容可以發噗")
+  object ExceedCharacterLimit extends Exception("字數超過 210 字元")
+
+  trait Listener {
+  }
 }
 
 trait PlurkEditor {

@@ -7,6 +7,7 @@ import idv.brianhsu.maidroid.plurk.cache._
 import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
+import idv.brianhsu.maidroid.ui.model._
 
 import org.bone.soplurk.model.Icon
 
@@ -56,9 +57,12 @@ class PostPlurkActivity extends ActionBarActivity
 {
 
   private implicit def activity = this
+
   private lazy val viewPager = findView(TR.activityPostPlurkViewPager)
   private lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
   private lazy val adapter = new PlurkEditorAdapter(getSupportFragmentManager)
+  private lazy val dialogFrame = findView(TR.activityPostPlurkDialogFrame)
+
   private var prevEditorContentHolder: Option[(Editable, Int)] = None
   private var isSliding: Boolean = false
 
@@ -74,6 +78,12 @@ class PostPlurkActivity extends ActionBarActivity
  
     viewPager.setAdapter(adapter)
     viewPager.setOnPageChangeListener(this)
+
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Happy, "主人有有趣的事情想要和大家分享嗎？請告訴小鈴，小鈴會幫主人發到噗浪上喔！", None) :: 
+      Message(MaidMaro.Half.Smile, "如果主人只想和某些特定的好友分享的話，也可以切換到「私噗」標籤，選擇要和誰分享喲。") ::
+      Nil
+    )
   }
 
 
@@ -102,7 +112,6 @@ class PostPlurkActivity extends ActionBarActivity
   override def onTabSelected(tab: Tab, ft: FragmentTransaction) {
 
     if (!isSliding) {
-      DebugLog("====> onTabSelected:onTabSelected")
       for {
         editor <- Option(getCurrentEditor)
       } {
@@ -216,6 +225,11 @@ class PostPlurkActivity extends ActionBarActivity
     postedPlurkFuture.onFailureInUI { case e =>
       setResult(Activity.RESULT_CANCELED)
       progressDialogFragment.dismiss()
+      dialogFrame.setMessages(
+        Message(MaidMaro.Half.Panic, "對不起！小鈴太沒用了，沒辦法順利幫主人把這則噗放到噗浪上……", None) :: 
+        Message(MaidMaro.Half.Normal, s"系統說錯誤的原因是：${e}，可不可以請主人檢查一次之後再重新按發送鍵一次呢？") ::
+        Nil
+      )
     }
   }
 
@@ -269,12 +283,22 @@ class PostPlurkActivity extends ActionBarActivity
     imageListFuture.onSuccessInUI { _ => 
       progressDialogFragment.dismiss()
       setRequestedOrientation(oldRequestedOrientation)
+      dialogFrame.setMessages(
+        Message(MaidMaro.Half.Happy, "小鈴已經幫主人把這些照片上傳了喲，主人的照片好多喲，難道說主人是照片松鼠嗎？") :: 
+        Nil
+      )
     }
 
     imageListFuture.onFailureInUI { case e: Exception => 
       DebugLog(s"====> upload image list failed:$e", e)
       progressDialogFragment.dismiss()
       setRequestedOrientation(oldRequestedOrientation)
+      dialogFrame.setMessages(
+        Message(MaidMaro.Half.Normal, "咦？為什麼照片沒辦法順利傳到噗浪上面呢……", None) :: 
+        Message(MaidMaro.Half.Normal, s"系統說錯誤的原因是 ${e} 的說。") ::
+        Message(MaidMaro.Half.Smile, "主人要不要檢查一下之後再重試一次呢？") ::
+        Nil
+      )
     }
 
   }
@@ -306,12 +330,23 @@ class PostPlurkActivity extends ActionBarActivity
       getCurrentEditor.insertDrawable(s" ${imageURL} ", bitmapDrawable) 
       progressDialogFragment.dismiss()
       setRequestedOrientation(oldRequestedOrientation)
+      dialogFrame.setMessages(
+        Message(MaidMaro.Half.Smile, "照片已經上傳到噗浪上了，主人快點把它分享給大家吧！") :: 
+        Nil
+      )
     }
 
     imageURLFuture.onFailureInUI { case e: Exception => 
       DebugLog(s"====> upload image failed:$e", e)
       progressDialogFragment.dismiss()
       setRequestedOrientation(oldRequestedOrientation)
+      dialogFrame.setMessages(
+        Message(MaidMaro.Half.Normal, "咦？為什麼照片沒辦法順利傳到噗浪上面呢……", None) :: 
+        Message(MaidMaro.Half.Normal, s"系統說錯誤的原因是 ${e} 的說。") ::
+        Message(MaidMaro.Half.Smile, "主人要不要檢查一下之後再重試一次呢？") ::
+        Nil
+      )
+
     }
   }
 
