@@ -242,16 +242,26 @@ class PostPlurkActivity extends ActionBarActivity
   }
 
   private def uploadFiles(fileList: List[File]) {
-    val progressDialogFragment = new ProgressDialogFragment("上傳圖檔", "請稍候……")
-    progressDialogFragment.show(getSupportFragmentManager.beginTransaction, "uploadFileProgress")
+
+    val progressDialogFragment = new ProgressDialogFragment(
+      "上傳圖檔", "請稍候……", 
+      Some(fileList.size)
+    )
+
+    progressDialogFragment.show(
+      getSupportFragmentManager.beginTransaction, 
+      "uploadFileProgress"
+    )
+
     val oldRequestedOrientation = getRequestedOrientation
     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
     val imageListFuture = future {
-      for (file <- fileList) {
+      fileList.zipWithIndex.foreach { case(file, index) =>
         val (imageURL, bitmapDrawable) = uploadToPlurk(file)
         activity.runOnUIThread {
           getCurrentEditor.insertDrawable(s" ${imageURL} ", bitmapDrawable) 
+          progressDialogFragment.setProgress(index + 1)
         }
       }
     }
