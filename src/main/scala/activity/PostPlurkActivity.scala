@@ -14,6 +14,7 @@ import org.bone.soplurk.model.Icon
 import android.app.Activity
 import android.app.ProgressDialog
 import android.app.AlertDialog
+import android.widget.Toast
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
@@ -62,6 +63,8 @@ class PostPlurkActivity extends ActionBarActivity
   private lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
   private lazy val adapter = new PlurkEditorAdapter(getSupportFragmentManager)
   private lazy val dialogFrame = findView(TR.activityPostPlurkDialogFrame)
+  private lazy val rootView = findView(TR.activityPostPlurkRoot)
+  private var currentPage: Int = 0
 
   private var prevEditorContentHolder: Option[(Editable, Int)] = None
   private var isSliding: Boolean = false
@@ -84,8 +87,8 @@ class PostPlurkActivity extends ActionBarActivity
       Message(MaidMaro.Half.Smile, "如果主人只想和某些特定的好友分享的話，也可以切換到「私噗」標籤，選擇要和誰分享喲。") ::
       Nil
     )
-  }
 
+  }
 
   override def onCreateOptionsMenu(menu: Menu): Boolean = {
     val inflater = getMenuInflater
@@ -125,6 +128,8 @@ class PostPlurkActivity extends ActionBarActivity
       prevEditorContentHolder.foreach { content =>
         getCurrentEditor.setEditorContent(content)
       }
+
+      showBackstabIntro()
     }
 
   }
@@ -134,15 +139,32 @@ class PostPlurkActivity extends ActionBarActivity
       prevEditorContentHolder.foreach { content =>
         getCurrentEditor.setEditorContent(content)
       }
+
+      showBackstabIntro()
+
     } else if (state == ViewPager.SCROLL_STATE_DRAGGING ) {
       prevEditorContentHolder = getCurrentEditor.getEditorContent
     }
+  }
+
+  private def showBackstabIntro() {
+    if (currentPage == 2) {
+      dialogFrame.setMessages(
+        Message(MaidMaro.Half.Smile, "主人是不是很好奇「背刺」是什麼呢？其實這是小鈴為主人提供的特別發文服務喲！", None) ::
+        Message(MaidMaro.Half.Smile, "不知道主人有沒有過想要說一些不能被家人或同事知道的話，但因為家人是噗浪上的好友，所以沒辦法暢所欲言的情況呢？", None) ::
+        Message(MaidMaro.Half.Happy, "小鈴幫主人想了一個辦法，就是這個「背刺」的功能喲。主人除了可以選擇誰可以看到這則發文外，也可以選擇誰不能看喲！", None) ::
+        Message(MaidMaro.Half.Happy, "舉例來講，主人可以設定 A 看不到這則發文，而「同學」的小圈圈可以看到，這樣就算 A 在「同學」這個小圈圈裡，他也還是看不到的喔。", None) ::
+        Nil
+      )
+    }
+
   }
 
   override def onPageSelected(position: Int) {
     isSliding = true
     getSupportActionBar.setSelectedNavigationItem(position)
     isSliding = false
+    currentPage = position
   }
 
   override def onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
@@ -209,27 +231,47 @@ class PostPlurkActivity extends ActionBarActivity
   }
 
   private def postPlurk() {
-    val progressDialogFragment = new ProgressDialogFragment("發噗中", "請稍候……")
-    progressDialogFragment.show(getSupportFragmentManager.beginTransaction, "uploadFileProgress")
-    val oldRequestedOrientation = getRequestedOrientation
-    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
+    val contentLength = getCurrentEditor.getContentLength
 
-    val postedPlurkFuture = getCurrentEditor.postPlurk()
-
-    postedPlurkFuture.onSuccessInUI { case content =>
-      setResult(Activity.RESULT_OK)
-      progressDialogFragment.dismiss()
-      finish()
-    }
-
-    postedPlurkFuture.onFailureInUI { case e =>
-      setResult(Activity.RESULT_CANCELED)
-      progressDialogFragment.dismiss()
+    if (contentLength == 0) {
       dialogFrame.setMessages(
-        Message(MaidMaro.Half.Panic, "對不起！小鈴太沒用了，沒辦法順利幫主人把這則噗放到噗浪上……", None) :: 
-        Message(MaidMaro.Half.Normal, s"系統說錯誤的原因是：${e}，可不可以請主人檢查一次之後再重新按發送鍵一次呢？") ::
+        Message(MaidMaro.Half.Normal, "主人還沒有填寫內容呢，這樣小鈴沒辦法幫主人發到噗浪上喲……", None) :: 
         Nil
       )
+
+    } else if (contentLength > 210) {
+
+      dialogFrame.setMessages(
+        Message(MaidMaro.Half.Normal, "對不起，字數超過噗浪的 210 個字元的上限了呢……", None) ::
+        Message(MaidMaro.Half.Smile, "主人要不要先刪除一些贅字，或試著寫得精鍊一些呢？", None) ::
+        Nil
+      )
+
+    } else {
+
+      val progressDialogFragment = new ProgressDialogFragment("發噗中", "請稍候……")
+      progressDialogFragment.show(getSupportFragmentManager.beginTransaction, "uploadFileProgress")
+      val oldRequestedOrientation = getRequestedOrientation
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
+
+      val postedPlurkFuture = getCurrentEditor.postPlurk()
+
+      postedPlurkFuture.onSuccessInUI { case content =>
+        setResult(Activity.RESULT_OK)
+        progressDialogFragment.dismiss()
+        Toast.makeText(this, "已成功發送至噗浪", Toast.LENGTH_LONG).show()
+        finish()
+      }
+
+      postedPlurkFuture.onFailureInUI { case e =>
+        setResult(Activity.RESULT_CANCELED)
+        progressDialogFragment.dismiss()
+        dialogFrame.setMessages(
+          Message(MaidMaro.Half.Panic, "對不起！小鈴太沒用了，沒辦法順利幫主人把這則噗放到噗浪上……", None) :: 
+          Message(MaidMaro.Half.Normal, s"系統說錯誤的原因是：${e}，可不可以請主人檢查一次之後再重新按發送鍵一次呢？") ::
+          Nil
+        )
+      }
     }
   }
 

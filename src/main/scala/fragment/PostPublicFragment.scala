@@ -27,9 +27,11 @@ object PostPublicFragment {
 class PostPublicFragment extends Fragment with PlurkEditor {
 
   protected def plurkAPI = PlurkAPIHelper.getPlurkAPI(getActivity)
-  protected def contentEditor = Option(getView).map(_.findView(TR.fragmentPostPublicContent))
-  protected def qualifierSpinner = Option(getView).map(_.findView(TR.fragmentPostPublicQualifier))
-  protected def responseTypeSpinner = Option(getView).map(_.findView(TR.fragmentPostPublicResponseTypeSpinner))
+  protected def contentEditorHolder = Option(getView).map(_.findView(TR.fragmentPostPublicContent))
+  protected def qualifierSpinnerHolder = Option(getView).map(_.findView(TR.fragmentPostPublicQualifier))
+  protected def responseTypeSpinnerHolder = Option(getView).map(_.findView(TR.fragmentPostPublicResponseTypeSpinner))
+  protected def charCounterHolder = Option(getView).map(_.findView(TR.fragmentPostPublicCharCounter))
+
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
                             savedInstanceState: Bundle): View = {
@@ -37,9 +39,13 @@ class PostPublicFragment extends Fragment with PlurkEditor {
     view
   }
 
+  override def onViewCreated(view: View, savedInstanceState: Bundle) {
+    setupCharCounter()
+  }
+
   override def onViewStateRestored(savedInstanceState: Bundle) {
 
-    val isEditorEmpty = contentEditor.map(_.getText.toString.trim.isEmpty).getOrElse(false)
+    val isEditorEmpty = contentEditorHolder.map(_.getText.toString.trim.isEmpty).getOrElse(false)
 
     if (savedInstanceState == null && isEditorEmpty) {
       handleActionSend()
@@ -71,7 +77,7 @@ class PostPublicFragment extends Fragment with PlurkEditor {
   private def processText(intent: Intent) {
     for {
       content <- Option(intent.getStringExtra(Intent.EXTRA_TEXT))
-      editor <- contentEditor
+      editor <- contentEditorHolder
     } {
       editor.setText(content)
     }

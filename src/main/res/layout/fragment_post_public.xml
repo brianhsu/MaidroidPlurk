@@ -17,16 +17,26 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"/>
 
+    <idv.brianhsu.maidroid.plurk.view.ResponseTypeSpinner
+      android:id="@+id/fragmentPostPublicResponseTypeSpinner"
+      android:gravity="center"
+      android:layout_marginLeft="10dp"
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"/>
+
     <LinearLayout 
       android:orientation="horizontal"
       android:gravity="right"
       android:layout_width="match_parent"
       android:layout_height="match_parent">
-      <idv.brianhsu.maidroid.plurk.view.ResponseTypeSpinner
-        android:id="@+id/fragmentPostPublicResponseTypeSpinner"
-        android:gravity="center"
+      <TextView 
+        android:id="@+id/fragmentPostPublicCharCounter"
+        android:text="210"
+        android:gravity="center|center_vertical"
+        android:layout_marginRight="20dp"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:textAppearance="?android:attr/textAppearanceMedium"/>
     </LinearLayout>
 
   </LinearLayout>

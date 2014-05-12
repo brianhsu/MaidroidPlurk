@@ -8,6 +8,8 @@ import scala.concurrent._
 
 import android.graphics.drawable.Drawable
 import android.widget.EditText
+import android.widget.TextView
+
 import android.text.Spanned
 import android.text.style.ImageSpan
 import android.text.style.DynamicDrawableSpan
@@ -17,46 +19,69 @@ import org.bone.soplurk.model.Icon
 import org.bone.soplurk.constant.WritableCommentSetting
 import org.bone.soplurk.constant.Qualifier
 import android.text.Editable
+import android.text.TextWatcher
+import android.graphics.Color
 
 object PlurkEditor {
   object NoContentException extends Exception("無內容可以發噗")
-  object ExceedCharacterLimit extends Exception("字數超過 210 字元")
-
-  trait Listener {
-  }
 }
 
 trait PlurkEditor {
 
   protected def plurkAPI: PlurkAPI
-  protected def contentEditor: Option[EditText]
-  protected def qualifierSpinner: Option[QualifierSpinner]
-  protected def responseTypeSpinner: Option[ResponseTypeSpinner]
+  protected def contentEditorHolder: Option[EditText]
+  protected def qualifierSpinnerHolder: Option[QualifierSpinner]
+  protected def responseTypeSpinnerHolder: Option[ResponseTypeSpinner]
+  protected def charCounterHolder: Option[TextView]
 
   protected def limitedTo: List[Long] = Nil
+
+  protected def setupCharCounter() {
+    for {
+      contentEditor <- contentEditorHolder
+      charCounter <- charCounterHolder
+    } {
+      contentEditor.addTextChangedListener(new TextWatcher() {
+        override def beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+        override def onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
+        override def afterTextChanged (editable: Editable) {
+          val remainChars = 210 - editable.length
+          charCounter.setText(remainChars.toString)
+
+          if (remainChars < 0) {
+            charCounter.setTextColor(Color.rgb(255, 0, 0))
+          } else {
+            charCounter.setTextColor(Color.rgb(255, 255, 255))
+          }
+        }
+      })
+    }
+  }
 
   def setSelected(cliques: Set[String], users: Set[(Long, String)]) {}
   def setBlocked(cliques: Set[String], users: Set[(Long, String)]) {}
 
+  def getContentLength = contentEditorHolder.map(_.getText.toString.size) getOrElse 0
+
   def setEditorContent(content: (Editable, Int)) {
-    contentEditor.foreach { editor => 
+    contentEditorHolder.foreach { editor => 
       editor.setText(content._1, android.widget.TextView.BufferType.SPANNABLE) 
       editor.setSelection(content._2)
     }
   }
 
   def setEditorContent(content: String) {
-    contentEditor.foreach { editor => 
+    contentEditorHolder.foreach { editor => 
       editor.setText(content) 
     }
   }
 
-  def getEditorContent = contentEditor.map { editor => 
+  def getEditorContent = contentEditorHolder.map { editor => 
     (editor.getText, editor.getSelectionStart.max(0))
   }
 
   def insertDrawable(originString: String, drawable: Drawable) {
-    contentEditor.foreach { editor =>
+    contentEditorHolder.foreach { editor =>
       drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight())
       val imageSpan = new ImageSpan(drawable, DynamicDrawableSpan.ALIGN_BASELINE)
 
@@ -76,7 +101,7 @@ trait PlurkEditor {
   }
 
   def insertText(text: String) {
-    contentEditor.foreach { editor =>
+    contentEditorHolder.foreach { editor =>
       editor.getEditableText.insert(editor.getSelectionStart.max(0), text)
     }
   }
@@ -84,16 +109,16 @@ trait PlurkEditor {
 
   def postPlurk() = future {
 
-    val isEmpty = contentEditor.map(_.getText.toString.trim.isEmpty).getOrElse(true)
+    val isEmpty = contentEditorHolder.map(_.getText.toString.trim.isEmpty).getOrElse(true)
 
     if (isEmpty) {
       throw PlurkEditor.NoContentException
     }
 
-    val content = contentEditor.map(_.getText.toString).getOrElse("")
+    val content = contentEditorHolder.map(_.getText.toString).getOrElse("")
     val language = plurkAPI.Users.currUser.get._1.basicInfo.defaultLanguage
-    val qualifier = qualifierSpinner.map(_.getSelectedQualifier).getOrElse(Qualifier.::)
-    val commentSetting = responseTypeSpinner.map(_.getSelectedCommentSetting).getOrElse(None)
+    val qualifier = qualifierSpinnerHolder.map(_.getSelectedQualifier).getOrElse(Qualifier.::)
+    val commentSetting = responseTypeSpinnerHolder.map(_.getSelectedCommentSetting).getOrElse(None)
     //plurkAPI.Timeline.plurkAdd(content, qualifier, limitedTo, commentSetting, Some(language)).get
     DebugLog("====> content:" + content)
     DebugLog("====> limitedTo:" + limitedTo)

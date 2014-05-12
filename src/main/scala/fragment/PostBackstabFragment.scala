@@ -31,9 +31,10 @@ class PostBackstabFragment extends Fragment with PlurkEditor
   protected lazy val inflater = LayoutInflater.from(getActivity)
 
   protected def plurkAPI = PlurkAPIHelper.getPlurkAPI(getActivity)
-  protected def contentEditor = Option(getView).map(_.findView(TR.fragmentPostBackstabContent))
-  protected def qualifierSpinner = Option(getView).map(_.findView(TR.fragmentPostBackstabQualifier))
-  protected def responseTypeSpinner = Option(getView).map(_.findView(TR.fragmentPostBackstabResponseTypeSpinner))
+  protected def contentEditorHolder = Option(getView).map(_.findView(TR.fragmentPostBackstabContent))
+  protected def qualifierSpinnerHolder = Option(getView).map(_.findView(TR.fragmentPostBackstabQualifier))
+  protected def responseTypeSpinnerHolder = Option(getView).map(_.findView(TR.fragmentPostBackstabResponseTypeSpinner))
+  protected def charCounterHolder = Option(getView).map(_.findView(TR.fragmentPostBackstabCharCounter))
 
   protected def limitedButtonHolder = Option(getView).map(_.findView(TR.fragmentPostBackstabLimitedButton))
   protected def limitedListHolder = Option(getView).map(_.findView(TR.fragmentPostBlackstabLimitedList))
@@ -89,6 +90,7 @@ class PostBackstabFragment extends Fragment with PlurkEditor
   }
 
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
+    setupCharCounter()
 
     if (savedInstanceState != null) {
       selectLimitedUI.restoreUIState(savedInstanceState)

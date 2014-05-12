@@ -15,9 +15,10 @@ class PostPrivateFragment extends Fragment with PlurkEditor
   protected lazy val inflater = LayoutInflater.from(getActivity)
 
   protected def plurkAPI = PlurkAPIHelper.getPlurkAPI(getActivity)
-  protected def contentEditor = Option(getView).map(_.findView(TR.fragmentPostPrivateContent))
-  protected def qualifierSpinner = Option(getView).map(_.findView(TR.fragmentPostPrivateQualifier))
-  protected def responseTypeSpinner = Option(getView).map(_.findView(TR.fragmentPostPrivateResponseTypeSpinner))
+  protected def contentEditorHolder = Option(getView).map(_.findView(TR.fragmentPostPrivateContent))
+  protected def qualifierSpinnerHolder = Option(getView).map(_.findView(TR.fragmentPostPrivateQualifier))
+  protected def responseTypeSpinnerHolder = Option(getView).map(_.findView(TR.fragmentPostPrivateResponseTypeSpinner))
+  protected def charCounterHolder = Option(getView).map(_.findView(TR.fragmentPostPrivateCharCounter))
 
   protected def limitedButtonHolder = Option(getView).map(_.findView(TR.fragmentPostPrivateLimitedButton))
   protected def limitedListHolder = Option(getView).map(_.findView(TR.fragmentPostPrivateLimitedList))
@@ -46,6 +47,8 @@ class PostPrivateFragment extends Fragment with PlurkEditor
   }
 
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
+
+    setupCharCounter()
 
     if (savedInstanceState != null) {
       selectLimitedUI.restoreUIState(savedInstanceState)

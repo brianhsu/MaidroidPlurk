@@ -17,16 +17,25 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"/>
 
+    <idv.brianhsu.maidroid.plurk.view.ResponseTypeSpinner
+      android:id="@+id/fragmentPostPrivateResponseTypeSpinner"
+      android:gravity="center"
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"/>
+
     <LinearLayout 
       android:orientation="horizontal"
       android:gravity="right"
       android:layout_width="match_parent"
       android:layout_height="match_parent">
-      <idv.brianhsu.maidroid.plurk.view.ResponseTypeSpinner
-        android:id="@+id/fragmentPostPrivateResponseTypeSpinner"
-        android:gravity="center"
+      <TextView 
+        android:id="@+id/fragmentPostPrivateCharCounter"
+        android:text="210"
+        android:gravity="center|center_vertical"
+        android:layout_marginRight="20dp"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:textAppearance="?android:attr/textAppearanceMedium"/>
     </LinearLayout>
 
   </LinearLayout>
@@ -48,7 +57,7 @@
     android:layout_height="wrap_content">
     <ImageButton
       android:id="@+id/fragmentPostPrivateLimitedButton"
-      android:src="@drawable/ic_action_add_group"
+      android:src="@drawable/ic_btn_viewable"
       android:hint="01/02/1999"
       android:ellipsize="start"
       android:layout_width="wrap_content"
