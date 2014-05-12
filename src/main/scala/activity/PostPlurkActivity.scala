@@ -52,6 +52,7 @@ class PostPlurkActivity extends ActionBarActivity
                         with TypedViewHolder with EmoticonFragment.Listener
                         with SelectLimitedToDialog.Listener
                         with SelectBlockPeopleDialog.Listener
+                        with PostPublicFragment.Listener
 {
 
   private implicit def activity = this
@@ -59,6 +60,7 @@ class PostPlurkActivity extends ActionBarActivity
   private lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
   private lazy val adapter = new PlurkEditorAdapter(getSupportFragmentManager)
   private var prevEditorContentHolder: Option[(Editable, Int)] = None
+  private var isSliding: Boolean = false
 
   override def onCreate(savedInstanceState: Bundle) {
     super.onCreate(savedInstanceState)
@@ -74,6 +76,7 @@ class PostPlurkActivity extends ActionBarActivity
     viewPager.setOnPageChangeListener(this)
   }
 
+
   override def onCreateOptionsMenu(menu: Menu): Boolean = {
     val inflater = getMenuInflater
     inflater.inflate(R.menu.post_plurk, menu)
@@ -88,11 +91,33 @@ class PostPlurkActivity extends ActionBarActivity
     case _ => super.onOptionsItemSelected(menuItem)
   }
 
-  override def onTabReselected(tab: Tab, ft: FragmentTransaction) {  }
-  override def onTabUnselected(tab: Tab, ft: FragmentTransaction) {}
-  override def onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
+  override def onTabReselected(tab: Tab, ft: FragmentTransaction) {}
+  override def onTabUnselected(tab: Tab, ft: FragmentTransaction) {
+  }
+
+  override def onPageScrolled(
+    position: Int, positionOffset: Float, 
+    positionOffsetPixels: Int) {}
+
   override def onTabSelected(tab: Tab, ft: FragmentTransaction) {
-    viewPager.setCurrentItem(tab.getPosition)
+
+    if (!isSliding) {
+      DebugLog("====> onTabSelected:onTabSelected")
+      for {
+        editor <- Option(getCurrentEditor)
+      } {
+        prevEditorContentHolder = editor.getEditorContent
+      }
+    }
+
+    viewPager.setCurrentItem(tab.getPosition, true)
+
+    if (!isSliding) {
+      prevEditorContentHolder.foreach { content =>
+        getCurrentEditor.setEditorContent(content)
+      }
+    }
+
   }
 
   override def onPageScrollStateChanged(state: Int) {
@@ -106,7 +131,9 @@ class PostPlurkActivity extends ActionBarActivity
   }
 
   override def onPageSelected(position: Int) {
+    isSliding = true
     getSupportActionBar.setSelectedNavigationItem(position)
+    isSliding = false
   }
 
   override def onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
@@ -134,6 +161,14 @@ class PostPlurkActivity extends ActionBarActivity
                                 selectedUsers: Set[(Long, String)]) {
     val editor = getCurrentEditor
     editor.setBlocked(selectedCliques, selectedUsers)
+  }
+
+  override def onActionSendImage(uri: Uri) {
+    uploadFile(getFileFromUri(uri))
+  }
+
+  def onActionSendMultipleImage(uriList: List[Uri]) {
+    uploadFiles(uriList.map(getFileFromUri))
   }
 
   private def toggleEmoticonSelector() {
@@ -206,6 +241,48 @@ class PostPlurkActivity extends ActionBarActivity
     file
   }
 
+  private def uploadFiles(fileList: List[File]) {
+    val progressDialogFragment = new ProgressDialogFragment("上傳圖檔", "請稍候……")
+    progressDialogFragment.show(getSupportFragmentManager.beginTransaction, "uploadFileProgress")
+    val oldRequestedOrientation = getRequestedOrientation
+    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
+
+    val imageListFuture = future {
+      for (file <- fileList) {
+        val (imageURL, bitmapDrawable) = uploadToPlurk(file)
+        activity.runOnUIThread {
+          getCurrentEditor.insertDrawable(s" ${imageURL} ", bitmapDrawable) 
+        }
+      }
+    }
+
+    imageListFuture.onSuccessInUI { _ => 
+      progressDialogFragment.dismiss()
+      setRequestedOrientation(oldRequestedOrientation)
+    }
+
+    imageListFuture.onFailureInUI { case e: Exception => 
+      DebugLog(s"====> upload image list failed:$e", e)
+      progressDialogFragment.dismiss()
+      setRequestedOrientation(oldRequestedOrientation)
+    }
+
+  }
+
+  private def uploadToPlurk(file: File) = {
+    val resizedBitmap = ImageSampleFactor.resizeImageFile(file, 800)
+    val thumbnailBitmap = ImageSampleFactor.resizeImageFile(file, 100, true)
+
+    val randomUUID = UUID.randomUUID.toString
+    val newFile = DiskCacheHelper.writeBitmapToCache(
+      PostPlurkActivity.this, randomUUID, resizedBitmap
+    ).get
+      
+    val bitmapDrawable = new BitmapDrawable(getResources, thumbnailBitmap)
+    val imageURL = plurkAPI.Timeline.uploadPicture(newFile).get._1
+    (imageURL, bitmapDrawable)
+  }
+
   private def uploadFile(file: File) {
 
     val progressDialogFragment = new ProgressDialogFragment("上傳圖檔", "請稍候……")
@@ -213,19 +290,7 @@ class PostPlurkActivity extends ActionBarActivity
     val oldRequestedOrientation = getRequestedOrientation
     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
-    val imageURLFuture = future {
-      val resizedBitmap = ImageSampleFactor.resizeImageFile(file, 800)
-      val thumbnailBitmap = ImageSampleFactor.resizeImageFile(file, 100)
-
-      val randomUUID = UUID.randomUUID.toString
-      val newFile = DiskCacheHelper.writeBitmapToCache(
-        PostPlurkActivity.this, randomUUID, resizedBitmap
-      ).get
-      
-      val bitmapDrawable = new BitmapDrawable(getResources, thumbnailBitmap)
-      val imageURL = plurkAPI.Timeline.uploadPicture(newFile).get._1
-      (imageURL, bitmapDrawable)
-    }
+    val imageURLFuture = future { uploadToPlurk(file) }
 
     imageURLFuture.onSuccessInUI { case (imageURL, bitmapDrawable) => 
       getCurrentEditor.insertDrawable(s" ${imageURL} ", bitmapDrawable) 

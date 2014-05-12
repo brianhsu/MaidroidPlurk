@@ -4,6 +4,9 @@ import java.io.InputStream
 import android.graphics.BitmapFactory
 import java.net.URL
 import java.io._
+import android.media.ExifInterface
+import android.graphics.Matrix
+import android.graphics.Bitmap
 
 
 case class ResizeFactor(originWidth: Int, originHeight: Int, sampleSize: Int)
@@ -18,11 +21,66 @@ object ImageSampleFactor {
     apply(new FileInputStream(file), requiredWidth, requiredHeight)
   }
 
-  def resizeImageFile(file: File, size: Int) = {
-    val ResizeFactor(_, _, sampleSize) = apply(file, size, size)
+  def resizeImageFile(imageFile: File, size: Int, shouldRotate: Boolean = false) = {
+    val ResizeFactor(_, _, sampleSize) = apply(imageFile, size, size)
     val decodeOptions = new BitmapFactory.Options
     decodeOptions.inSampleSize = sampleSize
-    BitmapFactory.decodeFile(file.getAbsolutePath, decodeOptions)
+    val bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath, decodeOptions)
+
+    if (shouldRotate) {
+      rotateBitmap(imageFile, bitmap)
+    } else {
+      bitmap
+    }
+  }
+
+  private def rotateBitmap(imageFile: File, bitmap: Bitmap) = {
+    val matrix = new Matrix
+    val exif = new ExifInterface(imageFile.getAbsolutePath)
+    val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1)
+
+    orientation match {
+      case ExifInterface.ORIENTATION_FLIP_HORIZONTAL =>
+        matrix.setScale(-1, 1)
+        createNewBitmap(bitmap, matrix)
+      case ExifInterface.ORIENTATION_ROTATE_180 =>
+        matrix.setRotate(180)
+        createNewBitmap(bitmap, matrix)
+      case ExifInterface.ORIENTATION_FLIP_VERTICAL =>
+        matrix.setRotate(180)
+        matrix.setScale(-1, 1)
+        createNewBitmap(bitmap, matrix)
+      case ExifInterface.ORIENTATION_TRANSPOSE =>
+        matrix.setRotate(90)
+        matrix.setScale(-1, 1)
+        createNewBitmap(bitmap, matrix)
+      case ExifInterface.ORIENTATION_ROTATE_90 =>
+        matrix.setRotate(90)
+        createNewBitmap(bitmap, matrix)
+      case ExifInterface.ORIENTATION_TRANSVERSE =>
+        matrix.setRotate(-90)
+        matrix.setScale(-1, 1)
+        createNewBitmap(bitmap, matrix)
+      case ExifInterface.ORIENTATION_ROTATE_270  =>
+        matrix.setRotate(-90)
+        createNewBitmap(bitmap, matrix)
+      case _ => 
+        bitmap
+    }
+  }
+
+  private def createNewBitmap(bitmap: Bitmap, matrix: Matrix) ={
+    try {
+      val newBitmap = Bitmap.createBitmap(
+        bitmap, 0, 0, 
+        bitmap.getWidth(), 
+        bitmap.getHeight(), 
+        matrix, true
+      )
+      newBitmap
+    } catch {
+      case e: OutOfMemoryError => bitmap
+    }
   }
 
   private def apply(imgStream: InputStream , requiredWidth: Int, requiredHeight: Int): ResizeFactor = {

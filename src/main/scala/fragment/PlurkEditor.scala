@@ -41,6 +41,12 @@ trait PlurkEditor {
     }
   }
 
+  def setEditorContent(content: String) {
+    contentEditor.foreach { editor => 
+      editor.setText(content) 
+    }
+  }
+
   def getEditorContent = contentEditor.map { editor => 
     (editor.getText, editor.getSelectionStart.max(0))
   }
@@ -88,5 +94,6 @@ trait PlurkEditor {
     DebugLog("====> content:" + content)
     DebugLog("====> limitedTo:" + limitedTo)
   }
+
 
 }
