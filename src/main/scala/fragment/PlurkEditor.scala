@@ -119,9 +119,24 @@ trait PlurkEditor {
     val language = plurkAPI.Users.currUser.get._1.basicInfo.defaultLanguage
     val qualifier = qualifierSpinnerHolder.map(_.getSelectedQualifier).getOrElse(Qualifier.::)
     val commentSetting = responseTypeSpinnerHolder.map(_.getSelectedCommentSetting).getOrElse(None)
-    //plurkAPI.Timeline.plurkAdd(content, qualifier, limitedTo, commentSetting, Some(language)).get
-    DebugLog("====> content:" + content)
-    DebugLog("====> limitedTo:" + limitedTo)
+
+    plurkAPI.Timeline.plurkAdd(
+      content, qualifier, 
+      limitedTo, commentSetting, Some(language)
+    ).get
+  }
+
+  def postResponse (plurkID: Long) = future {
+
+    val isEmpty = contentEditorHolder.map(_.getText.toString.trim.isEmpty).getOrElse(true)
+
+    if (isEmpty) {
+      throw PlurkEditor.NoContentException
+    }
+
+    val content = contentEditorHolder.map(_.getText.toString).getOrElse("")
+    val qualifier = qualifierSpinnerHolder.map(_.getSelectedQualifier).getOrElse(Qualifier.::)
+    plurkAPI.Responses.responseAdd(plurkID, content, qualifier).get
   }
 
 

@@ -3,71 +3,61 @@ package idv.brianhsu.maidroid.plurk.activity
 import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.plurk.adapter._
-import idv.brianhsu.maidroid.plurk.cache._
 import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 import idv.brianhsu.maidroid.ui.model._
 
-import org.bone.soplurk.model.Icon
-
 import android.app.Activity
-import android.app.ProgressDialog
 import android.app.AlertDialog
 import android.widget.Toast
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
-import android.graphics.drawable.Drawable
-import android.provider.MediaStore
-import android.view.View
-import android.view.LayoutInflater
-import android.view.ViewGroup
 import android.view.Menu
 import android.view.MenuItem
-import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
 import android.content.DialogInterface
+import android.net.Uri
+import android.text.Editable
 
 import android.support.v7.app.ActionBarActivity
 import android.support.v7.app.ActionBar
 import android.support.v7.app.ActionBar.TabListener
 import android.support.v7.app.ActionBar.Tab
-import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
 import android.support.v4.view.ViewPager
 import android.support.v4.view.ViewPager.OnPageChangeListener
 
-import java.util.UUID
-
 import scala.concurrent._
-import android.net.Uri
-import java.io.File
-import android.text.Editable
-
-object PostPlurkActivity {
-  val REQUEST_PHOTO_PICKER = 1
-}
 
 class PostPlurkActivity extends ActionBarActivity 
                         with TabListener with OnPageChangeListener
-                        with TypedViewHolder with EmoticonFragment.Listener
+                        with TypedViewHolder 
+                        with SelectEmoticonActivity
+                        with SelectImageActivity
+                        with EmoticonFragment.Listener
                         with SelectLimitedToDialog.Listener
                         with SelectBlockPeopleDialog.Listener
                         with PostPublicFragment.Listener
 {
 
-  private implicit def activity = this
+  protected lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
+  protected lazy val dialogFrame = findView(TR.activityPostPlurkDialogFrame)
+  protected val emoticonFragmentHolderResID = R.id.activityPostPlurkEmtoicon
 
   private lazy val viewPager = findView(TR.activityPostPlurkViewPager)
-  private lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
   private lazy val adapter = new PlurkEditorAdapter(getSupportFragmentManager)
-  private lazy val dialogFrame = findView(TR.activityPostPlurkDialogFrame)
+
   private lazy val rootView = findView(TR.activityPostPlurkRoot)
   private var currentPage: Int = 0
 
   private var prevEditorContentHolder: Option[(Editable, Int)] = None
   private var isSliding: Boolean = false
+
+  protected def getCurrentEditor = {
+    val tag = s"android:switcher:${R.id.activityPostPlurkViewPager}:${viewPager.getCurrentItem}"
+    getSupportFragmentManager().findFragmentByTag(tag).asInstanceOf[PlurkEditor]
+  }
 
   override def onCreate(savedInstanceState: Bundle) {
     super.onCreate(savedInstanceState)
@@ -88,6 +78,12 @@ class PostPlurkActivity extends ActionBarActivity
       Nil
     )
 
+    if (savedInstanceState != null) {
+      val isEmoticonSelectorShown = 
+        savedInstanceState.getBoolean(SelectEmoticonActivity.IsEmoticonSelectorShown, false)
+
+      setSelectorVisibility(isEmoticonSelectorShown)
+    }
   }
 
   override def onCreateOptionsMenu(menu: Menu): Boolean = {
@@ -172,14 +168,9 @@ class PostPlurkActivity extends ActionBarActivity
     super.onActivityResult(requestCode, resultCode, data)
 
     requestCode match {
-      case PostPlurkActivity.REQUEST_PHOTO_PICKER => processImage(resultCode, data)
+      case SelectImageActivity.RequestPhotoPicker => processImage(resultCode, data)
       case _ => 
     }
-  }
-
-  override def onIconSelected(icon: Icon, drawable: Option[Drawable]) {
-    toggleEmoticonSelector()
-    getCurrentEditor.insertIcon(icon, drawable)
   }
 
   override def onPeopleSelected(selectedCliques: Set[String], 
@@ -200,34 +191,6 @@ class PostPlurkActivity extends ActionBarActivity
 
   def onActionSendMultipleImage(uriList: List[Uri]) {
     uploadFiles(uriList.map(getFileFromUri))
-  }
-
-  private def toggleEmoticonSelector() {
-    val fm = getSupportFragmentManager
-    val selectorHolder = Option(fm.findFragmentById(R.id.activityPostPlurkEmtoicon))
-
-    selectorHolder match {
-      case Some(selector) if selector.isHidden =>
-        fm.beginTransaction.
-          setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).
-          show(selector).commit()
-
-      case Some(selector)  =>
-        fm.beginTransaction.
-          setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).
-          hide(selector).commit()
-
-      case None =>
-        fm.beginTransaction.
-          setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).
-          replace(R.id.activityPostPlurkEmtoicon, new EmoticonFragment).
-          commit()
-    }
-  }
-
-  private def getCurrentEditor = {
-    val tag = s"android:switcher:${R.id.activityPostPlurkViewPager}:${viewPager.getCurrentItem}"
-    getSupportFragmentManager().findFragmentByTag(tag).asInstanceOf[PlurkEditor]
   }
 
   private def postPlurk() {
@@ -275,124 +238,6 @@ class PostPlurkActivity extends ActionBarActivity
     }
   }
 
-  private def startCamera() {
-    val intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-    startActivityForResult(intent, PostPlurkActivity.REQUEST_PHOTO_PICKER)
-  }
-
-  private def startPhotoPicker() {
-    val photoPickerIntent = new Intent(Intent.ACTION_GET_CONTENT)
-    photoPickerIntent.addCategory(Intent.CATEGORY_OPENABLE)
-    photoPickerIntent.setType("image/*")
-    val photoChooserIntent = Intent.createChooser(photoPickerIntent, "選擇一張圖片")
-    startActivityForResult(photoChooserIntent, PostPlurkActivity.REQUEST_PHOTO_PICKER)
-  }
-
-  private def getFileFromUri(uri: Uri) = {
-    val column = Array(android.provider.MediaStore.MediaColumns.DATA)
-    val cursor = getContentResolver().query(uri, column, null, null, null)
-    cursor.moveToFirst()
-    val file = new File(cursor.getString(0))
-    cursor.close()
-    file
-  }
-
-  private def uploadFiles(fileList: List[File]) {
-
-    val progressDialogFragment = new ProgressDialogFragment(
-      "上傳圖檔", "請稍候……", 
-      Some(fileList.size)
-    )
-
-    progressDialogFragment.show(
-      getSupportFragmentManager.beginTransaction, 
-      "uploadFileProgress"
-    )
-
-    val oldRequestedOrientation = getRequestedOrientation
-    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
-
-    val imageListFuture = future {
-      fileList.zipWithIndex.foreach { case(file, index) =>
-        val (imageURL, bitmapDrawable) = uploadToPlurk(file)
-        activity.runOnUIThread {
-          getCurrentEditor.insertDrawable(s" ${imageURL} ", bitmapDrawable) 
-          progressDialogFragment.setProgress(index + 1)
-        }
-      }
-    }
-
-    imageListFuture.onSuccessInUI { _ => 
-      progressDialogFragment.dismiss()
-      setRequestedOrientation(oldRequestedOrientation)
-      dialogFrame.setMessages(
-        Message(MaidMaro.Half.Happy, "小鈴已經幫主人把這些照片上傳了喲，主人的照片好多喲，難道說主人是照片松鼠嗎？") :: 
-        Nil
-      )
-    }
-
-    imageListFuture.onFailureInUI { case e: Exception => 
-      DebugLog(s"====> upload image list failed:$e", e)
-      progressDialogFragment.dismiss()
-      setRequestedOrientation(oldRequestedOrientation)
-      dialogFrame.setMessages(
-        Message(MaidMaro.Half.Normal, "咦？為什麼照片沒辦法順利傳到噗浪上面呢……", None) :: 
-        Message(MaidMaro.Half.Normal, s"系統說錯誤的原因是 ${e} 的說。") ::
-        Message(MaidMaro.Half.Smile, "主人要不要檢查一下之後再重試一次呢？") ::
-        Nil
-      )
-    }
-
-  }
-
-  private def uploadToPlurk(file: File) = {
-    val resizedBitmap = ImageSampleFactor.resizeImageFile(file, 800)
-    val thumbnailBitmap = ImageSampleFactor.resizeImageFile(file, 100, true)
-
-    val randomUUID = UUID.randomUUID.toString
-    val newFile = DiskCacheHelper.writeBitmapToCache(
-      PostPlurkActivity.this, randomUUID, resizedBitmap
-    ).get
-      
-    val bitmapDrawable = new BitmapDrawable(getResources, thumbnailBitmap)
-    val imageURL = plurkAPI.Timeline.uploadPicture(newFile).get._1
-    (imageURL, bitmapDrawable)
-  }
-
-  private def uploadFile(file: File) {
-
-    val progressDialogFragment = new ProgressDialogFragment("上傳圖檔", "請稍候……")
-    progressDialogFragment.show(getSupportFragmentManager.beginTransaction, "uploadFileProgress")
-    val oldRequestedOrientation = getRequestedOrientation
-    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
-
-    val imageURLFuture = future { uploadToPlurk(file) }
-
-    imageURLFuture.onSuccessInUI { case (imageURL, bitmapDrawable) => 
-      getCurrentEditor.insertDrawable(s" ${imageURL} ", bitmapDrawable) 
-      progressDialogFragment.dismiss()
-      setRequestedOrientation(oldRequestedOrientation)
-      dialogFrame.setMessages(
-        Message(MaidMaro.Half.Smile, "照片已經上傳到噗浪上了，主人快點把它分享給大家吧！") :: 
-        Nil
-      )
-    }
-
-    imageURLFuture.onFailureInUI { case e: Exception => 
-      DebugLog(s"====> upload image failed:$e", e)
-      progressDialogFragment.dismiss()
-      setRequestedOrientation(oldRequestedOrientation)
-      dialogFrame.setMessages(
-        Message(MaidMaro.Half.Normal, "咦？為什麼照片沒辦法順利傳到噗浪上面呢……", None) :: 
-        Message(MaidMaro.Half.Normal, s"系統說錯誤的原因是 ${e} 的說。") ::
-        Message(MaidMaro.Half.Smile, "主人要不要檢查一下之後再重試一次呢？") ::
-        Nil
-      )
-
-    }
-  }
-
-
   private def showWarningDialog() {
     val alertDialog = new AlertDialog.Builder(this).setCancelable(true).setTitle("取消").setMessage("確定要取消發噗嗎？這會造成目前的內容永遠消失喲！")
     alertDialog.setPositiveButton("是", new DialogInterface.OnClickListener() {
@@ -412,21 +257,16 @@ class PostPlurkActivity extends ActionBarActivity
 
   override def onBackPressed() {
 
-    val isEmoticonSelectedShown = Option(
-      getSupportFragmentManager.findFragmentById(R.id.activityPostPlurkEmtoicon)
-    ).exists(_.isVisible)
+    val isConsumed = onBackPressedInEmoticonSelector()
 
-    if (isEmoticonSelectedShown) {
-      toggleEmoticonSelector()
-    } else {
+    if (!isConsumed) {
       showWarningDialog()
     }
-
   }
 
-  private def processImage(resultCode: Int, data: Intent) {
-    if (resultCode == Activity.RESULT_OK) {
-      uploadFile(getFileFromUri(data.getData))
-    }
+  override def onSaveInstanceState(outState: Bundle) {
+    super.onSaveInstanceState(outState)
+    outState.putBoolean(SelectEmoticonActivity.IsEmoticonSelectorShown, isSelectorShown)
   }
+
 }

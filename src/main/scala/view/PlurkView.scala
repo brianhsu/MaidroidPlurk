@@ -21,6 +21,8 @@ import android.widget.LinearLayout
 
 import org.bone.soplurk.api.PlurkAPI._
 import org.bone.soplurk.constant.ReadStatus._
+import org.bone.soplurk.constant.PlurkType
+
 import org.bone.soplurk.model._
 
 import java.text.SimpleDateFormat
@@ -77,6 +79,7 @@ class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activi
   lazy val favorite = this.findView(TR.itemPlurkFavorite)
   lazy val replurkerName = this.findView(TR.itemPlurkReplurkerName)
   lazy val replurkerBlock = this.findView(TR.itemPlurkReplurkerBlock)
+  lazy val lockIcon = this.findView(TR.itemPlurkLockIcon)
 
   private var ownerID: Long = 0
   private var owner: User = _
@@ -292,7 +295,7 @@ class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activi
     this.owner = owner
     this.replurker = replurker
 
-    content.setText(Html.fromHtml(plurk.content, imageGetter, null))
+    content.setText(Html.fromHtml(plurk.content, imageGetter, StrikeTagHandler))
     postedDate.setText(dateTimeFormatter.format(plurk.posted))
     displayName.setText(owner.displayName getOrElse owner.nickname)
 
@@ -308,6 +311,14 @@ class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activi
     AvatarCache.getAvatarBitmapFromCache(activity, owner) match {
       case Some(avatarBitmap) => setAvatarFromCache(avatarBitmap)
       case None => setAvatarFromNetwork(activity, owner)
+    }
+
+    if (plurk.plurkType == PlurkType.Private || 
+        plurk.plurkType == PlurkType.PrivateResponded) {
+
+      lockIcon.setVisibility(View.VISIBLE)
+    } else {
+      lockIcon.setVisibility(View.GONE)
     }
 
     setCommentInfo(plurk)

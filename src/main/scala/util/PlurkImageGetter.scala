@@ -18,6 +18,8 @@ import android.util.DisplayMetrics
 
 import java.net.URL
 
+
+
 class PlurkImageGetter(activity: Activity, adapter: BaseAdapter) extends Html.ImageGetter {
 
   private implicit val implicitActivity = activity
@@ -87,4 +89,6 @@ class PlurkImageGetter(activity: Activity, adapter: BaseAdapter) extends Html.Im
   }
 
 }
+
+
 
