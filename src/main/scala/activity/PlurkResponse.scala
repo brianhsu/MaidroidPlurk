@@ -6,6 +6,7 @@ import idv.brianhsu.maidroid.plurk.util.DebugLog
 import idv.brianhsu.maidroid.plurk.fragment._
 
 import org.bone.soplurk.api.PlurkAPI._
+import org.bone.soplurk.constant.CommentSetting
 import org.bone.soplurk.model._
 
 import android.app.Activity
@@ -20,12 +21,15 @@ import scala.util.{Try, Success, Failure}
 object PlurkResponse {
   var plurk: Plurk = _
   var user: User = _
+
+  val RequestPostResponse = 1
 }
 
 class PlurkResponse extends ActionBarActivity with TypedViewHolder 
                     with ResponseList.Listener
 {
 
+  private var showWelcomeMessage = true
   private lazy val dialogFrame = findView(TR.activityPlurkResponseDialogFrame)
   private lazy val fragmentContainer = findView(TR.activityPlurkResponseFragmentContainer)
 
@@ -44,18 +48,22 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
       case Success(fragment) =>
         fragment.plurk = PlurkResponse.plurk
         fragment.owner = PlurkResponse.user
-      case Failure(e) =>
-        val fragment = new ResponseList
-
-        fragment.plurk = PlurkResponse.plurk
-        fragment.owner = PlurkResponse.user
-
-        getSupportFragmentManager.
-          beginTransaction.
-          replace(R.id.activityPlurkResponseFragmentContainer, fragment).
-          commit()
+      case Failure(e) => updateFragment()
     }
 
+
+  }
+
+  private def updateFragment() {
+    val fragment = new ResponseList
+
+    fragment.plurk = PlurkResponse.plurk
+    fragment.owner = PlurkResponse.user
+
+    getSupportFragmentManager.
+      beginTransaction.
+      replace(R.id.activityPlurkResponseFragmentContainer, fragment).
+      commit()
 
   }
 
@@ -63,10 +71,23 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
     super.onStart()
   }
 
+  private def hasResponsePermission = {
+    (PlurkResponse.plurk.ownerID == PlurkResponse.plurk.userID)
+    (PlurkResponse.plurk.whoIsCommentable == CommentSetting.Everyone) ||
+    (PlurkResponse.plurk.whoIsCommentable == CommentSetting.OnlyFriends)
+  }
+
   override def onCreateOptionsMenu(menu: Menu): Boolean = {
     val inflater = getMenuInflater
     inflater.inflate(R.menu.response, menu)
     super.onCreateOptionsMenu(menu)
+  }
+
+  override def onPrepareOptionsMenu(menu: Menu): Boolean = {
+    val replyButton = menu.findItem(R.id.responseActionReply)
+    replyButton.setEnabled(hasResponsePermission)
+    replyButton.setVisible(hasResponsePermission)
+    super.onPrepareOptionsMenu(menu)
   }
 
   override def onOptionsItemSelected(menuItem: MenuItem): Boolean = menuItem.getItemId match {
@@ -76,7 +97,8 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
 
   private def startReplyActivity() {
     val intent = new Intent(this, classOf[PostResponseActivity])
-    startActivity(intent)
+    intent.putExtra(PostResponseActivity.PlurkIDBundle, PlurkResponse.plurk.plurkID)
+    startActivityForResult(intent, PlurkResponse.RequestPostResponse)
   }
 
   override def onGetResponseSuccess(responses: PlurkResponses) {
@@ -94,7 +116,11 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
 
     }
 
-    dialogFrame.setMessages(dialog)
+    if (showWelcomeMessage) {
+      dialogFrame.setMessages(dialog)
+    } else {
+      showWelcomeMessage = true
+    }
   }
 
   override def onGetResponseFailure(e: Exception) {
@@ -106,5 +132,21 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
     )
   }
 
+  override def onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+
+    super.onActivityResult(requestCode, resultCode, data)
+
+    requestCode match {
+      case PlurkResponse.RequestPostResponse => 
+        showWelcomeMessage = false
+        updateFragment()
+        dialogFrame.setMessages(
+          Message(MaidMaro.Half.Happy, "已經幫主人把回應發到噗浪上去囉！", None) ::
+          Message(MaidMaro.Half.Smile, "有了主人的參與，這個討論一定會更有趣的。", None) ::
+          Nil
+        )
+      case _ => 
+    }
+  }
 
 }
