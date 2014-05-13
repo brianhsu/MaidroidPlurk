@@ -42,6 +42,13 @@ class PostResponseActivity extends ActionBarActivity
         replace(R.id.activityPostResponseFragmentContainer, editorFragment).
         commit()
     }
+
+    if (savedInstanceState != null) {
+      val isEmoticonSelectorShown = 
+        savedInstanceState.getBoolean(SelectEmoticonActivity.IsEmoticonSelectorShown, false)
+
+      setSelectorVisibility(isEmoticonSelectorShown)
+    }
   }
 
   override def onCreateOptionsMenu(menu: Menu): Boolean = {
@@ -100,6 +107,11 @@ class PostResponseActivity extends ActionBarActivity
     if (!isConsumed) {
       showWarningDialog()
     }
+  }
+
+  override def onSaveInstanceState(outState: Bundle) {
+    super.onSaveInstanceState(outState)
+    outState.putBoolean(SelectEmoticonActivity.IsEmoticonSelectorShown, isSelectorShown)
   }
 
 }

@@ -78,6 +78,12 @@ class PostPlurkActivity extends ActionBarActivity
       Nil
     )
 
+    if (savedInstanceState != null) {
+      val isEmoticonSelectorShown = 
+        savedInstanceState.getBoolean(SelectEmoticonActivity.IsEmoticonSelectorShown, false)
+
+      setSelectorVisibility(isEmoticonSelectorShown)
+    }
   }
 
   override def onCreateOptionsMenu(menu: Menu): Boolean = {
@@ -257,4 +263,10 @@ class PostPlurkActivity extends ActionBarActivity
       showWarningDialog()
     }
   }
+
+  override def onSaveInstanceState(outState: Bundle) {
+    super.onSaveInstanceState(outState)
+    outState.putBoolean(SelectEmoticonActivity.IsEmoticonSelectorShown, isSelectorShown)
+  }
+
 }
