@@ -292,7 +292,7 @@ class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activi
     this.owner = owner
     this.replurker = replurker
 
-    content.setText(Html.fromHtml(plurk.content, imageGetter, null))
+    content.setText(Html.fromHtml(plurk.content, imageGetter, StrikeTagHandler))
     postedDate.setText(dateTimeFormatter.format(plurk.posted))
     displayName.setText(owner.displayName getOrElse owner.nickname)
 

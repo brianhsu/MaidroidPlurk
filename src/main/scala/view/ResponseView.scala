@@ -50,7 +50,7 @@ class ResponseView(implicit val activity: Activity) extends LinearLayout(activit
 
   def update(response: Response, owner: User, imageGetter: PlurkImageGetter): View = {
     this.owner = owner
-    content.setText(Html.fromHtml(response.content, imageGetter, null))
+    content.setText(Html.fromHtml(response.content, imageGetter, StrikeTagHandler))
     postedDate.setText(dateTimeFormatter.format(response.posted))
     displayName.setText(owner.displayName getOrElse owner.nickname)
 
