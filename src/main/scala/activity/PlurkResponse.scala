@@ -10,7 +10,10 @@ import org.bone.soplurk.model._
 
 import android.app.Activity
 import android.os.Bundle
+import android.content.Intent
 import android.view.View
+import android.view.Menu
+import android.view.MenuItem
 import android.support.v7.app.ActionBarActivity
 import scala.util.{Try, Success, Failure}
 
@@ -58,6 +61,22 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
 
   override def onStart() {
     super.onStart()
+  }
+
+  override def onCreateOptionsMenu(menu: Menu): Boolean = {
+    val inflater = getMenuInflater
+    inflater.inflate(R.menu.response, menu)
+    super.onCreateOptionsMenu(menu)
+  }
+
+  override def onOptionsItemSelected(menuItem: MenuItem): Boolean = menuItem.getItemId match {
+    case R.id.responseActionReply => startReplyActivity() ; false
+    case _ => super.onOptionsItemSelected(menuItem)
+  }
+
+  private def startReplyActivity() {
+    val intent = new Intent(this, classOf[PostResponseActivity])
+    startActivity(intent)
   }
 
   override def onGetResponseSuccess(responses: PlurkResponses) {
