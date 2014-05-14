@@ -124,11 +124,26 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
   }
 
   override def onGetResponseFailure(e: Exception) {
-    DebugLog("====> onGetResponseFailure....")
+    DebugLog("====> onGetResponseFailure....", e)
     dialogFrame.setMessages(
       Message(MaidMaro.Half.Normal, "好像怪怪的，沒辦法讀噗浪上的回應耶……", None) ::
       Message(MaidMaro.Half.Normal, s"系統說錯誤是：「${e.getMessage}」造成的說。", None) ::
       Message(MaidMaro.Half.Smile, "主人要不要檢查網路狀態後重新讀取一次試試看呢？") :: Nil
+    )
+  }
+
+  override def onDeleteResponseFailure(e: Exception) {
+    DebugLog("====> onDeleteResponseFailure....", e)
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Normal, "真是對不起，小鈴沒辦刪除這則回應耶……", None) ::
+      Message(MaidMaro.Half.Normal, s"系統說錯誤是：「${e.getMessage}」造成的說。", None) ::
+      Message(MaidMaro.Half.Smile, "主人要不要檢查網路狀態後重新讀取一次試試看呢？") :: Nil
+    )
+  }
+
+  override def onDeleteResponseSuccess() {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Smile, "小鈴已經順利幫主把這則回應刪除了喲！") :: Nil
     )
   }
 

@@ -290,7 +290,9 @@ class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activi
     }
   }
 
-  def update(plurk: Plurk, owner: User, replurker: Option[User], imageGetter: PlurkImageGetter): View = {
+  def update(plurk: Plurk, owner: User, replurker: Option[User], 
+             imageGetter: PlurkImageGetter): View = {
+
     this.ownerID = owner.id
     this.owner = owner
     this.replurker = replurker
