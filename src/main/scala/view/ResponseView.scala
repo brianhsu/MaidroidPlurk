@@ -77,23 +77,10 @@ class ResponseView(adapter: ResponseAdapter)(implicit val activity: Activity) ex
   }
 
   private def showDeleteConfirmDialog(response: Response) {
-    val alertDialog = new AlertDialog.Builder(activity)
-    alertDialog.
-      setTitle("確定要刪除嗎？").
-      setMessage("請問確定要刪除這則回應嗎？此動作無法回復喲！").
-      setCancelable(true).
-      setPositiveButton("刪除", new DialogInterface.OnClickListener() {
-        override def onClick(dialog: DialogInterface, which: Int) {
-          deleteResponse(response)
-          dialog.dismiss()
-        }
-      }).
-      setNegativeButton("取消", new DialogInterface.OnClickListener() {
-        override def onClick(dialog: DialogInterface, which: Int) {
-          dialog.dismiss()
-        }
-      })
-
+    val alertDialog = ConfirmDeleteDialog.createDialog(
+      activity, "請問確定要刪除這則回應嗎？此動作無法回復喲"
+    ) { deleteResponse(response) }
+    
     alertDialog.show()
   }
 

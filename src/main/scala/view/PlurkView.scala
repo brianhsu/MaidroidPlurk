@@ -353,7 +353,7 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
 
 
     deleteFuture.onSuccessInUI { _ =>
-      adapterHolder.foreach(_.deletePlurk(plurk))
+      adapterHolder.foreach(_.deletePlurk(plurk.plurkID))
       activityCallback.onDeletePlurkSuccess()
     }
 
@@ -363,23 +363,11 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
   }
 
   private def showDeleteConfirmDialog(plurk: Plurk) {
-    val alertDialog = new AlertDialog.Builder(activity)
-    alertDialog.
-      setTitle("確定要刪除嗎？").
-      setMessage("請問確定要刪除這則噗浪嗎？此動作無法回復喲！").
-      setCancelable(true).
-      setPositiveButton("刪除", new DialogInterface.OnClickListener() {
-        override def onClick(dialog: DialogInterface, which: Int) {
-          deletePlurk(plurk)
-          dialog.dismiss()
-        }
-      }).
-      setNegativeButton("取消", new DialogInterface.OnClickListener() {
-        override def onClick(dialog: DialogInterface, which: Int) {
-          dialog.dismiss()
-        }
-      })
-
+    val alertDialog = 
+      ConfirmDeleteDialog.createDialog(
+        activity, "請問確定要刪除這則噗浪嗎？此動作無法回復喲"
+      ){ deletePlurk(plurk) }
+    
     alertDialog.show()
   }
 

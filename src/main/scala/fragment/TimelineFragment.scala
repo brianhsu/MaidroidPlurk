@@ -50,6 +50,8 @@ object TimelineFragment {
   private var isUnreadOnly: Boolean = false
   private var plurkFilter: Option[Filter] = None
 
+  var deletedPlurkIDHolder: Option[Long] = None
+
   trait Listener {
     def onShowTimelinePlurksFailure(e: Exception): Unit
     def onShowTimelinePlurksSuccess(timeline: Timeline, isNewFilter: Boolean, filter: Option[Filter], isOnlyUnread: Boolean): Unit
@@ -61,6 +63,8 @@ object TimelineFragment {
   }
 
   val REQUEST_POST_PLURK = 1
+  val REQUEST_VIEW_RESPONSE = 2
+
 }
 
 class TimelineFragment extends Fragment {
@@ -138,6 +142,7 @@ class TimelineFragment extends Fragment {
     super.onViewStateRestored(savedInstanceState)
   }
 
+
   override def onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
     val actionMenu = inflater.inflate(R.menu.timeline, menu)
     this.toggleButtonHolder = Option(menu.findItem(R.id.timelineActionToggleUnreadOnly))
@@ -161,6 +166,16 @@ class TimelineFragment extends Fragment {
   }
 
   override def onResume() {
+
+    for {
+      plurkID <- TimelineFragment.deletedPlurkIDHolder
+      adapter <- adapterHolder
+    } {
+      adapter.deletePlurk(plurkID)
+      TimelineFragment.deletedPlurkIDHolder = None
+      callbackHolder.foreach(_.onDeletePlurkSuccess())
+    }
+
     adapterHolder.foreach(_.notifyDataSetChanged())
     super.onResume()
   }
@@ -329,6 +344,8 @@ class TimelineFragment extends Fragment {
   }
 
   override def onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+
+    DebugLog("====> requestCode:" + requestCode)
     if (requestCode == TimelineFragment.REQUEST_POST_PLURK && 
         resultCode == Activity.RESULT_OK) {
       Toast.makeText(this.getActivity, "發噗成功", Toast.LENGTH_SHORT)

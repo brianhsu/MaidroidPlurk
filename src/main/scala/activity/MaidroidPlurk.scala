@@ -174,5 +174,4 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
     }
   }
 
-
 }

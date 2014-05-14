@@ -2,8 +2,9 @@ package idv.brianhsu.maidroid.plurk.activity
 
 import idv.brianhsu.maidroid.ui.model._
 import idv.brianhsu.maidroid.plurk._
-import idv.brianhsu.maidroid.plurk.util.DebugLog
+import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.fragment._
+import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
 import org.bone.soplurk.api.PlurkAPI._
 import org.bone.soplurk.constant.CommentSetting
@@ -18,6 +19,8 @@ import android.view.MenuItem
 import android.support.v7.app.ActionBarActivity
 import scala.util.{Try, Success, Failure}
 
+import scala.concurrent._
+
 object PlurkResponse {
   var plurk: Plurk = _
   var user: User = _
@@ -29,9 +32,11 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
                     with ResponseList.Listener
 {
 
+  private implicit def activity = this
   private var showWelcomeMessage = true
   private lazy val dialogFrame = findView(TR.activityPlurkResponseDialogFrame)
   private lazy val fragmentContainer = findView(TR.activityPlurkResponseFragmentContainer)
+  private lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
 
   override def onCreate(savedInstanceState: Bundle) {
 
@@ -84,15 +89,60 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
   }
 
   override def onPrepareOptionsMenu(menu: Menu): Boolean = {
+    val isPostedByCurrentUser = PlurkResponse.plurk.ownerID == PlurkResponse.plurk.userID
     val replyButton = menu.findItem(R.id.responseActionReply)
     replyButton.setEnabled(hasResponsePermission)
     replyButton.setVisible(hasResponsePermission)
+
+    val editButton = menu.findItem(R.id.responseActionEdit)
+    val deleteButton = menu.findItem(R.id.responseActionDelete)
+
+    editButton.setEnabled(isPostedByCurrentUser)
+    editButton.setVisible(isPostedByCurrentUser)
+
+    deleteButton.setEnabled(isPostedByCurrentUser)
+    deleteButton.setVisible(isPostedByCurrentUser)
+
     super.onPrepareOptionsMenu(menu)
   }
 
   override def onOptionsItemSelected(menuItem: MenuItem): Boolean = menuItem.getItemId match {
     case R.id.responseActionReply => startReplyActivity() ; false
+    case R.id.responseActionDelete => showConfirmDeleteDialog() ; false
     case _ => super.onOptionsItemSelected(menuItem)
+  }
+
+  private def showConfirmDeleteDialog() {
+    val dialog = ConfirmDeleteDialog.createDialog(
+      this, "確定要刪除這則噗浪？這個動作無法回復喲！"
+    ) { deletePlurk() }
+    dialog.show()
+  }
+
+  private def deletePlurk() {
+
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Smile, "要刪除這則噗浪嗎？好的，小鈴知道了，請主人稍等一下喔！") :: Nil
+    )
+
+    val deleteFuture = future {
+      plurkAPI.Timeline.plurkDelete(PlurkResponse.plurk.plurkID).get
+    }
+
+    deleteFuture.onSuccessInUI { _ =>
+      TimelineFragment.deletedPlurkIDHolder = Some(PlurkResponse.plurk.plurkID)
+      finish()
+    }
+
+    deleteFuture.onFailureInUI { case e: Exception =>
+      DebugLog("====> deletePlurkFailure....", e)
+      dialogFrame.setMessages(
+        Message(MaidMaro.Half.Normal, "真是對不起，小鈴沒辦刪除這則噗浪耶……", None) ::
+        Message(MaidMaro.Half.Normal, s"系統說錯誤是：「${e.getMessage}」造成的說。", None) ::
+        Message(MaidMaro.Half.Smile, "主人要不要檢查網路狀態後重新讀取一次試試看呢？") :: Nil
+      )
+
+    }
   }
 
   private def startReplyActivity() {

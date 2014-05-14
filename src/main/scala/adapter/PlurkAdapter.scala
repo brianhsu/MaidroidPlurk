@@ -57,7 +57,6 @@ class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false) extend
       val intent = new Intent(activity, classOf[PlurkResponse])
       PlurkResponse.plurk = plurk
       PlurkResponse.user = owner
-      intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
       activity.startActivity(intent)
     }
     itemView
@@ -92,8 +91,8 @@ class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false) extend
 
   def lastPlurkDate = plurks.lastOption.map(_.posted)
 
-  def deletePlurk(plurk: Plurk) {
-    plurks = plurks.filterNot(_.plurkID == plurk.plurkID)
+  def deletePlurk(plurkID: Long) {
+    plurks = plurks.filterNot(_.plurkID == plurkID)
     notifyDataSetChanged()
   }
 }
