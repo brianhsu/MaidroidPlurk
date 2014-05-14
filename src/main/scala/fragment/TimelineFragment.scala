@@ -55,6 +55,9 @@ object TimelineFragment {
     def onShowTimelinePlurksSuccess(timeline: Timeline, isNewFilter: Boolean, filter: Option[Filter], isOnlyUnread: Boolean): Unit
     def onRefreshTimelineSuccess(newTimeline: Timeline): Unit
     def onRefreshTimelineFailure(e: Exception): Unit
+    def onDeletePlurk(): Unit
+    def onDeletePlurkSuccess(): Unit
+    def onDeletePlurkFailure(e: Exception): Unit
   }
 
   val REQUEST_POST_PLURK = 1

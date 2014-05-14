@@ -141,9 +141,15 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
     )
   }
 
+  override def onDeleteResponse() {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Smile, "要刪除這則回應嗎？好的，小鈴知道了，請主人稍等一下喔！") :: Nil
+    )
+  }
+
   override def onDeleteResponseSuccess() {
     dialogFrame.setMessages(
-      Message(MaidMaro.Half.Smile, "小鈴已經順利幫主把這則回應刪除了喲！") :: Nil
+      Message(MaidMaro.Half.Happy, "小鈴已經順利幫主把這則回應刪除了喲！") :: Nil
     )
   }
 

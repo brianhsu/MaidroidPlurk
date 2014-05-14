@@ -42,7 +42,7 @@ class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false) extend
 
     val itemView = convertView match {
       case view: PlurkView => view
-      case _ => new PlurkView(isInResponseList)
+      case _ => new PlurkView(Some(this), isInResponseList)
     }
 
     val plurk = plurks(position)
@@ -91,5 +91,10 @@ class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false) extend
   }
 
   def lastPlurkDate = plurks.lastOption.map(_.posted)
+
+  def deletePlurk(plurk: Plurk) {
+    plurks = plurks.filterNot(_.plurkID == plurk.plurkID)
+    notifyDataSetChanged()
+  }
 }
 

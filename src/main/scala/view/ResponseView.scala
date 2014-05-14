@@ -58,13 +58,13 @@ class ResponseView(adapter: ResponseAdapter)(implicit val activity: Activity) ex
 
   private def deleteResponse(response: Response) {
 
-    this.setVisibility(View.GONE)
+    val activityCallback = activity.asInstanceOf[ResponseList.Listener]
+
+    activityCallback.onDeleteResponse()
 
     val deleteFuture = future {
       plurkAPI.Responses.responseDelete(response.plurkID, response.id).get
     }
-
-    val activityCallback = activity.asInstanceOf[ResponseList.Listener]
 
     deleteFuture.onSuccessInUI { _ =>
       adapter.deleteResponse(response.id)
@@ -72,7 +72,6 @@ class ResponseView(adapter: ResponseAdapter)(implicit val activity: Activity) ex
     }
 
     deleteFuture.onFailureInUI { case e: Exception =>
-      this.setVisibility(View.VISIBLE)
       activityCallback.onDeleteResponseFailure(e)
     }
   }

@@ -1,6 +1,7 @@
 package idv.brianhsu.maidroid.plurk.view
 
 import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.adapter._
 import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.plurk.cache._
@@ -11,13 +12,20 @@ import idv.brianhsu.maidroid.ui.util.CallbackConversions._
 import scala.concurrent._
 
 import android.app.Activity
+import android.app.AlertDialog
+
 import android.content.Context
+import android.content.DialogInterface
+
 import android.graphics.Bitmap
 import android.text.method.LinkMovementMethod
 import android.text.Html
 import android.view.View
+import android.view.MenuItem
+
 import android.view.LayoutInflater
 import android.widget.LinearLayout
+import android.support.v7.internal.view.menu.MenuBuilder
 
 import org.bone.soplurk.api.PlurkAPI._
 import org.bone.soplurk.constant.ReadStatus._
@@ -58,7 +66,8 @@ object PlurkView {
   def getPlurkMutedStatus(plurkID: Long) = plurkMutedStatus.get(plurkID)
 }
 
-class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activity)
+class PlurkView(adapterHolder: Option[PlurkAdapter] = None, 
+                isInResponseList: Boolean = false)(implicit val activity: Activity)
                 extends LinearLayout(activity) {
 
   private val inflater = activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE).
@@ -80,6 +89,7 @@ class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activi
   lazy val replurkerName = this.findView(TR.itemPlurkReplurkerName)
   lazy val replurkerBlock = this.findView(TR.itemPlurkReplurkerBlock)
   lazy val lockIcon = this.findView(TR.itemPlurkLockIcon)
+  lazy val dropdownMenu = this.findView(TR.itemPlurkDropdownMenu)
 
   private var ownerID: Long = 0
   private var owner: User = _
@@ -328,7 +338,73 @@ class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activi
     setReplurkerInfo(plurk)
     setFavoriteInfo(plurk)
     setMuteInfo(plurk)
+    setDropdownMenu(plurk)
     this
+  }
+
+  private def deletePlurk(plurk: Plurk) {
+
+    val activityCallback = activity.asInstanceOf[TimelineFragment.Listener]
+    activityCallback.onDeletePlurk()
+
+    val deleteFuture = future {
+      plurkAPI.Timeline.plurkDelete(plurk.plurkID).get
+    }
+
+
+    deleteFuture.onSuccessInUI { _ =>
+      adapterHolder.foreach(_.deletePlurk(plurk))
+      activityCallback.onDeletePlurkSuccess()
+    }
+
+    deleteFuture.onFailureInUI { case e: Exception =>
+      activityCallback.onDeletePlurkFailure(e)
+    }
+  }
+
+  private def showDeleteConfirmDialog(plurk: Plurk) {
+    val alertDialog = new AlertDialog.Builder(activity)
+    alertDialog.
+      setTitle("確定要刪除嗎？").
+      setMessage("請問確定要刪除這則噗浪嗎？此動作無法回復喲！").
+      setCancelable(true).
+      setPositiveButton("刪除", new DialogInterface.OnClickListener() {
+        override def onClick(dialog: DialogInterface, which: Int) {
+          deletePlurk(plurk)
+          dialog.dismiss()
+        }
+      }).
+      setNegativeButton("取消", new DialogInterface.OnClickListener() {
+        override def onClick(dialog: DialogInterface, which: Int) {
+          dialog.dismiss()
+        }
+      })
+
+    alertDialog.show()
+  }
+
+  private def setDropdownMenu(plurk: Plurk) {
+    if (!isInResponseList && plurk.userID == plurk.ownerID) {
+      dropdownMenu.setOnClickListener { button: View =>
+        val popupMenu = new test.MyPopupMenu(activity, button) {
+          override def onMenuItemSelected(menu: MenuBuilder, item: MenuItem): Boolean = {
+            item.getItemId match {
+              case R.id.popup_plurk_delete => showDeleteConfirmDialog(plurk); true
+              case _ => true
+            }
+          }
+        }
+        popupMenu.getMenuInflater.inflate(R.menu.popup_plurk, popupMenu.getMenu)
+        popupMenu.show()
+      }
+      dropdownMenu.setEnabled(true)
+      dropdownMenu.setVisibility(View.VISIBLE)
+
+    } else {
+      dropdownMenu.setEnabled(false)
+      dropdownMenu.setVisibility(View.GONE)
+    }
+
   }
 
   def setAvatarFromCache(avatarBitmap: Bitmap) {

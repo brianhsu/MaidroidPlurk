@@ -29,6 +29,7 @@ object ResponseList {
   trait Listener {
     def onGetResponseSuccess(responses: PlurkResponses): Unit
     def onGetResponseFailure(e: Exception): Unit
+    def onDeleteResponse(): Unit
     def onDeleteResponseSuccess(): Unit
     def onDeleteResponseFailure(e: Exception): Unit
   }

@@ -93,6 +93,27 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
     )
   }
 
+  override def onDeletePlurkFailure(e: Exception) {
+    DebugLog("====> onDeletePlurkFailure....", e)
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Normal, "真是對不起，小鈴沒辦刪除這則噗浪耶……", None) ::
+      Message(MaidMaro.Half.Normal, s"系統說錯誤是：「${e.getMessage}」造成的說。", None) ::
+      Message(MaidMaro.Half.Smile, "主人要不要檢查網路狀態後重新讀取一次試試看呢？") :: Nil
+    )
+  }
+
+  override def onDeletePlurk() {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Smile, "要刪除這則發文嗎？好的，小鈴知道了，請主人稍等一下喔！") :: Nil
+    )
+  }
+
+  override def onDeletePlurkSuccess() {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Happy, "小鈴已經順利幫主把這則噗浪刪除了喲！") :: Nil
+    )
+  }
+
   override def onCreate(savedInstanceState: Bundle) {
 
     super.onCreate(savedInstanceState)

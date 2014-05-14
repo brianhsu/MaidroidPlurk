@@ -58,7 +58,7 @@ class ResponseAdapter(activity: Activity, plurk: Plurk, owner: User) extends Bas
 
     val itemView = convertView match {
       case view: PlurkView => view
-      case _ => new PlurkView(true)
+      case _ => new PlurkView(isInResponseList = true)
     }
 
     itemView.update(plurk, owner, replurker, textViewImageGetter)
