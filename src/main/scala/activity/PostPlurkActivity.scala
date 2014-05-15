@@ -9,14 +9,12 @@ import idv.brianhsu.maidroid.ui.util.AsyncUI._
 import idv.brianhsu.maidroid.ui.model._
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.widget.Toast
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.content.DialogInterface
 import android.net.Uri
 import android.text.Editable
 
@@ -242,19 +240,15 @@ class PostPlurkActivity extends ActionBarActivity
   }
 
   private def showWarningDialog() {
-    val alertDialog = new AlertDialog.Builder(this).setCancelable(true).setTitle("取消").setMessage("確定要取消發噗嗎？這會造成目前的內容永遠消失喲！")
-    alertDialog.setPositiveButton("是", new DialogInterface.OnClickListener() {
-      override def onClick(dialog: DialogInterface, which: Int) {
-        setResult(Activity.RESULT_CANCELED)
-        dialog.dismiss()
-        PostPlurkActivity.this.finish()
-      }
-    })
-    alertDialog.setNegativeButton("否", new DialogInterface.OnClickListener() {
-      override def onClick(dialog: DialogInterface, which: Int) {
-        dialog.dismiss()
-      }
-    })
+
+    val alertDialog = ConfirmDialog.createDialog(
+      this, "取消", "確定要取消發噗嗎？這會造成目前的內容永遠消失喲！", "是", "否"
+    ) { dialog =>
+      setResult(Activity.RESULT_CANCELED)
+      dialog.dismiss()
+      PostPlurkActivity.this.finish()
+    }
+
     alertDialog.show()
   }
 

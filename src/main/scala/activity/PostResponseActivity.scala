@@ -18,8 +18,6 @@ import android.view.View
 import android.view.Menu
 import android.view.MenuItem
 import android.support.v7.app.ActionBarActivity
-import android.app.AlertDialog
-import android.content.DialogInterface
 import android.widget.Toast
 
 object PostResponseActivity {
@@ -92,24 +90,15 @@ class PostResponseActivity extends ActionBarActivity
   }
 
   private def showWarningDialog() {
-    val alertDialog = new AlertDialog.Builder(this).
-                        setCancelable(true).
-                        setTitle("取消").
-                        setMessage("確定要取消回應嗎？這會造成目前的內容永遠消失喲！")
 
-    alertDialog.setPositiveButton("是", new DialogInterface.OnClickListener() {
-      override def onClick(dialog: DialogInterface, which: Int) {
-        setResult(Activity.RESULT_CANCELED)
-        dialog.dismiss()
-        PostResponseActivity.this.finish()
-      }
-    })
+    val alertDialog = ConfirmDialog.createDialog(
+      this, "取消", "確定要取消回應嗎？這會造成目前的內容永遠消失喲！", "是", "否"
+    ) { dialog =>
+      setResult(Activity.RESULT_CANCELED)
+      dialog.dismiss()
+      PostResponseActivity.this.finish()
+    }
 
-    alertDialog.setNegativeButton("否", new DialogInterface.OnClickListener() {
-      override def onClick(dialog: DialogInterface, which: Int) {
-        dialog.dismiss()
-      }
-    })
     alertDialog.show()
   }
 

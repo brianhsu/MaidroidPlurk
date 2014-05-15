@@ -13,14 +13,12 @@ import scala.concurrent._
 
 import android.app.Activity
 import android.content.Context
-import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.text.method.LinkMovementMethod
 import android.text.Html
 import android.view.View
 import android.view.LayoutInflater
 import android.widget.LinearLayout
-import android.app.AlertDialog
 import android.view.MenuItem
 import android.support.v7.widget.PopupMenu
 import android.support.v7.internal.view.menu.MenuBuilder
@@ -82,7 +80,10 @@ class ResponseView(adapter: ResponseAdapter)(implicit val activity: Activity) ex
       "確定要刪除嗎？",
       "請問確定要刪除這則回應嗎？此動作無法回復喲",
       "刪除"
-    ) { deleteResponse(response) }
+    ) { dialog =>
+      dialog.dismiss()
+      deleteResponse(response) 
+    }
     
     alertDialog.show()
   }

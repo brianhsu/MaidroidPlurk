@@ -13,12 +13,10 @@ import idv.brianhsu.maidroid.ui.util.CallbackConversions._
 import scala.concurrent._
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.support.v4.app.FragmentActivity
 
 import android.content.Intent
 import android.content.Context
-import android.content.DialogInterface
 import android.content.pm.ActivityInfo
 
 import android.graphics.Bitmap
@@ -392,7 +390,10 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
         "確定要刪除嗎？",
         "請問確定要刪除這則噗浪嗎？此動作無法回復喲",
         "刪除"
-      ){ deletePlurk(plurk) }
+      ){ dialog =>
+        deletePlurk(plurk) 
+        dialog.dismiss()
+      }
     
     alertDialog.show()
   }

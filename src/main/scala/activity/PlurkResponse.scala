@@ -130,7 +130,10 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
       "確定要刪除嗎",
       "確定要刪除這則噗浪？這個動作無法回復喲！",
       "刪除"
-    ) { deletePlurk() }
+    ) { dialog =>
+      deletePlurk() 
+      dialog.dismiss()
+    }
     dialog.show()
   }
 
