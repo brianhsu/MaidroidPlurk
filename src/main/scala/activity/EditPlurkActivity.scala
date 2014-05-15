@@ -26,7 +26,7 @@ import scala.concurrent._
 
 object EditPlurkActivity {
   val PlurkIDBundle = "idv.brianhsu.maidroid.plurk.EditPlurkActivity.plurkID"
-  val ContentBundle = "idv.brianhsu.maidroid.plurk.EditPlurkActivity.content"
+  val ContentRawBundle = "idv.brianhsu.maidroid.plurk.EditPlurkActivity.contentRaw"
   val EditedContentBundle = "idv.brianhsu.maidroid.plurk.EditPlurkActivity.editedContent"
   val EditedContentRawBundle = "idv.brianhsu.maidroid.plurk.EditPlurkActivity.editedContentRaw"
 }
@@ -39,10 +39,10 @@ class EditPlurkActivity extends ActionBarActivity
 {
  
   private lazy val plurkID = getIntent.getLongExtra(EditPlurkActivity.PlurkIDBundle, -1)
-  private lazy val content = getIntent.getStringExtra(EditPlurkActivity.ContentBundle)
+  private lazy val rawContent = getIntent.getStringExtra(EditPlurkActivity.ContentRawBundle)
 
   protected val emoticonFragmentHolderResID = R.id.activityEditPlurkEmtoicon
-  protected lazy val editorFragment = new EditPlurkFragment(content)
+  protected lazy val editorFragment = new EditPlurkFragment(rawContent)
   protected lazy val dialogFrame = findView(TR.activityEditPlurkDialogFrame)
   protected lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
 
@@ -159,7 +159,7 @@ class EditPlurkActivity extends ActionBarActivity
       setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
       val editedPlurkFuture = future {
-        val newContent = getCurrentEditor.getEditorContent.map(_._1.toString) getOrElse this.content
+        val newContent = getCurrentEditor.getEditorContent.map(_._1.toString) getOrElse this.rawContent
         val newPlurk = plurkAPI.Timeline.plurkEdit(plurkID, newContent).get
         newPlurk
       }

@@ -102,5 +102,12 @@ class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false) extend
     plurks = plurks.updated(index, newPlurk)
     notifyDataSetChanged()
   }
+
+  def updatePlurkContent() {
+    for ((plurkID, contentInfo) <- PlurkView.getNewPlurkContents) {
+      updatePlurk(plurkID, contentInfo._1, contentInfo._2)
+    }
+    notifyDataSetChanged()
+  }
 }
 

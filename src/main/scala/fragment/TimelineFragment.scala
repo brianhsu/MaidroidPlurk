@@ -177,7 +177,11 @@ class TimelineFragment extends Fragment {
       callbackHolder.foreach(_.onDeletePlurkSuccess())
     }
 
-    adapterHolder.foreach(_.notifyDataSetChanged())
+    DebugLog("====> TimelineFragment.notifyDataSetChanged")
+
+    adapterHolder.foreach { adapter =>
+      adapter.updatePlurkContent()
+    }
     super.onResume()
   }
 
@@ -346,8 +350,6 @@ class TimelineFragment extends Fragment {
 
   override def onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
 
-    DebugLog("====> requestCode:" + requestCode)
-    DebugLog("====> resultCode:" + resultCode)
     requestCode match {
       case TimelineFragment.RequestPostPlurk if resultCode == Activity.RESULT_OK =>
         Toast.makeText(this.getActivity, "發噗成功", Toast.LENGTH_SHORT)
@@ -357,13 +359,9 @@ class TimelineFragment extends Fragment {
         }
       case TimelineFragment.RequestEditPlurk if resultCode == Activity.RESULT_OK =>
 
-        DebugLog("====> inside this")
         val plurkID = data.getLongExtra(EditPlurkActivity.PlurkIDBundle, -1)
         val newContent = data.getStringExtra(EditPlurkActivity.EditedContentBundle)
         val newContentRaw = Option(data.getStringExtra(EditPlurkActivity.EditedContentBundle))
-        DebugLog("====> plurkID:" + plurkID)
-        DebugLog("====> newContent:" + newContent)
-        DebugLog("====> newContentRaw:" + newContentRaw)
 
         if (plurkID != -1) {
           adapterHolder.foreach(_.updatePlurk(plurkID, newContent, newContentRaw))
@@ -418,7 +416,7 @@ class TimelineFragment extends Fragment {
   def startEditActivity(plurk: Plurk) {
     val intent = new Intent(activity, classOf[EditPlurkActivity])
     intent.putExtra(EditPlurkActivity.PlurkIDBundle, plurk.plurkID)
-    intent.putExtra(EditPlurkActivity.ContentBundle, plurk.contentRaw getOrElse "")
+    intent.putExtra(EditPlurkActivity.ContentRawBundle, plurk.contentRaw getOrElse "")
     startActivityForResult(intent, TimelineFragment.RequestEditPlurk)
   }
 }

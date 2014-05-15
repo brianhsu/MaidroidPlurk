@@ -47,6 +47,13 @@ object PlurkView {
   private var plurkMutedStatus: Map[Long, Boolean] = Map.empty
   private var plurkFavoriteInfo: Map[Long, FavoriteInfo] = Map.empty
   private var plurkReplurkInfo: Map[Long, ReplurkInfo] = Map.empty
+  private var plurkContentInfo: Map[Long, (String, Option[String])] = Map.empty
+
+  def getNewPlurkContents = plurkContentInfo
+
+  def updatePlurk(plurkID: Long, content: String, contentRaw: Option[String]) {
+    plurkContentInfo += (plurkID -> (content, contentRaw))
+  }
 
   def updatePlurkCommentInfo(plurkID: Long, newCount: Int, newReadStatus: Boolean) {
     plurkCommentCount += (plurkID -> newCount)

@@ -2,6 +2,7 @@ package idv.brianhsu.maidroid.plurk.activity
 
 import idv.brianhsu.maidroid.ui.model._
 import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.view._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
@@ -28,6 +29,8 @@ object PlurkResponse {
   var user: User = _
 
   val RequestPostResponse = 1
+  val RequestEditPlurk = 2
+
 }
 
 class PlurkResponse extends ActionBarActivity with TypedViewHolder 
@@ -110,6 +113,7 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
 
   override def onOptionsItemSelected(menuItem: MenuItem): Boolean = menuItem.getItemId match {
     case R.id.responseActionReply => startReplyActivity() ; false
+    case R.id.responseActionEdit => startEditActivity() ; false
     case R.id.responseActionDelete => showConfirmDeleteDialog() ; false
     case _ => super.onOptionsItemSelected(menuItem)
   }
@@ -163,6 +167,14 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
     val intent = new Intent(this, classOf[PostResponseActivity])
     intent.putExtra(PostResponseActivity.PlurkIDBundle, PlurkResponse.plurk.plurkID)
     startActivityForResult(intent, PlurkResponse.RequestPostResponse)
+  }
+
+  private def startEditActivity() {
+    val intent = new Intent(this, classOf[EditPlurkActivity])
+    intent.putExtra(EditPlurkActivity.PlurkIDBundle, PlurkResponse.plurk.plurkID)
+    intent.putExtra(EditPlurkActivity.ContentRawBundle, PlurkResponse.plurk.contentRaw getOrElse "")
+
+    startActivityForResult(intent, PlurkResponse.RequestEditPlurk)
   }
 
   override def onGetResponseSuccess(responses: PlurkResponses) {
@@ -222,7 +234,7 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
     super.onActivityResult(requestCode, resultCode, data)
 
     requestCode match {
-      case PlurkResponse.RequestPostResponse => 
+      case PlurkResponse.RequestPostResponse if resultCode == Activity.RESULT_OK => 
         showWelcomeMessage = false
         updateFragment()
         dialogFrame.setMessages(
@@ -230,6 +242,20 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
           Message(MaidMaro.Half.Smile, "有了主人的參與，這個討論一定會更有趣的。", None) ::
           Nil
         )
+      case PlurkResponse.RequestEditPlurk if resultCode == Activity.RESULT_OK => 
+        DebugLog("====> XXXXXXX")
+        val plurkID = data.getLongExtra(EditPlurkActivity.PlurkIDBundle, -1)
+        val newContent = data.getStringExtra(EditPlurkActivity.EditedContentBundle)
+        val newContentRaw = Option(data.getStringExtra(EditPlurkActivity.EditedContentRawBundle))
+
+        if (plurkID != -1) {
+          PlurkView.updatePlurk(plurkID, newContent, newContentRaw)
+          PlurkResponse.plurk = PlurkResponse.plurk.copy(
+            content = newContent, contentRaw = newContentRaw
+          )
+          updateFragment()
+        }
+
       case _ => 
     }
   }
