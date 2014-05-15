@@ -87,16 +87,16 @@ class PostPlurkActivity extends ActionBarActivity
 
   override def onCreateOptionsMenu(menu: Menu): Boolean = {
     val inflater = getMenuInflater
-    inflater.inflate(R.menu.post_plurk, menu)
+    inflater.inflate(R.menu.activity_post_plurk, menu)
     super.onCreateOptionsMenu(menu)
   }
 
   override def onOptionsItemSelected(menuItem: MenuItem): Boolean = menuItem.getItemId match {
-    case R.id.postPlurkActionEmoticon => toggleEmoticonSelector(); false
-    case R.id.postPlurkActionPhotoFromGallery => startPhotoPicker(); false
-    case R.id.postPlurkActionPhotoFromCamera => startCamera(); false
-    case R.id.postPlurkActionSend => postPlurk(); false
-    case R.id.postPlurkActionLogout => Logout.logout(this); false
+    case R.id.activityPostPlurkActionEmoticon => toggleEmoticonSelector(); false
+    case R.id.activityPostPlurkActionPhotoFromGallery => startPhotoPicker(); false
+    case R.id.activityPostPlurkActionPhotoFromCamera => startCamera(); false
+    case R.id.activityPostPlurkActionSend => postPlurk(); false
+    case R.id.activityPostPlurkActionLogout => Logout.logout(this); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 

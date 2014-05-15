@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu 
+  xmlns:android="http://schemas.android.com/apk/res/android" 
+  xmlns:maidroid="http://schemas.android.com/apk/res-auto">
+
+  <item
+    android:id="@+id/activityPostPlurkActionEmoticon"
+    android:title="表情符號"
+    android:icon="@drawable/ic_action_emoticon"
+    maidroid:showAsAction="always" />
+
+  <item
+    android:id="@+id/activityPostPlurkActionUploadPhoto"
+    android:title="上傳圖片"
+    android:icon="@drawable/ic_action_photo"
+    maidroid:showAsAction="always">
+    <menu>
+      <item
+        android:id="@+id/activityPostPlurkActionPhotoFromGallery"
+        android:icon="@drawable/ic_action_photo"
+        android:title="自相簿選取" />
+      <item
+        android:id="@+id/activityPostPlurkActionPhotoFromCamera"
+        android:icon="@drawable/ic_action_camera"
+        android:title="拍攝新照片" />
+
+    </menu>
+  </item>
+
+  <item
+    android:id="@+id/activityPostPlurkActionSend"
+    android:title="立刻發送"
+    android:icon="@drawable/ic_action_send_now"
+    maidroid:showAsAction="always" />
+
+  <item
+    android:id="@+id/activityPostPlurkActionLogout"
+    android:title="登出"
+    maidroid:showAsAction="never" />
+
+</menu>

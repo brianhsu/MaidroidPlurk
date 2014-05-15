@@ -145,15 +145,15 @@ class TimelineFragment extends Fragment {
 
 
   override def onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-    val actionMenu = inflater.inflate(R.menu.timeline, menu)
-    this.toggleButtonHolder = Option(menu.findItem(R.id.timelineActionToggleUnreadOnly))
-    this.filterButtonHolder = Option(menu.findItem(R.id.timelineActionFilter))
+    val actionMenu = inflater.inflate(R.menu.fragment_timeline, menu)
+    this.toggleButtonHolder = Option(menu.findItem(R.id.fragmentTimelineActionToggleUnreadOnly))
+    this.filterButtonHolder = Option(menu.findItem(R.id.fragmentTimelineActionFilter))
     this.filterButtonMap = Map(
-      "all" -> menu.findItem(R.id.timelineActionAll),
-      "my" -> menu.findItem(R.id.timelineActionMine),
-      "private" -> menu.findItem(R.id.timelineActionPrivate),
-      "responded" -> menu.findItem(R.id.timelineActionResponded),
-      "favorite" -> menu.findItem(R.id.timelineActionFavorite)
+      "all" -> menu.findItem(R.id.fragmentTimelineActionAll),
+      "my" -> menu.findItem(R.id.fragmentTimelineActionMine),
+      "private" -> menu.findItem(R.id.fragmentTimelineActionPrivate),
+      "responded" -> menu.findItem(R.id.fragmentTimelineActionResponded),
+      "favorite" -> menu.findItem(R.id.fragmentTimelineActionFavorite)
     )
     actionMenu
   }
@@ -338,14 +338,14 @@ class TimelineFragment extends Fragment {
   }
 
   override def onOptionsItemSelected(item: MenuItem) = item.getItemId match {
-    case R.id.timelineActionAll => switchToFilter(None, this.isUnreadOnly)
-    case R.id.timelineActionMine => switchToFilter(Some(OnlyUser), this.isUnreadOnly)
-    case R.id.timelineActionPrivate => switchToFilter(Some(OnlyPrivate), this.isUnreadOnly)
-    case R.id.timelineActionResponded => switchToFilter(Some(OnlyResponded), this.isUnreadOnly)
-    case R.id.timelineActionFavorite => switchToFilter(Some(OnlyFavorite), this.isUnreadOnly)
-    case R.id.timelineActionToggleUnreadOnly => switchToFilter(plurkFilter, !this.isUnreadOnly)
-    case R.id.timelineActionPost => startPostPlurkActivity(); false
-    case R.id.timelineActionLogout => Logout.logout(this.getActivity); false
+    case R.id.fragmentTimelineActionAll => switchToFilter(None, this.isUnreadOnly)
+    case R.id.fragmentTimelineActionMine => switchToFilter(Some(OnlyUser), this.isUnreadOnly)
+    case R.id.fragmentTimelineActionPrivate => switchToFilter(Some(OnlyPrivate), this.isUnreadOnly)
+    case R.id.fragmentTimelineActionResponded => switchToFilter(Some(OnlyResponded), this.isUnreadOnly)
+    case R.id.fragmentTimelineActionFavorite => switchToFilter(Some(OnlyFavorite), this.isUnreadOnly)
+    case R.id.fragmentTimelineActionToggleUnreadOnly => switchToFilter(plurkFilter, !this.isUnreadOnly)
+    case R.id.fragmentTimelineActionPost => startPostPlurkActivity(); false
+    case R.id.fragmentTimelineActionLogout => Logout.logout(this.getActivity); false
     case _ => super.onOptionsItemSelected(item)
   }
 

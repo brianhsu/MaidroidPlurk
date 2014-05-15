@@ -74,16 +74,16 @@ class EditPlurkActivity extends ActionBarActivity
 
   override def onCreateOptionsMenu(menu: Menu): Boolean = {
     val inflater = getMenuInflater
-    inflater.inflate(R.menu.edit_plurk, menu)
+    inflater.inflate(R.menu.activity_edit_plurk, menu)
     super.onCreateOptionsMenu(menu)
   }
 
   override def onOptionsItemSelected(menuItem: MenuItem): Boolean = menuItem.getItemId match {
-    case R.id.editPlurkActionPhotoFromGallery => startPhotoPicker(); false
-    case R.id.editPlurkActionPhotoFromCamera => startCamera(); false
-    case R.id.editPlurkActionEmoticon => toggleEmoticonSelector(); false
-    case R.id.editPlurkActionSend => editPlurk(); false
-    case R.id.editPlurkActionLogout => Logout.logout(this); false
+    case R.id.activityEditPlurkActionPhotoFromGallery => startPhotoPicker(); false
+    case R.id.activityEditPlurkActionPhotoFromCamera => startCamera(); false
+    case R.id.activityEditPlurkActionEmoticon => toggleEmoticonSelector(); false
+    case R.id.activityEditPlurkActionSend => editPlurk(); false
+    case R.id.activityEditPlurkActionLogout => Logout.logout(this); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 
