@@ -36,7 +36,7 @@ object ResponseListActivity {
 
 
 class ResponseListActivity extends ActionBarActivity with TypedViewHolder 
-                           with ResponseList.Listener
+                           with ResponseListFragment.Listener
 {
 
   private implicit def activity = this
@@ -55,7 +55,10 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
     )
 
     val responseListFragment = Try(
-      getSupportFragmentManager.findFragmentById(R.id.activityResponseListFragmentContainer).asInstanceOf[ResponseList]).filter(_ != null)
+      getSupportFragmentManager.
+        findFragmentById(R.id.activityResponseListFragmentContainer).
+        asInstanceOf[ResponseListFragment]
+    ).filter(_ != null)
 
     responseListFragment match {
       case Success(fragment) =>
@@ -68,7 +71,7 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
   }
 
   private def updateFragment() {
-    val fragment = new ResponseList
+    val fragment = new ResponseListFragment
 
     fragment.plurk = ResponseListActivity.plurk
     fragment.owner = ResponseListActivity.user

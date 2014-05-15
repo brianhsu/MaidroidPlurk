@@ -57,7 +57,7 @@ class ResponseView(adapter: ResponseAdapter)(implicit val activity: Activity) ex
 
   private def deleteResponse(response: Response) {
 
-    val activityCallback = activity.asInstanceOf[ResponseList.Listener]
+    val activityCallback = activity.asInstanceOf[ResponseListFragment.Listener]
 
     activityCallback.onDeleteResponse()
 

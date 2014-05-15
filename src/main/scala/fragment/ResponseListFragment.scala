@@ -24,7 +24,7 @@ import org.bone.soplurk.model._
 import scala.concurrent._
 import scala.util.Try
 
-object ResponseList {
+object ResponseListFragment {
 
   trait Listener {
     def onGetResponseSuccess(responses: PlurkResponses): Unit
@@ -35,13 +35,13 @@ object ResponseList {
   }
 }
 
-class ResponseList extends Fragment {
+class ResponseListFragment extends Fragment {
 
   private implicit def activity = getActivity
 
   private def plurkAPI = PlurkAPIHelper.getPlurkAPI(activity)
 
-  private var callbackHolder: Option[ResponseList.Listener] = None
+  private var callbackHolder: Option[ResponseListFragment.Listener] = None
   private lazy val adapter = new ResponseAdapter(activity, plurk, owner)
 
   private def listHolder = Option(getView).map(_.findView(TR.fragmentResponseList))
@@ -59,7 +59,7 @@ class ResponseList extends Fragment {
     super.onAttach(activity)
     callbackHolder = for {
       activity <- Option(activity)
-      callback <- Try(activity.asInstanceOf[ResponseList.Listener]).toOption
+      callback <- Try(activity.asInstanceOf[ResponseListFragment.Listener]).toOption
     } yield callback
   }
 
