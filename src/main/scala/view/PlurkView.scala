@@ -14,10 +14,12 @@ import scala.concurrent._
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.support.v4.app.FragmentActivity
 
 import android.content.Intent
 import android.content.Context
 import android.content.DialogInterface
+import android.content.pm.ActivityInfo
 
 import android.graphics.Bitmap
 import android.text.method.LinkMovementMethod
@@ -349,6 +351,10 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
   }
 
   private def deletePlurk(plurk: Plurk) {
+    val progressDialogFragment = new ProgressDialogFragment("刪除中", "請稍候……")
+    progressDialogFragment.show(activity.asInstanceOf[FragmentActivity].getSupportFragmentManager.beginTransaction, "deleteProgress")
+    val oldRequestedOrientation = activity.getRequestedOrientation
+    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
     val activityCallback = activity.asInstanceOf[TimelineFragment.Listener]
     activityCallback.onDeletePlurk()
@@ -361,9 +367,13 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
     deleteFuture.onSuccessInUI { _ =>
       adapterHolder.foreach(_.deletePlurk(plurk.plurkID))
       activityCallback.onDeletePlurkSuccess()
+      progressDialogFragment.dismiss()
+      activity.setRequestedOrientation(oldRequestedOrientation)
     }
 
     deleteFuture.onFailureInUI { case e: Exception =>
+      progressDialogFragment.dismiss()
+      activity.setRequestedOrientation(oldRequestedOrientation)
       activityCallback.onDeletePlurkFailure(e)
     }
   }

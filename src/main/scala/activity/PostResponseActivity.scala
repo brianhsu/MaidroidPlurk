@@ -151,12 +151,14 @@ class PostResponseActivity extends ActionBarActivity
       responseFuture.onSuccessInUI { _ =>
         setResult(Activity.RESULT_OK)
         progressDialogFragment.dismiss()
+        setRequestedOrientation(oldRequestedOrientation)
         Toast.makeText(this, "已成功發送至噗浪", Toast.LENGTH_LONG).show()
         this.finish()
       }
 
       responseFuture.onFailureInUI { case e: Exception =>
         progressDialogFragment.dismiss()
+        setRequestedOrientation(oldRequestedOrientation)
         if (e.getMessage.contains("No permissions")) {
           dialogFrame.setMessages(
             Message(MaidMaro.Half.Normal, "主人真是對不起，對方好像把這則噗設成只有朋友能夠發文呢……", None) ::

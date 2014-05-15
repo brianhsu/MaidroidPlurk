@@ -213,7 +213,7 @@ class PostPlurkActivity extends ActionBarActivity
     } else {
 
       val progressDialogFragment = new ProgressDialogFragment("發噗中", "請稍候……")
-      progressDialogFragment.show(getSupportFragmentManager.beginTransaction, "uploadFileProgress")
+      progressDialogFragment.show(getSupportFragmentManager.beginTransaction, "postProgress")
       val oldRequestedOrientation = getRequestedOrientation
       setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
@@ -222,6 +222,7 @@ class PostPlurkActivity extends ActionBarActivity
       postedPlurkFuture.onSuccessInUI { case content =>
         setResult(Activity.RESULT_OK)
         progressDialogFragment.dismiss()
+        setRequestedOrientation(oldRequestedOrientation)
         Toast.makeText(this, "已成功發送至噗浪", Toast.LENGTH_LONG).show()
         finish()
       }
@@ -229,6 +230,7 @@ class PostPlurkActivity extends ActionBarActivity
       postedPlurkFuture.onFailureInUI { case e =>
         setResult(Activity.RESULT_CANCELED)
         progressDialogFragment.dismiss()
+        setRequestedOrientation(oldRequestedOrientation)
         dialogFrame.setMessages(
           Message(MaidMaro.Half.Panic, "對不起！小鈴太沒用了，沒辦法順利幫主人把這則噗放到噗浪上……", None) :: 
           Message(MaidMaro.Half.Normal, s"系統說錯誤的原因是：${e}，可不可以請主人檢查一次之後再重新按發送鍵一次呢？") ::

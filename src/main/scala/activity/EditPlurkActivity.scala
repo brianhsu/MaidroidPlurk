@@ -171,6 +171,7 @@ class EditPlurkActivity extends ActionBarActivity
         intent.putExtra(EditPlurkActivity.EditedContentRawBundle, plurk.contentRaw getOrElse null)
         setResult(Activity.RESULT_OK, intent)
         progressDialogFragment.dismiss()
+        setRequestedOrientation(oldRequestedOrientation)
         Toast.makeText(this, "已成功編輯此噗", Toast.LENGTH_LONG).show()
         finish()
       }
@@ -178,6 +179,7 @@ class EditPlurkActivity extends ActionBarActivity
       editedPlurkFuture.onFailureInUI { case e =>
         setResult(Activity.RESULT_CANCELED)
         progressDialogFragment.dismiss()
+        setRequestedOrientation(oldRequestedOrientation)
         dialogFrame.setMessages(
           Message(MaidMaro.Half.Panic, "對不起！小鈴太沒用了，沒辦法順利幫主更新這則噗浪……", None) :: 
           Message(MaidMaro.Half.Normal, s"系統說錯誤的原因是：${e}，可不可以請主人檢查一次之後再重新按發送鍵一次呢？") ::

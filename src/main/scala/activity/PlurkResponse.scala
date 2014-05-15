@@ -13,6 +13,8 @@ import org.bone.soplurk.model._
 import android.app.Activity
 import android.os.Bundle
 import android.content.Intent
+import android.content.pm.ActivityInfo
+
 import android.view.View
 import android.view.Menu
 import android.view.MenuItem
@@ -125,12 +127,23 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
       Message(MaidMaro.Half.Smile, "要刪除這則噗浪嗎？好的，小鈴知道了，請主人稍等一下喔！") :: Nil
     )
 
+    val progressDialogFragment = new ProgressDialogFragment("刪除中", "請稍候……")
+    progressDialogFragment.show(
+      getSupportFragmentManager.beginTransaction, 
+      "deletePlurkProgress"
+    )
+    val oldRequestedOrientation = getRequestedOrientation
+    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
+
+
     val deleteFuture = future {
       plurkAPI.Timeline.plurkDelete(PlurkResponse.plurk.plurkID).get
     }
 
     deleteFuture.onSuccessInUI { _ =>
       TimelineFragment.deletedPlurkIDHolder = Some(PlurkResponse.plurk.plurkID)
+      progressDialogFragment.dismiss()
+      setRequestedOrientation(oldRequestedOrientation)
       finish()
     }
 
@@ -141,7 +154,8 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
         Message(MaidMaro.Half.Normal, s"系統說錯誤是：「${e.getMessage}」造成的說。", None) ::
         Message(MaidMaro.Half.Smile, "主人要不要檢查網路狀態後重新讀取一次試試看呢？") :: Nil
       )
-
+      progressDialogFragment.dismiss()
+      setRequestedOrientation(oldRequestedOrientation)
     }
   }
 
