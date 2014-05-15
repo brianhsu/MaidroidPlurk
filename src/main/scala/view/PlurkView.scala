@@ -387,8 +387,11 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
 
   private def showDeleteConfirmDialog(plurk: Plurk) {
     val alertDialog = 
-      ConfirmDeleteDialog.createDialog(
-        activity, "請問確定要刪除這則噗浪嗎？此動作無法回復喲"
+      ConfirmDialog.createDialog(
+        activity, 
+        "確定要刪除嗎？",
+        "請問確定要刪除這則噗浪嗎？此動作無法回復喲",
+        "刪除"
       ){ deletePlurk(plurk) }
     
     alertDialog.show()

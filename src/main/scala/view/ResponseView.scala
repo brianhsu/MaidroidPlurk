@@ -77,8 +77,11 @@ class ResponseView(adapter: ResponseAdapter)(implicit val activity: Activity) ex
   }
 
   private def showDeleteConfirmDialog(response: Response) {
-    val alertDialog = ConfirmDeleteDialog.createDialog(
-      activity, "請問確定要刪除這則回應嗎？此動作無法回復喲"
+    val alertDialog = ConfirmDialog.createDialog(
+      activity, 
+      "確定要刪除嗎？",
+      "請問確定要刪除這則回應嗎？此動作無法回復喲",
+      "刪除"
     ) { deleteResponse(response) }
     
     alertDialog.show()

@@ -116,13 +116,20 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
     case R.id.responseActionReply => startReplyActivity() ; false
     case R.id.responseActionEdit => startEditActivity() ; false
     case R.id.responseActionDelete => showConfirmDeleteDialog() ; false
-    case R.id.responseActionLogout => Logout.logout(activity); false
+    case R.id.responseActionLogout => logout(); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 
+  private def logout() {
+    Logout.logout(this)
+  }
+
   private def showConfirmDeleteDialog() {
-    val dialog = ConfirmDeleteDialog.createDialog(
-      this, "確定要刪除這則噗浪？這個動作無法回復喲！"
+    val dialog = ConfirmDialog.createDialog(
+      this, 
+      "確定要刪除嗎",
+      "確定要刪除這則噗浪？這個動作無法回復喲！",
+      "刪除"
     ) { deletePlurk() }
     dialog.show()
   }
