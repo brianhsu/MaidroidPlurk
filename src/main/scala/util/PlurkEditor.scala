@@ -1,8 +1,7 @@
-package idv.brianhsu.maidroid.plurk.fragment
+package idv.brianhsu.maidroid.plurk.util
 
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 import idv.brianhsu.maidroid.plurk.view._
-import idv.brianhsu.maidroid.plurk.util.DebugLog
 
 import scala.concurrent._
 
