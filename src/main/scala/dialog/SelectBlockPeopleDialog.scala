@@ -1,4 +1,4 @@
-package idv.brianhsu.maidroid.plurk.fragment
+package idv.brianhsu.maidroid.plurk.dialog
 
 import idv.brianhsu.maidroid.plurk.adapter._
 

@@ -1,6 +1,7 @@
 package idv.brianhsu.maidroid.plurk.util
 
 import idv.brianhsu.maidroid.plurk.activity._
+import idv.brianhsu.maidroid.plurk.dialog._
 import idv.brianhsu.maidroid.plurk.fragment._
 
 import android.content.Intent
