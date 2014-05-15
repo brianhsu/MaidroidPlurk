@@ -1,5 +1,7 @@
 package idv.brianhsu.maidroid.plurk.activity
 
+import idv.brianhsu.maidroid.plurk.view._
+
 import android.app.Activity
 import android.os.Bundle
 import android.content.Intent
@@ -29,6 +31,7 @@ import scala.util.Try
 class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
                     with LoginFragment.Listener 
                     with TimelineFragment.Listener
+                    with PlurkView.Listener
 {
   implicit val activity = this
 
@@ -172,6 +175,11 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
 
       transaction.commit()
     }
+  }
+
+  override def startEditActivity(plurk: Plurk) {
+    val timelineFragment = Try(getSupportFragmentManager.findFragmentById(R.id.activityMaidroidPlurkFragmentContainer).asInstanceOf[TimelineFragment]).filter(_ != null)
+    timelineFragment.foreach(_.startEditActivity(plurk))
   }
 
 }

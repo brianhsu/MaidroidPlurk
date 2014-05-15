@@ -95,5 +95,12 @@ class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false) extend
     plurks = plurks.filterNot(_.plurkID == plurkID)
     notifyDataSetChanged()
   }
+
+  def updatePlurk(plurkID: Long, newContent: String, newContentRaw: Option[String]) {
+    val index = plurks.indexWhere(_.plurkID == plurkID)
+    val newPlurk = plurks(index).copy(content = newContent, contentRaw = newContentRaw)
+    plurks = plurks.updated(index, newPlurk)
+    notifyDataSetChanged()
+  }
 }
 

@@ -1,6 +1,7 @@
 package idv.brianhsu.maidroid.plurk.view
 
 import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.activity._
 import idv.brianhsu.maidroid.plurk.adapter._
 import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.TypedResource._
@@ -14,6 +15,7 @@ import scala.concurrent._
 import android.app.Activity
 import android.app.AlertDialog
 
+import android.content.Intent
 import android.content.Context
 import android.content.DialogInterface
 
@@ -64,6 +66,10 @@ object PlurkView {
   def getPlurkReplurkInfo(plurkID: Long) = plurkReplurkInfo.get(plurkID)
   def getPlurkFavoriteInfo(plurkID: Long) = plurkFavoriteInfo.get(plurkID)
   def getPlurkMutedStatus(plurkID: Long) = plurkMutedStatus.get(plurkID)
+
+  trait Listener {
+    def startEditActivity(plurk: Plurk)
+  }
 }
 
 class PlurkView(adapterHolder: Option[PlurkAdapter] = None, 
@@ -378,6 +384,7 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
           override def onMenuItemSelected(menu: MenuBuilder, item: MenuItem): Boolean = {
             item.getItemId match {
               case R.id.popup_plurk_delete => showDeleteConfirmDialog(plurk); true
+              case R.id.popup_plurk_edit => startEditActivity(plurk); true
               case _ => true
             }
           }
@@ -393,6 +400,10 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
       dropdownMenu.setVisibility(View.GONE)
     }
 
+  }
+
+  private def startEditActivity(plurk: Plurk) {
+    activity.asInstanceOf[PlurkView.Listener].startEditActivity(plurk)
   }
 
   def setAvatarFromCache(avatarBitmap: Bitmap) {
