@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+  <item
+    android:id="@+id/popup_plurk_edit"
+    android:icon="@drawable/ic_action_edit"
+    android:title="編輯"/>
+
+  <item
+    android:id="@+id/popup_plurk_delete"
+    android:icon="@drawable/ic_action_discard"
+    android:title="刪除"/>
+</menu>

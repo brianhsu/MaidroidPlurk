@@ -1,0 +1,6 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+  <item
+    android:id="@+id/popup_comment_delete"
+    android:icon="@drawable/ic_action_discard"
+    android:title="刪除"/>
+</menu>

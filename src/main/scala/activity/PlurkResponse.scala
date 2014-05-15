@@ -2,8 +2,10 @@ package idv.brianhsu.maidroid.plurk.activity
 
 import idv.brianhsu.maidroid.ui.model._
 import idv.brianhsu.maidroid.plurk._
-import idv.brianhsu.maidroid.plurk.util.DebugLog
+import idv.brianhsu.maidroid.plurk.view._
+import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.fragment._
+import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
 import org.bone.soplurk.api.PlurkAPI._
 import org.bone.soplurk.constant.CommentSetting
@@ -12,26 +14,34 @@ import org.bone.soplurk.model._
 import android.app.Activity
 import android.os.Bundle
 import android.content.Intent
+import android.content.pm.ActivityInfo
+
 import android.view.View
 import android.view.Menu
 import android.view.MenuItem
 import android.support.v7.app.ActionBarActivity
 import scala.util.{Try, Success, Failure}
 
+import scala.concurrent._
+
 object PlurkResponse {
   var plurk: Plurk = _
   var user: User = _
 
   val RequestPostResponse = 1
+  val RequestEditPlurk = 2
+
 }
 
 class PlurkResponse extends ActionBarActivity with TypedViewHolder 
                     with ResponseList.Listener
 {
 
+  private implicit def activity = this
   private var showWelcomeMessage = true
   private lazy val dialogFrame = findView(TR.activityPlurkResponseDialogFrame)
   private lazy val fragmentContainer = findView(TR.activityPlurkResponseFragmentContainer)
+  private lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
 
   override def onCreate(savedInstanceState: Bundle) {
 
@@ -84,21 +94,87 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
   }
 
   override def onPrepareOptionsMenu(menu: Menu): Boolean = {
+    val isPostedByCurrentUser = PlurkResponse.plurk.ownerID == PlurkResponse.plurk.userID
     val replyButton = menu.findItem(R.id.responseActionReply)
     replyButton.setEnabled(hasResponsePermission)
     replyButton.setVisible(hasResponsePermission)
+
+    val editButton = menu.findItem(R.id.responseActionEdit)
+    val deleteButton = menu.findItem(R.id.responseActionDelete)
+
+    editButton.setEnabled(isPostedByCurrentUser)
+    editButton.setVisible(isPostedByCurrentUser)
+
+    deleteButton.setEnabled(isPostedByCurrentUser)
+    deleteButton.setVisible(isPostedByCurrentUser)
+
     super.onPrepareOptionsMenu(menu)
   }
 
   override def onOptionsItemSelected(menuItem: MenuItem): Boolean = menuItem.getItemId match {
     case R.id.responseActionReply => startReplyActivity() ; false
+    case R.id.responseActionEdit => startEditActivity() ; false
+    case R.id.responseActionDelete => showConfirmDeleteDialog() ; false
     case _ => super.onOptionsItemSelected(menuItem)
+  }
+
+  private def showConfirmDeleteDialog() {
+    val dialog = ConfirmDeleteDialog.createDialog(
+      this, "確定要刪除這則噗浪？這個動作無法回復喲！"
+    ) { deletePlurk() }
+    dialog.show()
+  }
+
+  private def deletePlurk() {
+
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Smile, "要刪除這則噗浪嗎？好的，小鈴知道了，請主人稍等一下喔！") :: Nil
+    )
+
+    val progressDialogFragment = new ProgressDialogFragment("刪除中", "請稍候……")
+    progressDialogFragment.show(
+      getSupportFragmentManager.beginTransaction, 
+      "deletePlurkProgress"
+    )
+    val oldRequestedOrientation = getRequestedOrientation
+    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
+
+
+    val deleteFuture = future {
+      plurkAPI.Timeline.plurkDelete(PlurkResponse.plurk.plurkID).get
+    }
+
+    deleteFuture.onSuccessInUI { _ =>
+      TimelineFragment.deletedPlurkIDHolder = Some(PlurkResponse.plurk.plurkID)
+      progressDialogFragment.dismiss()
+      setRequestedOrientation(oldRequestedOrientation)
+      finish()
+    }
+
+    deleteFuture.onFailureInUI { case e: Exception =>
+      DebugLog("====> deletePlurkFailure....", e)
+      dialogFrame.setMessages(
+        Message(MaidMaro.Half.Normal, "真是對不起，小鈴沒辦刪除這則噗浪耶……", None) ::
+        Message(MaidMaro.Half.Normal, s"系統說錯誤是：「${e.getMessage}」造成的說。", None) ::
+        Message(MaidMaro.Half.Smile, "主人要不要檢查網路狀態後重新讀取一次試試看呢？") :: Nil
+      )
+      progressDialogFragment.dismiss()
+      setRequestedOrientation(oldRequestedOrientation)
+    }
   }
 
   private def startReplyActivity() {
     val intent = new Intent(this, classOf[PostResponseActivity])
     intent.putExtra(PostResponseActivity.PlurkIDBundle, PlurkResponse.plurk.plurkID)
     startActivityForResult(intent, PlurkResponse.RequestPostResponse)
+  }
+
+  private def startEditActivity() {
+    val intent = new Intent(this, classOf[EditPlurkActivity])
+    intent.putExtra(EditPlurkActivity.PlurkIDBundle, PlurkResponse.plurk.plurkID)
+    intent.putExtra(EditPlurkActivity.ContentRawBundle, PlurkResponse.plurk.contentRaw getOrElse "")
+
+    startActivityForResult(intent, PlurkResponse.RequestEditPlurk)
   }
 
   override def onGetResponseSuccess(responses: PlurkResponses) {
@@ -124,11 +200,32 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
   }
 
   override def onGetResponseFailure(e: Exception) {
-    DebugLog("====> onGetResponseFailure....")
+    DebugLog("====> onGetResponseFailure....", e)
     dialogFrame.setMessages(
       Message(MaidMaro.Half.Normal, "好像怪怪的，沒辦法讀噗浪上的回應耶……", None) ::
       Message(MaidMaro.Half.Normal, s"系統說錯誤是：「${e.getMessage}」造成的說。", None) ::
       Message(MaidMaro.Half.Smile, "主人要不要檢查網路狀態後重新讀取一次試試看呢？") :: Nil
+    )
+  }
+
+  override def onDeleteResponseFailure(e: Exception) {
+    DebugLog("====> onDeleteResponseFailure....", e)
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Normal, "真是對不起，小鈴沒辦刪除這則回應耶……", None) ::
+      Message(MaidMaro.Half.Normal, s"系統說錯誤是：「${e.getMessage}」造成的說。", None) ::
+      Message(MaidMaro.Half.Smile, "主人要不要檢查網路狀態後重新讀取一次試試看呢？") :: Nil
+    )
+  }
+
+  override def onDeleteResponse() {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Smile, "要刪除這則回應嗎？好的，小鈴知道了，請主人稍等一下喔！") :: Nil
+    )
+  }
+
+  override def onDeleteResponseSuccess() {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Happy, "小鈴已經順利幫主把這則回應刪除了喲！") :: Nil
     )
   }
 
@@ -137,7 +234,7 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
     super.onActivityResult(requestCode, resultCode, data)
 
     requestCode match {
-      case PlurkResponse.RequestPostResponse => 
+      case PlurkResponse.RequestPostResponse if resultCode == Activity.RESULT_OK => 
         showWelcomeMessage = false
         updateFragment()
         dialogFrame.setMessages(
@@ -145,6 +242,20 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
           Message(MaidMaro.Half.Smile, "有了主人的參與，這個討論一定會更有趣的。", None) ::
           Nil
         )
+      case PlurkResponse.RequestEditPlurk if resultCode == Activity.RESULT_OK => 
+        DebugLog("====> XXXXXXX")
+        val plurkID = data.getLongExtra(EditPlurkActivity.PlurkIDBundle, -1)
+        val newContent = data.getStringExtra(EditPlurkActivity.EditedContentBundle)
+        val newContentRaw = Option(data.getStringExtra(EditPlurkActivity.EditedContentRawBundle))
+
+        if (plurkID != -1) {
+          PlurkView.updatePlurk(plurkID, newContent, newContentRaw)
+          PlurkResponse.plurk = PlurkResponse.plurk.copy(
+            content = newContent, contentRaw = newContentRaw
+          )
+          updateFragment()
+        }
+
       case _ => 
     }
   }

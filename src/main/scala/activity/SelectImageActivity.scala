@@ -114,7 +114,7 @@ trait SelectImageActivity {
   }
 
   protected def uploadToPlurk(file: File) = {
-    val resizedBitmap = ImageSampleFactor.resizeImageFile(file, 800)
+    val resizedBitmap = ImageSampleFactor.resizeImageFile(file, 800, true)
     val thumbnailBitmap = ImageSampleFactor.resizeImageFile(file, 100, true)
 
     val randomUUID = UUID.randomUUID.toString

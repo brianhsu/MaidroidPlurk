@@ -4,9 +4,23 @@
   xmlns:maidroid="http://schemas.android.com/apk/res-auto">
 
   <item
+    android:icon="@drawable/ic_action_discard"
+    android:id="@+id/responseActionDelete"
+    android:title="刪除"
+    maidroid:showAsAction="ifRoom" />
+
+  <item
+    android:icon="@drawable/ic_action_edit"
+    android:id="@+id/responseActionEdit"
+    android:title="編輯"
+    maidroid:showAsAction="ifRoom" />
+
+
+  <item
     android:icon="@drawable/ic_action_reply"
     android:id="@+id/responseActionReply"
     android:title="回噗"
     maidroid:showAsAction="always" />
+
 
 </menu>

@@ -22,33 +22,41 @@ import android.app.AlertDialog
 import android.content.DialogInterface
 import android.widget.Toast
 
-object PostResponseActivity {
-  val PlurkIDBundle = "idv.brianhsu.maidroid.plurk.PostResponseActivity.plurkID"
+import scala.concurrent._
+
+object EditPlurkActivity {
+  val PlurkIDBundle = "idv.brianhsu.maidroid.plurk.EditPlurkActivity.plurkID"
+  val ContentRawBundle = "idv.brianhsu.maidroid.plurk.EditPlurkActivity.contentRaw"
+  val EditedContentBundle = "idv.brianhsu.maidroid.plurk.EditPlurkActivity.editedContent"
+  val EditedContentRawBundle = "idv.brianhsu.maidroid.plurk.EditPlurkActivity.editedContentRaw"
 }
 
-class PostResponseActivity extends ActionBarActivity 
+class EditPlurkActivity extends ActionBarActivity 
                            with SelectImageActivity 
                            with SelectEmoticonActivity
                            with EmoticonFragment.Listener
                            with TypedViewHolder 
 {
-  protected val emoticonFragmentHolderResID = R.id.activityPostResponseEmtoicon
-  protected lazy val editorFragment = new PostResponseFragment
-  protected lazy val dialogFrame = findView(TR.activityPostResponseDialogFrame)
+ 
+  private lazy val plurkID = getIntent.getLongExtra(EditPlurkActivity.PlurkIDBundle, -1)
+  private lazy val rawContent = getIntent.getStringExtra(EditPlurkActivity.ContentRawBundle)
+
+  protected val emoticonFragmentHolderResID = R.id.activityEditPlurkEmtoicon
+  protected lazy val editorFragment = new EditPlurkFragment(rawContent)
+  protected lazy val dialogFrame = findView(TR.activityEditPlurkDialogFrame)
   protected lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
-  private lazy val plurkID = getIntent.getLongExtra(PostResponseActivity.PlurkIDBundle, -1)
 
   def getCurrentEditor = getSupportFragmentManager.
-    findFragmentById(R.id.activityPostResponseFragmentContainer).asInstanceOf[PlurkEditor]
+    findFragmentById(R.id.activityEditPlurkFragmentContainer).asInstanceOf[PlurkEditor]
 
   override def onCreate(savedInstanceState: Bundle) {
     super.onCreate(savedInstanceState)
-    setContentView(R.layout.activity_post_response)
+    setContentView(R.layout.activity_edit_plurk)
 
     if (getCurrentEditor == null) {
       getSupportFragmentManager.
         beginTransaction.
-        replace(R.id.activityPostResponseFragmentContainer, editorFragment).
+        replace(R.id.activityEditPlurkFragmentContainer, editorFragment).
         commit()
     }
 
@@ -60,22 +68,22 @@ class PostResponseActivity extends ActionBarActivity
     }
 
     dialogFrame.setMessages(
-      Message(MaidMaro.Half.Smile, "小鈴已經準備好幫主人回應訊息了，如果主人準備好要發送的話，請再告訴我一聲喲！", None) ::
+      Message(MaidMaro.Half.Normal, "主人不滿意這則噗嗎？小鈴知道了，請主人編輯完成後再通知我一聲喲！", None) ::
       Nil
     )
   }
 
   override def onCreateOptionsMenu(menu: Menu): Boolean = {
     val inflater = getMenuInflater
-    inflater.inflate(R.menu.post_plurk, menu)
+    inflater.inflate(R.menu.edit_plurk, menu)
     super.onCreateOptionsMenu(menu)
   }
 
   override def onOptionsItemSelected(menuItem: MenuItem): Boolean = menuItem.getItemId match {
-    case R.id.postPlurkActionPhotoFromGallery => startPhotoPicker(); false
-    case R.id.postPlurkActionPhotoFromCamera => startCamera(); false
-    case R.id.postPlurkActionEmoticon => toggleEmoticonSelector(); false
-    case R.id.postPlurkActionSend => postResponse(); false
+    case R.id.editPlurkActionPhotoFromGallery => startPhotoPicker(); false
+    case R.id.editPlurkActionPhotoFromCamera => startCamera(); false
+    case R.id.editPlurkActionEmoticon => toggleEmoticonSelector(); false
+    case R.id.editPlurkActionSend => editPlurk(); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 
@@ -94,13 +102,13 @@ class PostResponseActivity extends ActionBarActivity
     val alertDialog = new AlertDialog.Builder(this).
                         setCancelable(true).
                         setTitle("取消").
-                        setMessage("確定要取消回應嗎？這會造成目前的內容永遠消失喲！")
+                        setMessage("確定要退出嗎？這會造成目前的內容永遠消失喲！")
 
     alertDialog.setPositiveButton("是", new DialogInterface.OnClickListener() {
       override def onClick(dialog: DialogInterface, which: Int) {
         setResult(Activity.RESULT_CANCELED)
         dialog.dismiss()
-        PostResponseActivity.this.finish()
+        EditPlurkActivity.this.finish()
       }
     })
 
@@ -126,54 +134,60 @@ class PostResponseActivity extends ActionBarActivity
     outState.putBoolean(SelectEmoticonActivity.IsEmoticonSelectorShown, isSelectorShown)
   }
 
-  private def postResponse() {
+  private def editPlurk() {
     val contentLength = getCurrentEditor.getContentLength
 
     if (contentLength == 0) {
       dialogFrame.setMessages(
-        Message(MaidMaro.Half.Normal, "主人沒有寫任何東西呢，主人是不是不小心按到發送鍵了啊？ ", None) ::
-        Message(MaidMaro.Half.Happy, "不過沒關係的，等主人準備好了之後歡迎隨時告訴小鈴喲！") ::
+        Message(MaidMaro.Half.Normal, "主人還沒有填寫內容呢，這樣小鈴沒辦法幫主人發到噗浪上喲……", None) :: 
         Nil
       )
+
     } else if (contentLength > 210) {
+
       dialogFrame.setMessages(
-        Message(MaidMaro.Half.Normal, "對不起，主人的發言超過噗浪上限的 210 字元呢……", None) ::
-        Message(MaidMaro.Half.Normal, "可能要麻煩主人稍微刪除一些內容，或是分成兩篇回應喲。") ::
+        Message(MaidMaro.Half.Normal, "對不起，字數超過噗浪的 210 個字元的上限了呢……", None) ::
+        Message(MaidMaro.Half.Smile, "主人要不要先刪除一些贅字，或試著寫得精鍊一些呢？", None) ::
         Nil
       )
-    } else if (plurkID != -1) {
-      val progressDialogFragment = new ProgressDialogFragment("發噗中", "請稍候……")
-      progressDialogFragment.show(getSupportFragmentManager.beginTransaction, "uploadFileProgress")
+
+    } else {
+
+      val progressDialogFragment = new ProgressDialogFragment("編輯中", "請稍候……")
+      progressDialogFragment.show(getSupportFragmentManager.beginTransaction, "editPlurkProgress")
       val oldRequestedOrientation = getRequestedOrientation
       setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
-      val responseFuture = getCurrentEditor.postResponse(plurkID)
-      responseFuture.onSuccessInUI { _ =>
-        setResult(Activity.RESULT_OK)
-        progressDialogFragment.dismiss()
-        setRequestedOrientation(oldRequestedOrientation)
-        Toast.makeText(this, "已成功發送至噗浪", Toast.LENGTH_LONG).show()
-        this.finish()
+      val editedPlurkFuture = future {
+        val newContent = getCurrentEditor.getEditorContent.map(_._1.toString) getOrElse this.rawContent
+        val newPlurk = plurkAPI.Timeline.plurkEdit(plurkID, newContent).get
+        newPlurk
       }
 
-      responseFuture.onFailureInUI { case e: Exception =>
+      editedPlurkFuture.onSuccessInUI { case plurk =>
+        val intent = new Intent
+        intent.putExtra(EditPlurkActivity.PlurkIDBundle, plurk.plurkID)
+        intent.putExtra(EditPlurkActivity.EditedContentBundle, plurk.content)
+        intent.putExtra(EditPlurkActivity.EditedContentRawBundle, plurk.contentRaw getOrElse null)
+        setResult(Activity.RESULT_OK, intent)
         progressDialogFragment.dismiss()
         setRequestedOrientation(oldRequestedOrientation)
-        if (e.getMessage.contains("No permissions")) {
-          dialogFrame.setMessages(
-            Message(MaidMaro.Half.Normal, "主人真是對不起，對方好像把這則噗設成只有朋友能夠發文呢……", None) ::
-            Message(MaidMaro.Half.Normal, "都怪小鈴沒事先提醒主人，真是抱歉。", None) :: 
-            Nil
-          )
-        } else {
-          dialogFrame.setMessages(
-            Message(MaidMaro.Half.Panic, "對不起！小鈴太沒用了，沒辦法順利幫主人把這則回應發到噗浪上……", None) :: 
-            Message(MaidMaro.Half.Normal, s"系統說錯誤的原因是：${e}，可不可以請主人檢查一次之後再重新按發送鍵一次呢？", None) ::
-            Nil
-          )
-        }
+        Toast.makeText(this, "已成功編輯此噗", Toast.LENGTH_LONG).show()
+        finish()
+      }
+
+      editedPlurkFuture.onFailureInUI { case e =>
+        setResult(Activity.RESULT_CANCELED)
+        progressDialogFragment.dismiss()
+        setRequestedOrientation(oldRequestedOrientation)
+        dialogFrame.setMessages(
+          Message(MaidMaro.Half.Panic, "對不起！小鈴太沒用了，沒辦法順利幫主更新這則噗浪……", None) :: 
+          Message(MaidMaro.Half.Normal, s"系統說錯誤的原因是：${e}，可不可以請主人檢查一次之後再重新按發送鍵一次呢？") ::
+          Nil
+        )
       }
     }
+
   }
 
 }

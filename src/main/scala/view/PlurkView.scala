@@ -1,6 +1,8 @@
 package idv.brianhsu.maidroid.plurk.view
 
 import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.activity._
+import idv.brianhsu.maidroid.plurk.adapter._
 import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.plurk.cache._
@@ -11,13 +13,23 @@ import idv.brianhsu.maidroid.ui.util.CallbackConversions._
 import scala.concurrent._
 
 import android.app.Activity
+import android.app.AlertDialog
+import android.support.v4.app.FragmentActivity
+
+import android.content.Intent
 import android.content.Context
+import android.content.DialogInterface
+import android.content.pm.ActivityInfo
+
 import android.graphics.Bitmap
 import android.text.method.LinkMovementMethod
 import android.text.Html
 import android.view.View
+import android.view.MenuItem
+
 import android.view.LayoutInflater
 import android.widget.LinearLayout
+import android.support.v7.internal.view.menu.MenuBuilder
 
 import org.bone.soplurk.api.PlurkAPI._
 import org.bone.soplurk.constant.ReadStatus._
@@ -35,6 +47,13 @@ object PlurkView {
   private var plurkMutedStatus: Map[Long, Boolean] = Map.empty
   private var plurkFavoriteInfo: Map[Long, FavoriteInfo] = Map.empty
   private var plurkReplurkInfo: Map[Long, ReplurkInfo] = Map.empty
+  private var plurkContentInfo: Map[Long, (String, Option[String])] = Map.empty
+
+  def getNewPlurkContents = plurkContentInfo
+
+  def updatePlurk(plurkID: Long, content: String, contentRaw: Option[String]) {
+    plurkContentInfo += (plurkID -> (content, contentRaw))
+  }
 
   def updatePlurkCommentInfo(plurkID: Long, newCount: Int, newReadStatus: Boolean) {
     plurkCommentCount += (plurkID -> newCount)
@@ -56,9 +75,14 @@ object PlurkView {
   def getPlurkReplurkInfo(plurkID: Long) = plurkReplurkInfo.get(plurkID)
   def getPlurkFavoriteInfo(plurkID: Long) = plurkFavoriteInfo.get(plurkID)
   def getPlurkMutedStatus(plurkID: Long) = plurkMutedStatus.get(plurkID)
+
+  trait Listener {
+    def startEditActivity(plurk: Plurk)
+  }
 }
 
-class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activity)
+class PlurkView(adapterHolder: Option[PlurkAdapter] = None, 
+                isInResponseList: Boolean = false)(implicit val activity: Activity)
                 extends LinearLayout(activity) {
 
   private val inflater = activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE).
@@ -80,6 +104,7 @@ class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activi
   lazy val replurkerName = this.findView(TR.itemPlurkReplurkerName)
   lazy val replurkerBlock = this.findView(TR.itemPlurkReplurkerBlock)
   lazy val lockIcon = this.findView(TR.itemPlurkLockIcon)
+  lazy val dropdownMenu = this.findView(TR.itemPlurkDropdownMenu)
 
   private var ownerID: Long = 0
   private var owner: User = _
@@ -290,7 +315,9 @@ class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activi
     }
   }
 
-  def update(plurk: Plurk, owner: User, replurker: Option[User], imageGetter: PlurkImageGetter): View = {
+  def update(plurk: Plurk, owner: User, replurker: Option[User], 
+             imageGetter: PlurkImageGetter): View = {
+
     this.ownerID = owner.id
     this.owner = owner
     this.replurker = replurker
@@ -326,7 +353,74 @@ class PlurkView(isInResponseList: Boolean = false)(implicit val activity: Activi
     setReplurkerInfo(plurk)
     setFavoriteInfo(plurk)
     setMuteInfo(plurk)
+    setDropdownMenu(plurk)
     this
+  }
+
+  private def deletePlurk(plurk: Plurk) {
+    val progressDialogFragment = new ProgressDialogFragment("刪除中", "請稍候……")
+    progressDialogFragment.show(activity.asInstanceOf[FragmentActivity].getSupportFragmentManager.beginTransaction, "deleteProgress")
+    val oldRequestedOrientation = activity.getRequestedOrientation
+    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
+
+    val activityCallback = activity.asInstanceOf[TimelineFragment.Listener]
+    activityCallback.onDeletePlurk()
+
+    val deleteFuture = future {
+      plurkAPI.Timeline.plurkDelete(plurk.plurkID).get
+    }
+
+
+    deleteFuture.onSuccessInUI { _ =>
+      adapterHolder.foreach(_.deletePlurk(plurk.plurkID))
+      activityCallback.onDeletePlurkSuccess()
+      progressDialogFragment.dismiss()
+      activity.setRequestedOrientation(oldRequestedOrientation)
+    }
+
+    deleteFuture.onFailureInUI { case e: Exception =>
+      progressDialogFragment.dismiss()
+      activity.setRequestedOrientation(oldRequestedOrientation)
+      activityCallback.onDeletePlurkFailure(e)
+    }
+  }
+
+  private def showDeleteConfirmDialog(plurk: Plurk) {
+    val alertDialog = 
+      ConfirmDeleteDialog.createDialog(
+        activity, "請問確定要刪除這則噗浪嗎？此動作無法回復喲"
+      ){ deletePlurk(plurk) }
+    
+    alertDialog.show()
+  }
+
+  private def setDropdownMenu(plurk: Plurk) {
+    if (!isInResponseList && plurk.userID == plurk.ownerID) {
+      dropdownMenu.setOnClickListener { button: View =>
+        val popupMenu = new test.MyPopupMenu(activity, button) {
+          override def onMenuItemSelected(menu: MenuBuilder, item: MenuItem): Boolean = {
+            item.getItemId match {
+              case R.id.popup_plurk_delete => showDeleteConfirmDialog(plurk); true
+              case R.id.popup_plurk_edit => startEditActivity(plurk); true
+              case _ => true
+            }
+          }
+        }
+        popupMenu.getMenuInflater.inflate(R.menu.popup_plurk, popupMenu.getMenu)
+        popupMenu.show()
+      }
+      dropdownMenu.setEnabled(true)
+      dropdownMenu.setVisibility(View.VISIBLE)
+
+    } else {
+      dropdownMenu.setEnabled(false)
+      dropdownMenu.setVisibility(View.GONE)
+    }
+
+  }
+
+  private def startEditActivity(plurk: Plurk) {
+    activity.asInstanceOf[PlurkView.Listener].startEditActivity(plurk)
   }
 
   def setAvatarFromCache(avatarBitmap: Bitmap) {

@@ -1,6 +1,7 @@
 package idv.brianhsu.maidroid.plurk.fragment
 
 import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.activity._
 import idv.brianhsu.maidroid.plurk.adapter._
 import idv.brianhsu.maidroid.plurk.activity._
 import idv.brianhsu.maidroid.plurk.cache._
@@ -50,14 +51,21 @@ object TimelineFragment {
   private var isUnreadOnly: Boolean = false
   private var plurkFilter: Option[Filter] = None
 
+  var deletedPlurkIDHolder: Option[Long] = None
+
   trait Listener {
     def onShowTimelinePlurksFailure(e: Exception): Unit
     def onShowTimelinePlurksSuccess(timeline: Timeline, isNewFilter: Boolean, filter: Option[Filter], isOnlyUnread: Boolean): Unit
     def onRefreshTimelineSuccess(newTimeline: Timeline): Unit
     def onRefreshTimelineFailure(e: Exception): Unit
+    def onDeletePlurk(): Unit
+    def onDeletePlurkSuccess(): Unit
+    def onDeletePlurkFailure(e: Exception): Unit
   }
 
-  val REQUEST_POST_PLURK = 1
+  val RequestPostPlurk = 1
+  val RequestEditPlurk = 2
+
 }
 
 class TimelineFragment extends Fragment {
@@ -135,6 +143,7 @@ class TimelineFragment extends Fragment {
     super.onViewStateRestored(savedInstanceState)
   }
 
+
   override def onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
     val actionMenu = inflater.inflate(R.menu.timeline, menu)
     this.toggleButtonHolder = Option(menu.findItem(R.id.timelineActionToggleUnreadOnly))
@@ -158,7 +167,21 @@ class TimelineFragment extends Fragment {
   }
 
   override def onResume() {
-    adapterHolder.foreach(_.notifyDataSetChanged())
+
+    for {
+      plurkID <- TimelineFragment.deletedPlurkIDHolder
+      adapter <- adapterHolder
+    } {
+      adapter.deletePlurk(plurkID)
+      TimelineFragment.deletedPlurkIDHolder = None
+      callbackHolder.foreach(_.onDeletePlurkSuccess())
+    }
+
+    DebugLog("====> TimelineFragment.notifyDataSetChanged")
+
+    adapterHolder.foreach { adapter =>
+      adapter.updatePlurkContent()
+    }
     super.onResume()
   }
 
@@ -326,19 +349,30 @@ class TimelineFragment extends Fragment {
   }
 
   override def onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
-    if (requestCode == TimelineFragment.REQUEST_POST_PLURK && 
-        resultCode == Activity.RESULT_OK) {
-      Toast.makeText(this.getActivity, "發噗成功", Toast.LENGTH_SHORT)
-      pullToRefreshHolder.foreach { pullToRefresh =>
-        pullToRefresh.setRefreshing(true)
-        refreshTimeline()
-      }
+
+    requestCode match {
+      case TimelineFragment.RequestPostPlurk if resultCode == Activity.RESULT_OK =>
+        Toast.makeText(this.getActivity, "發噗成功", Toast.LENGTH_SHORT)
+        pullToRefreshHolder.foreach { pullToRefresh =>
+          pullToRefresh.setRefreshing(true)
+          refreshTimeline()
+        }
+      case TimelineFragment.RequestEditPlurk if resultCode == Activity.RESULT_OK =>
+
+        val plurkID = data.getLongExtra(EditPlurkActivity.PlurkIDBundle, -1)
+        val newContent = data.getStringExtra(EditPlurkActivity.EditedContentBundle)
+        val newContentRaw = Option(data.getStringExtra(EditPlurkActivity.EditedContentBundle))
+
+        if (plurkID != -1) {
+          adapterHolder.foreach(_.updatePlurk(plurkID, newContent, newContentRaw))
+        }
+      case _ =>
     }
   }
 
   private def startPostPlurkActivity() = {
     val intent = new Intent(activity, classOf[PostPlurkActivity])
-    startActivityForResult(intent, TimelineFragment.REQUEST_POST_PLURK)
+    startActivityForResult(intent, TimelineFragment.RequestPostPlurk)
     false
   }
 
@@ -377,6 +411,13 @@ class TimelineFragment extends Fragment {
       callbackHolder.foreach(_.onShowTimelinePlurksFailure(e))
       showErrorNotice("無法讀取噗浪河道資料")
     }
+  }
+
+  def startEditActivity(plurk: Plurk) {
+    val intent = new Intent(activity, classOf[EditPlurkActivity])
+    intent.putExtra(EditPlurkActivity.PlurkIDBundle, plurk.plurkID)
+    intent.putExtra(EditPlurkActivity.ContentRawBundle, plurk.contentRaw getOrElse "")
+    startActivityForResult(intent, TimelineFragment.RequestEditPlurk)
   }
 }
 

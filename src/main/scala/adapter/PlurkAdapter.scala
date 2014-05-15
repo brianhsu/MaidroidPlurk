@@ -42,7 +42,7 @@ class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false) extend
 
     val itemView = convertView match {
       case view: PlurkView => view
-      case _ => new PlurkView(isInResponseList)
+      case _ => new PlurkView(Some(this), isInResponseList)
     }
 
     val plurk = plurks(position)
@@ -57,7 +57,6 @@ class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false) extend
       val intent = new Intent(activity, classOf[PlurkResponse])
       PlurkResponse.plurk = plurk
       PlurkResponse.user = owner
-      intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
       activity.startActivity(intent)
     }
     itemView
@@ -91,5 +90,24 @@ class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false) extend
   }
 
   def lastPlurkDate = plurks.lastOption.map(_.posted)
+
+  def deletePlurk(plurkID: Long) {
+    plurks = plurks.filterNot(_.plurkID == plurkID)
+    notifyDataSetChanged()
+  }
+
+  def updatePlurk(plurkID: Long, newContent: String, newContentRaw: Option[String]) {
+    val index = plurks.indexWhere(_.plurkID == plurkID)
+    val newPlurk = plurks(index).copy(content = newContent, contentRaw = newContentRaw)
+    plurks = plurks.updated(index, newPlurk)
+    notifyDataSetChanged()
+  }
+
+  def updatePlurkContent() {
+    for ((plurkID, contentInfo) <- PlurkView.getNewPlurkContents) {
+      updatePlurk(plurkID, contentInfo._1, contentInfo._2)
+    }
+    notifyDataSetChanged()
+  }
 }
 

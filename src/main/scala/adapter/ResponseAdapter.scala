@@ -58,7 +58,7 @@ class ResponseAdapter(activity: Activity, plurk: Plurk, owner: User) extends Bas
 
     val itemView = convertView match {
       case view: PlurkView => view
-      case _ => new PlurkView(true)
+      case _ => new PlurkView(isInResponseList = true)
     }
 
     itemView.update(plurk, owner, replurker, textViewImageGetter)
@@ -69,11 +69,15 @@ class ResponseAdapter(activity: Activity, plurk: Plurk, owner: User) extends Bas
 
     val itemView = convertView match {
       case view: ResponseView => view
-      case _ => new ResponseView
+      case _ => new ResponseView(this)
     }
 
     val owner = friendsHolder.get(response.userID)
-    itemView.update(response, owner, textViewImageGetter)
+    val isDeletable = 
+      (plurk.userID == plurk.ownerID)  || // Comment is in current user's plurk
+      (plurk.userID == response.userID)   // Comment wrote by current user
+
+    itemView.update(response, owner, isDeletable, textViewImageGetter)
     itemView
   }
 
@@ -111,5 +115,16 @@ class ResponseAdapter(activity: Activity, plurk: Plurk, owner: User) extends Bas
     this.friendsHolder = Some(friends)
     notifyDataSetChanged()
   }
+
+  def deleteResponse(responseID: Long) {
+    this.responsesHolder = this.responsesHolder.map(_.filterNot(_.id == responseID))
+    PlurkView.updatePlurkCommentInfo(
+      plurk.plurkID, 
+      this.responsesHolder.map(_.size).getOrElse(0), 
+      true
+    )
+    notifyDataSetChanged()
+  }
+
 }
 
