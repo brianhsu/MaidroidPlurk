@@ -37,5 +37,9 @@
     android:title="發新噗"
     maidroid:showAsAction="always" />
 
+  <item
+    android:id="@+id/timelineActionLogout"
+    android:title="登出"
+    maidroid:showAsAction="never" />
 
 </menu>

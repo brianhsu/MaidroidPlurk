@@ -15,12 +15,15 @@
     android:title="編輯"
     maidroid:showAsAction="ifRoom" />
 
-
   <item
     android:icon="@drawable/ic_action_reply"
     android:id="@+id/responseActionReply"
     android:title="回噗"
     maidroid:showAsAction="always" />
 
+  <item
+    android:id="@+id/responseActionLogout"
+    android:title="登出"
+    maidroid:showAsAction="never" />
 
 </menu>

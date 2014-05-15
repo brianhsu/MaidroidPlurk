@@ -84,6 +84,7 @@ class EditPlurkActivity extends ActionBarActivity
     case R.id.editPlurkActionPhotoFromCamera => startCamera(); false
     case R.id.editPlurkActionEmoticon => toggleEmoticonSelector(); false
     case R.id.editPlurkActionSend => editPlurk(); false
+    case R.id.editPlurkActionLogout => Logout.logout(this); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 

@@ -33,4 +33,9 @@
     android:icon="@drawable/ic_action_send_now"
     maidroid:showAsAction="always" />
 
+  <item
+    android:id="@+id/postPlurkActionLogout"
+    android:title="登出"
+    maidroid:showAsAction="never" />
+
 </menu>

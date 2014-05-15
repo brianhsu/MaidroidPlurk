@@ -33,6 +33,7 @@ object PlurkResponse {
 
 }
 
+
 class PlurkResponse extends ActionBarActivity with TypedViewHolder 
                     with ResponseList.Listener
 {
@@ -115,6 +116,7 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
     case R.id.responseActionReply => startReplyActivity() ; false
     case R.id.responseActionEdit => startEditActivity() ; false
     case R.id.responseActionDelete => showConfirmDeleteDialog() ; false
+    case R.id.responseActionLogout => Logout.logout(activity); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 

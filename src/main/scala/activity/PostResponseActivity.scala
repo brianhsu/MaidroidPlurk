@@ -76,6 +76,7 @@ class PostResponseActivity extends ActionBarActivity
     case R.id.postPlurkActionPhotoFromCamera => startCamera(); false
     case R.id.postPlurkActionEmoticon => toggleEmoticonSelector(); false
     case R.id.postPlurkActionSend => postResponse(); false
+    case R.id.postPlurkActionLogout => Logout.logout(this); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 

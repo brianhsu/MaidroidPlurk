@@ -131,7 +131,7 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
     if (PlurkAPIHelper.isLoggedIn(this)) {
       switchToFragment(new TimelineFragment)
     } else {
-      switchToFragment(new LoginFragment, true)
+      switchToFragment(new LoginFragment, isForcing = true)
     }
   }
 

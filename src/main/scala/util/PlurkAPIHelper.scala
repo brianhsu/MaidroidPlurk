@@ -43,6 +43,15 @@ object PlurkAPIHelper {
 
   def isLoggedIn(context: Context) = savedAccessToken(context).isDefined
 
+  def logout(context: Context) {
+    val preferenceEditor = 
+      context.getSharedPreferences("AccessToken", Context.MODE_PRIVATE).edit
+
+    preferenceEditor.clear()
+    preferenceEditor.commit()
+
+  }
+
   def saveAccessToken(context: Context) {
     val preferenceEditor = 
       context.getSharedPreferences("AccessToken", Context.MODE_PRIVATE).edit

@@ -344,7 +344,8 @@ class TimelineFragment extends Fragment {
     case R.id.timelineActionResponded => switchToFilter(Some(OnlyResponded), this.isUnreadOnly)
     case R.id.timelineActionFavorite => switchToFilter(Some(OnlyFavorite), this.isUnreadOnly)
     case R.id.timelineActionToggleUnreadOnly => switchToFilter(plurkFilter, !this.isUnreadOnly)
-    case R.id.timelineActionPost => startPostPlurkActivity()
+    case R.id.timelineActionPost => startPostPlurkActivity(); false
+    case R.id.timelineActionLogout => Logout.logout(this.getActivity); false
     case _ => super.onOptionsItemSelected(item)
   }
 
