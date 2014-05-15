@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
   <string name="app_name">MaidroidPlurk</string>
+  <string name="titleResponseList">回應</string>
 
   <string name="moduleLoadingIndicatorText">讀取中，請稍候……</string>
 

@@ -25,7 +25,7 @@ import scala.util.{Try, Success, Failure}
 
 import scala.concurrent._
 
-object PlurkResponse {
+object ResponseListActivity {
   var plurk: Plurk = _
   var user: User = _
 
@@ -35,31 +35,32 @@ object PlurkResponse {
 }
 
 
-class PlurkResponse extends ActionBarActivity with TypedViewHolder 
-                    with ResponseList.Listener
+class ResponseListActivity extends ActionBarActivity with TypedViewHolder 
+                           with ResponseList.Listener
 {
 
   private implicit def activity = this
   private var showWelcomeMessage = true
-  private lazy val dialogFrame = findView(TR.activityPlurkResponseDialogFrame)
-  private lazy val fragmentContainer = findView(TR.activityPlurkResponseFragmentContainer)
+  private lazy val dialogFrame = findView(TR.activityResponseListDialogFrame)
+  private lazy val fragmentContainer = findView(TR.activityResponseListFragmentContainer)
   private lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
 
   override def onCreate(savedInstanceState: Bundle) {
 
     super.onCreate(savedInstanceState)
 
-    setContentView(R.layout.activity_plurk_response)
+    setContentView(R.layout.activity_response_list)
     dialogFrame.setMessages(
       Message(MaidMaro.Half.Happy, "小鈴正在幫主人讀取噗浪上的回應，請主人稍候一下喲……", None) :: Nil
     )
 
-    val responseListFragment = Try(getSupportFragmentManager.findFragmentById(R.id.activityPlurkResponseFragmentContainer).asInstanceOf[ResponseList]).filter(_ != null)
+    val responseListFragment = Try(
+      getSupportFragmentManager.findFragmentById(R.id.activityResponseListFragmentContainer).asInstanceOf[ResponseList]).filter(_ != null)
 
     responseListFragment match {
       case Success(fragment) =>
-        fragment.plurk = PlurkResponse.plurk
-        fragment.owner = PlurkResponse.user
+        fragment.plurk = ResponseListActivity.plurk
+        fragment.owner = ResponseListActivity.user
       case Failure(e) => updateFragment()
     }
 
@@ -69,12 +70,12 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
   private def updateFragment() {
     val fragment = new ResponseList
 
-    fragment.plurk = PlurkResponse.plurk
-    fragment.owner = PlurkResponse.user
+    fragment.plurk = ResponseListActivity.plurk
+    fragment.owner = ResponseListActivity.user
 
     getSupportFragmentManager.
       beginTransaction.
-      replace(R.id.activityPlurkResponseFragmentContainer, fragment).
+      replace(R.id.activityResponseListFragmentContainer, fragment).
       commit()
 
   }
@@ -84,25 +85,27 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
   }
 
   private def hasResponsePermission = {
-    (PlurkResponse.plurk.ownerID == PlurkResponse.plurk.userID)
-    (PlurkResponse.plurk.whoIsCommentable == CommentSetting.Everyone) ||
-    (PlurkResponse.plurk.whoIsCommentable == CommentSetting.OnlyFriends)
+    (ResponseListActivity.plurk.ownerID == ResponseListActivity.plurk.userID)
+    (ResponseListActivity.plurk.whoIsCommentable == CommentSetting.Everyone) ||
+    (ResponseListActivity.plurk.whoIsCommentable == CommentSetting.OnlyFriends)
   }
 
   override def onCreateOptionsMenu(menu: Menu): Boolean = {
     val inflater = getMenuInflater
-    inflater.inflate(R.menu.response, menu)
+    inflater.inflate(R.menu.activity_response_list, menu)
     super.onCreateOptionsMenu(menu)
   }
 
   override def onPrepareOptionsMenu(menu: Menu): Boolean = {
-    val isPostedByCurrentUser = PlurkResponse.plurk.ownerID == PlurkResponse.plurk.userID
-    val replyButton = menu.findItem(R.id.responseActionReply)
+    val isPostedByCurrentUser = 
+      ResponseListActivity.plurk.ownerID == ResponseListActivity.plurk.userID
+
+    val replyButton = menu.findItem(R.id.activityResponseListActionReply)
     replyButton.setEnabled(hasResponsePermission)
     replyButton.setVisible(hasResponsePermission)
 
-    val editButton = menu.findItem(R.id.responseActionEdit)
-    val deleteButton = menu.findItem(R.id.responseActionDelete)
+    val editButton = menu.findItem(R.id.activityResponseListActionEdit)
+    val deleteButton = menu.findItem(R.id.activityResponseListActionDelete)
 
     editButton.setEnabled(isPostedByCurrentUser)
     editButton.setVisible(isPostedByCurrentUser)
@@ -114,10 +117,10 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
   }
 
   override def onOptionsItemSelected(menuItem: MenuItem): Boolean = menuItem.getItemId match {
-    case R.id.responseActionReply => startReplyActivity() ; false
-    case R.id.responseActionEdit => startEditActivity() ; false
-    case R.id.responseActionDelete => showConfirmDeleteDialog() ; false
-    case R.id.responseActionLogout => logout(); false
+    case R.id.activityResponseListActionReply => startReplyActivity() ; false
+    case R.id.activityResponseListActionEdit => startEditActivity() ; false
+    case R.id.activityResponseListActionDelete => showConfirmDeleteDialog() ; false
+    case R.id.activityResponseListActionLogout => logout(); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 
@@ -154,11 +157,11 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
 
 
     val deleteFuture = future {
-      plurkAPI.Timeline.plurkDelete(PlurkResponse.plurk.plurkID).get
+      plurkAPI.Timeline.plurkDelete(ResponseListActivity.plurk.plurkID).get
     }
 
     deleteFuture.onSuccessInUI { _ =>
-      TimelineFragment.deletedPlurkIDHolder = Some(PlurkResponse.plurk.plurkID)
+      TimelineFragment.deletedPlurkIDHolder = Some(ResponseListActivity.plurk.plurkID)
       progressDialogFragment.dismiss()
       setRequestedOrientation(oldRequestedOrientation)
       finish()
@@ -178,16 +181,19 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
 
   private def startReplyActivity() {
     val intent = new Intent(this, classOf[PostResponseActivity])
-    intent.putExtra(PostResponseActivity.PlurkIDBundle, PlurkResponse.plurk.plurkID)
-    startActivityForResult(intent, PlurkResponse.RequestPostResponse)
+    intent.putExtra(PostResponseActivity.PlurkIDBundle, ResponseListActivity.plurk.plurkID)
+    startActivityForResult(intent, ResponseListActivity.RequestPostResponse)
   }
 
   private def startEditActivity() {
     val intent = new Intent(this, classOf[EditPlurkActivity])
-    intent.putExtra(EditPlurkActivity.PlurkIDBundle, PlurkResponse.plurk.plurkID)
-    intent.putExtra(EditPlurkActivity.ContentRawBundle, PlurkResponse.plurk.contentRaw getOrElse "")
+    intent.putExtra(EditPlurkActivity.PlurkIDBundle, ResponseListActivity.plurk.plurkID)
+    intent.putExtra(
+      EditPlurkActivity.ContentRawBundle, 
+      ResponseListActivity.plurk.contentRaw getOrElse ""
+    )
 
-    startActivityForResult(intent, PlurkResponse.RequestEditPlurk)
+    startActivityForResult(intent, ResponseListActivity.RequestEditPlurk)
   }
 
   override def onGetResponseSuccess(responses: PlurkResponses) {
@@ -247,7 +253,7 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
     super.onActivityResult(requestCode, resultCode, data)
 
     requestCode match {
-      case PlurkResponse.RequestPostResponse if resultCode == Activity.RESULT_OK => 
+      case ResponseListActivity.RequestPostResponse if resultCode == Activity.RESULT_OK => 
         showWelcomeMessage = false
         updateFragment()
         dialogFrame.setMessages(
@@ -255,7 +261,7 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
           Message(MaidMaro.Half.Smile, "有了主人的參與，這個討論一定會更有趣的。", None) ::
           Nil
         )
-      case PlurkResponse.RequestEditPlurk if resultCode == Activity.RESULT_OK => 
+      case ResponseListActivity.RequestEditPlurk if resultCode == Activity.RESULT_OK => 
         DebugLog("====> XXXXXXX")
         val plurkID = data.getLongExtra(EditPlurkActivity.PlurkIDBundle, -1)
         val newContent = data.getStringExtra(EditPlurkActivity.EditedContentBundle)
@@ -263,7 +269,7 @@ class PlurkResponse extends ActionBarActivity with TypedViewHolder
 
         if (plurkID != -1) {
           PlurkView.updatePlurk(plurkID, newContent, newContentRaw)
-          PlurkResponse.plurk = PlurkResponse.plurk.copy(
+          ResponseListActivity.plurk = ResponseListActivity.plurk.copy(
             content = newContent, contentRaw = newContentRaw
           )
           updateFragment()

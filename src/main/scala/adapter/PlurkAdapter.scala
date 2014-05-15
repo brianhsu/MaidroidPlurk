@@ -54,9 +54,9 @@ class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false) extend
 
     itemView.update(plurk, owner, replurker, textViewImageGetter)
     itemView.setOnCommentCountClickListener { 
-      val intent = new Intent(activity, classOf[PlurkResponse])
-      PlurkResponse.plurk = plurk
-      PlurkResponse.user = owner
+      val intent = new Intent(activity, classOf[ResponseListActivity])
+      ResponseListActivity.plurk = plurk
+      ResponseListActivity.user = owner
       activity.startActivity(intent)
     }
     itemView
