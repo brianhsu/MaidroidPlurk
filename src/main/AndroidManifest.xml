@@ -24,18 +24,18 @@
 
     <activity 
       android:name=".activity.PostResponseActivity"
-      android:label="@string/app_name"
+      android:label="@string/titlePostResponse"
       android:windowSoftInputMode="adjustResize"/>
 
     <activity 
       android:name=".activity.EditPlurkActivity"
-      android:label="@string/app_name"
+      android:label="@string/titleEditPlurk"
       android:windowSoftInputMode="adjustResize"/>
 
     <activity 
       android:name=".activity.PostPlurkActivity"
-      android:windowSoftInputMode="adjustPan"
-      android:label="@string/app_name">
+      android:label="@string/titlePostPlurk"
+      android:windowSoftInputMode="adjustPan">
 
       <intent-filter>
         <action android:name="android.intent.action.SEND" />

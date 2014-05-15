@@ -3,6 +3,9 @@
 
   <string name="app_name">MaidroidPlurk</string>
   <string name="titleResponseList">回應</string>
+  <string name="titlePostResponse">新增回應</string>
+  <string name="titleEditPlurk">編輯</string>
+  <string name="titlePostPlurk">發新噗</string>
 
   <string name="moduleLoadingIndicatorText">讀取中，請稍候……</string>
 
