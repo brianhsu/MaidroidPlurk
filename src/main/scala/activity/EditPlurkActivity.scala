@@ -47,14 +47,17 @@ class EditPlurkActivity extends ActionBarActivity
   protected lazy val dialogFrame = findView(TR.activityEditPlurkDialogFrame)
   protected lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
 
-  def getCurrentEditor = getSupportFragmentManager.
-    findFragmentById(R.id.activityEditPlurkFragmentContainer).asInstanceOf[PlurkEditor]
+  def getCurrentEditor = editorFragment
 
   override def onCreate(savedInstanceState: Bundle) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_edit_plurk)
 
-    if (getCurrentEditor == null) {
+    val isFragmentHolderEmpty = 
+      getSupportFragmentManager.
+        findFragmentById(R.id.activityEditPlurkFragmentContainer) == null
+
+    if (isFragmentHolderEmpty) {
       getSupportFragmentManager.
         beginTransaction.
         replace(R.id.activityEditPlurkFragmentContainer, editorFragment).
@@ -137,7 +140,7 @@ class EditPlurkActivity extends ActionBarActivity
   }
 
   private def editPlurk() {
-    val contentLength = getCurrentEditor.getContentLength
+    val contentLength = editorFragment.getContentLength
 
     if (contentLength == 0) {
       dialogFrame.setMessages(
@@ -161,7 +164,7 @@ class EditPlurkActivity extends ActionBarActivity
       setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
       val editedPlurkFuture = future {
-        val newContent = getCurrentEditor.getEditorContent.map(_._1.toString) getOrElse this.rawContent
+        val newContent = editorFragment.getEditorContent.map(_._1.toString) getOrElse this.rawContent
         val newPlurk = plurkAPI.Timeline.plurkEdit(plurkID, newContent).get
         newPlurk
       }

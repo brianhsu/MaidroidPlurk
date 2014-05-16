@@ -70,10 +70,9 @@ object TimelineFragment {
 
 class TimelineFragment extends Fragment {
 
-  private implicit def activity = getActivity
-  private def plurkAPI = PlurkAPIHelper.getPlurkAPI(activity)
+  private implicit def activity = getActivity.asInstanceOf[FragmentActivity with TimelineFragment.Listener with ConfirmDialog.Listener with PlurkView.Listener]
 
-  private var callbackHolder: Option[TimelineFragment.Listener] = None
+  private def plurkAPI = PlurkAPIHelper.getPlurkAPI(activity)
 
   private def listViewHolder = Option(getView).map(_.findView(TR.fragmentTimelineListView))
   private def pullToRefreshHolder = Option(getView).map(_.findView(TR.fragementTimelinePullToRefresh))
@@ -158,14 +157,6 @@ class TimelineFragment extends Fragment {
     actionMenu
   }
 
-  override def onAttach(activity: Activity) {
-    super.onAttach(activity)
-    callbackHolder = for {
-      activity <- Option(activity)
-      callback <- Try(activity.asInstanceOf[TimelineFragment.Listener]).toOption
-    } yield callback
-  }
-
   def deletePlurk(plurkID: Long) {
     adapterHolder.foreach(_.deletePlurk(plurkID))
   }
@@ -177,7 +168,7 @@ class TimelineFragment extends Fragment {
     } {
       deletePlurk(plurkID)
       TimelineFragment.deletedPlurkIDHolder = None
-      callbackHolder.foreach(_.onDeletePlurkSuccess())
+      activity.onDeletePlurkSuccess()
     }
 
     DebugLog("====> TimelineFragment.notifyDataSetChanged")
@@ -223,13 +214,13 @@ class TimelineFragment extends Fragment {
     newTimelineFuture.onFailureInUI {
       case e: Exception => 
         DebugLog(s"error: $e", e)
-        callbackHolder.foreach(_.onRefreshTimelineFailure(e))
+        activity.onRefreshTimelineFailure(e)
         pullToRefreshHolder.foreach(_.setRefreshComplete())
       }
 
     newTimelineFuture.onSuccessInUI { newTimeline: Timeline => 
       adapterHolder.foreach(_.prependTimeline(newTimeline))
-      callbackHolder.foreach(_.onRefreshTimelineSuccess(newTimeline))
+      activity.onRefreshTimelineSuccess(newTimeline)
       pullToRefreshHolder.foreach(_.setRefreshComplete())
     }
   }
@@ -285,8 +276,7 @@ class TimelineFragment extends Fragment {
   }
 
   private def updateListAdapter() {
-    val callbackActivity = activity.asInstanceOf[FragmentActivity with ConfirmDialog.Listener]
-    this.adapterHolder = Some(new PlurkAdapter(callbackActivity, false))
+    this.adapterHolder = Some(new PlurkAdapter(activity, false))
     for {
       adapter <- this.adapterHolder
       listView <- this.listViewHolder
@@ -349,7 +339,7 @@ class TimelineFragment extends Fragment {
     case R.id.fragmentTimelineActionFavorite => switchToFilter(Some(OnlyFavorite), this.isUnreadOnly)
     case R.id.fragmentTimelineActionToggleUnreadOnly => switchToFilter(plurkFilter, !this.isUnreadOnly)
     case R.id.fragmentTimelineActionPost => startPostPlurkActivity(); false
-    case R.id.fragmentTimelineActionLogout => Logout.logout(this.getActivity.asInstanceOf[FragmentActivity with ConfirmDialog.Listener]); false
+    case R.id.fragmentTimelineActionLogout => Logout.logout(activity); false
     case _ => super.onOptionsItemSelected(item)
   }
 
@@ -401,7 +391,7 @@ class TimelineFragment extends Fragment {
         }
 
         adapterHolder.foreach(_.appendTimeline(timeline))
-        callbackHolder.foreach(_.onShowTimelinePlurksSuccess(timeline, isNewFilter, plurkFilter, isUnreadOnly))
+        activity.onShowTimelinePlurksSuccess(timeline, isNewFilter, plurkFilter, isUnreadOnly)
         filterButtonHolder.foreach { _.setEnabled(true) }
         toggleButtonHolder.foreach { button =>
           button.setEnabled(true)
@@ -413,7 +403,7 @@ class TimelineFragment extends Fragment {
     }
 
     plurksFuture.onFailureInUI { case e: Exception =>
-      callbackHolder.foreach(_.onShowTimelinePlurksFailure(e))
+      activity.onShowTimelinePlurksFailure(e)
       showErrorNotice("無法讀取噗浪河道資料")
     }
   }

@@ -41,14 +41,7 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
 
   private lazy val dialogFrame = findView(TR.dialogFrame)
   private lazy val fragmentContainer = findView(TR.activityMaidroidPlurkFragmentContainer)
-
-  def getTimelineFragmentHolder = {
-    val fm = getSupportFragmentManager
-    Try(
-      fm.findFragmentById(R.id.activityMaidroidPlurkFragmentContainer).
-      asInstanceOf[TimelineFragment]
-    ).filter(_ != null)
-  }
+  private var timelineFragmentHolder: Option[TimelineFragment] = None
 
   def onGetAuthURLFailure(error: Exception) {
     dialogFrame.setMessages(
@@ -162,6 +155,12 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
 
     if (isForcing || topFragment.isFailure) {
 
+      if (fragment.isInstanceOf[TimelineFragment]) {
+        timelineFragmentHolder = Some(fragment.asInstanceOf[TimelineFragment])
+      } else {
+        timelineFragmentHolder = None
+      }
+
       val transaction = getSupportFragmentManager.beginTransaction
       transaction.replace(R.id.activityMaidroidPlurkFragmentContainer, fragment)
 
@@ -174,8 +173,7 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
   }
 
   override def startEditActivity(plurk: Plurk) {
-    val timelineFragment = Try(getSupportFragmentManager.findFragmentById(R.id.activityMaidroidPlurkFragmentContainer).asInstanceOf[TimelineFragment]).filter(_ != null)
-    timelineFragment.foreach(_.startEditActivity(plurk))
+    timelineFragmentHolder.foreach(_.startEditActivity(plurk))
   }
 
   override def onDialogOKClicked(dialogName: Symbol, dialog: DialogInterface, data: Bundle) {
@@ -205,7 +203,7 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
     }
 
     deleteFuture.onSuccessInUI { _ =>
-      getTimelineFragmentHolder.foreach { _.deletePlurk(plurkID) }
+      timelineFragmentHolder.foreach { _.deletePlurk(plurkID) }
       dialogFrame.setMessages(
         Message(MaidMaro.Half.Happy, "小鈴已經順利幫主把這則噗浪刪除了喲！") :: Nil
       )

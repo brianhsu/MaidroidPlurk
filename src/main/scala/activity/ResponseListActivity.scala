@@ -39,6 +39,7 @@ object ResponseListActivity {
 class ResponseListActivity extends ActionBarActivity with TypedViewHolder 
                            with ResponseListFragment.Listener
                            with ConfirmDialog.Listener
+                           with PlurkView.Listener
 {
 
   private implicit def activity = this
@@ -47,11 +48,7 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
   private lazy val fragmentContainer = findView(TR.activityResponseListFragmentContainer)
   private lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
 
-  private def getResponseListFragment = Try {
-    getSupportFragmentManager.
-      findFragmentById(R.id.activityResponseListFragmentContainer).
-      asInstanceOf[ResponseListFragment]
-  }.filter(_ != null)
+  private var responseListFragment: Option[ResponseListFragment] = None
 
   override def onCreate(savedInstanceState: Bundle) {
 
@@ -62,16 +59,12 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
       Message(MaidMaro.Half.Happy, "小鈴正在幫主人讀取噗浪上的回應，請主人稍候一下喲……", None) :: Nil
     )
 
-    val responseListFragment = getResponseListFragment
-
     responseListFragment match {
-      case Success(fragment) =>
+      case Some(fragment) =>
         fragment.plurk = ResponseListActivity.plurk
         fragment.owner = ResponseListActivity.user
-      case Failure(e) => updateFragment()
+      case None => updateFragment()
     }
-
-
   }
 
   private def updateFragment() {
@@ -79,6 +72,8 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
 
     fragment.plurk = ResponseListActivity.plurk
     fragment.owner = ResponseListActivity.user
+
+    this.responseListFragment = Some(fragment)
 
     getSupportFragmentManager.
       beginTransaction.
@@ -177,7 +172,7 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
     }
 
     deleteFuture.onSuccessInUI { _ =>
-      getResponseListFragment.foreach(_.deleteResponse(responseID))
+      responseListFragment.foreach(_.deleteResponse(responseID))
       dialogFrame.setMessages(
         Message(MaidMaro.Half.Happy, "小鈴已經順利幫主把這則回應刪除了喲！") :: Nil
       )
@@ -236,6 +231,8 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
     intent.putExtra(PostResponseActivity.PlurkIDBundle, ResponseListActivity.plurk.plurkID)
     startActivityForResult(intent, ResponseListActivity.RequestPostResponse)
   }
+
+  override def startEditActivity(plurk: Plurk) {}
 
   private def startEditActivity() {
     val intent = new Intent(this, classOf[EditPlurkActivity])

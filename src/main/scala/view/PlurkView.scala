@@ -83,12 +83,11 @@ object PlurkView {
 
 class PlurkView(adapterHolder: Option[PlurkAdapter] = None, 
                 isInResponseList: Boolean = false)
-               (implicit val activity: Activity with ConfirmDialog.Listener)
+               (implicit val activity: FragmentActivity with PlurkView.Listener with ConfirmDialog.Listener)
                 extends LinearLayout(activity) {
 
-  private val inflater = activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE).
-                                  asInstanceOf[LayoutInflater]
-
+  private val inflater = LayoutInflater.from(activity)
+  
   initView()
 
   lazy val dateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
@@ -369,7 +368,7 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
       Some(data)
     )
       
-    val fm = activity.asInstanceOf[FragmentActivity].getSupportFragmentManager
+    val fm = activity.getSupportFragmentManager
     alertDialog.show(fm, "DeletePlurkConfirm")
   }
 

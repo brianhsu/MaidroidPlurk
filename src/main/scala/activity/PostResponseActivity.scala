@@ -39,14 +39,17 @@ class PostResponseActivity extends ActionBarActivity
   protected lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
   private lazy val plurkID = getIntent.getLongExtra(PostResponseActivity.PlurkIDBundle, -1)
 
-  def getCurrentEditor = getSupportFragmentManager.
-    findFragmentById(R.id.activityPostResponseFragmentContainer).asInstanceOf[PlurkEditor]
+  def getCurrentEditor = editorFragment
 
   override def onCreate(savedInstanceState: Bundle) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_post_response)
 
-    if (getCurrentEditor == null) {
+    val isFragmentHolderEmpty = 
+      getSupportFragmentManager.
+        findFragmentById(R.id.activityPostResponseFragmentContainer) == null
+
+    if (isFragmentHolderEmpty) {
       getSupportFragmentManager.
         beginTransaction.
         replace(R.id.activityPostResponseFragmentContainer, editorFragment).
@@ -131,7 +134,7 @@ class PostResponseActivity extends ActionBarActivity
   }
 
   private def postResponse() {
-    val contentLength = getCurrentEditor.getContentLength
+    val contentLength = editorFragment.getContentLength
 
     if (contentLength == 0) {
       dialogFrame.setMessages(
@@ -151,7 +154,7 @@ class PostResponseActivity extends ActionBarActivity
       val oldRequestedOrientation = getRequestedOrientation
       setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
-      val responseFuture = getCurrentEditor.postResponse(plurkID)
+      val responseFuture = editorFragment.postResponse(plurkID)
       responseFuture.onSuccessInUI { _ =>
         setResult(Activity.RESULT_OK)
         progressDialogFragment.dismiss()

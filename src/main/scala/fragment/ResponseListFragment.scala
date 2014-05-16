@@ -38,11 +38,10 @@ object ResponseListFragment {
 
 class ResponseListFragment extends Fragment {
 
-  private implicit def activity = getActivity.asInstanceOf[FragmentActivity with ConfirmDialog.Listener]
+  private implicit def activity = getActivity.asInstanceOf[FragmentActivity with ConfirmDialog.Listener with ResponseListFragment.Listener with PlurkView.Listener]
 
   private def plurkAPI = PlurkAPIHelper.getPlurkAPI(activity)
 
-  private var callbackHolder: Option[ResponseListFragment.Listener] = None
   private lazy val adapter = new ResponseAdapter(activity, plurk, owner)
 
   private def listHolder = Option(getView).map(_.findView(TR.fragmentResponseList))
@@ -54,14 +53,6 @@ class ResponseListFragment extends Fragment {
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
                             savedInstanceState: Bundle): View = {
     inflater.inflate(R.layout.fragment_response, container, false)
-  }
-
-  override def onAttach(activity: Activity) {
-    super.onAttach(activity)
-    callbackHolder = for {
-      activity <- Option(activity)
-      callback <- Try(activity.asInstanceOf[ResponseListFragment.Listener]).toOption
-    } yield callback
   }
 
   override def onStart() {
@@ -88,11 +79,11 @@ class ResponseListFragment extends Fragment {
     responses.onSuccessInUI { response =>
       adapter.update(response.responses, response.friends)
       PlurkView.updatePlurkCommentInfo(plurk.plurkID, response.responses.size, true)
-      callbackHolder.foreach(_.onGetResponseSuccess(response))
+      activity.onGetResponseSuccess(response)
     }
 
     responses.onFailureInUI { case e: Exception =>
-      callbackHolder.foreach(_.onGetResponseFailure(e))
+      activity.onGetResponseFailure(e)
     }
 
   }

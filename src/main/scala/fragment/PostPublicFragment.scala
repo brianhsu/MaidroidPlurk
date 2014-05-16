@@ -7,6 +7,7 @@ import idv.brianhsu.maidroid.plurk.adapter._
 import idv.brianhsu.maidroid.plurk.util.PlurkAPIHelper
 import idv.brianhsu.maidroid.plurk.TypedResource._
 
+import android.app.Activity
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.View
@@ -27,7 +28,9 @@ object PostPublicFragment {
 
 class PostPublicFragment extends Fragment with PlurkEditor {
 
-  protected def plurkAPI = PlurkAPIHelper.getPlurkAPI(getActivity)
+  private implicit def activity = getActivity.asInstanceOf[Activity with PostPublicFragment.Listener]
+
+  protected def plurkAPI = PlurkAPIHelper.getPlurkAPI(activity)
   protected def contentEditorHolder = Option(getView).map(_.findView(TR.fragmentPostPublicContent))
   protected def qualifierSpinnerHolder = Option(getView).map(_.findView(TR.fragmentPostPublicQualifier))
   protected def responseTypeSpinnerHolder = Option(getView).map(_.findView(TR.fragmentPostPublicResponseTypeSpinner))
@@ -56,7 +59,7 @@ class PostPublicFragment extends Fragment with PlurkEditor {
   }
 
   private def handleActionSend() {
-    val intent = getActivity.getIntent
+    val intent = activity.getIntent
     val action = intent.getAction
     val mimeType = Option(intent.getType)
 
@@ -86,12 +89,12 @@ class PostPublicFragment extends Fragment with PlurkEditor {
 
   private def processImage(intent: Intent) {
     val uri = intent.getParcelableExtra(Intent.EXTRA_STREAM).asInstanceOf[Uri]
-    getActivity.asInstanceOf[PostPublicFragment.Listener].onActionSendImage(uri)
+    activity.onActionSendImage(uri)
   }
 
   private def processMultipleImage(intent: Intent) {
     val uriList = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM).toList
-    getActivity.asInstanceOf[PostPublicFragment.Listener].onActionSendMultipleImage(uriList)
+    activity.onActionSendMultipleImage(uriList)
   }
 
 }

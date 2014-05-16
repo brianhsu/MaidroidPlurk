@@ -11,13 +11,12 @@ import android.view.ViewGroup
 import android.view.View
 import android.support.v4.view.PagerAdapter
 
-class IconPagerAdapter(activity: Activity, tabs: EmoticonTabs)  extends PagerAdapter {
+class IconPagerAdapter(activity: Activity with EmoticonFragment.Listener, tabs: EmoticonTabs)  extends PagerAdapter {
 
   val orderedTab = Vector(tabs.customPage, tabs.basicPage, tabs.morePage, tabs.hiddenPage)
   val tabsGrid = orderedTab.map { icons =>
     val iconGrid = new IconGrid(activity, icons)
-    val activityCallback = activity.asInstanceOf[EmoticonFragment.Listener]
-    iconGrid.setOnIconClickListener(activityCallback.onIconSelected _)
+    iconGrid.setOnIconClickListener(activity.onIconSelected _)
     iconGrid
   }
 

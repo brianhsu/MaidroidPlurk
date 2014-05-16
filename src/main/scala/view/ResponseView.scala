@@ -37,8 +37,7 @@ class ResponseView(adapter: ResponseAdapter)
                   (implicit val activity: FragmentActivity with ConfirmDialog.Listener) 
                   extends LinearLayout(activity) {
 
-  private val inflater = activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE).
-                                  asInstanceOf[LayoutInflater]
+  private val inflater = LayoutInflater.from(activity)
 
   initView()
 
@@ -71,7 +70,7 @@ class ResponseView(adapter: ResponseAdapter)
       Some(data)
     )
     
-    val fm = activity.asInstanceOf[FragmentActivity].getSupportFragmentManager
+    val fm = activity.getSupportFragmentManager
     alertDialog.show(fm, "DeleteResponseConfirm")
   }
 

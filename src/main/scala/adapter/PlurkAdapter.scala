@@ -26,7 +26,8 @@ import org.bone.soplurk.model._
 
 import java.net.URL
 
-class PlurkAdapter(activity: FragmentActivity with ConfirmDialog.Listener, 
+class PlurkAdapter(activity: FragmentActivity with PlurkView.Listener 
+                                              with ConfirmDialog.Listener, 
                    isInResponseList: Boolean = false) extends BaseAdapter {
   private implicit val mActivity = activity
   private var plurks: Vector[Plurk] = Vector.empty

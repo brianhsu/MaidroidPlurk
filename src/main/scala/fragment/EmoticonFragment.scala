@@ -45,7 +45,7 @@ object EmoticonFragment {
 
 class EmoticonFragment extends Fragment {
 
-  private implicit def activity = getActivity
+  private implicit def activity = getActivity.asInstanceOf[Activity with EmoticonFragment.Listener]
 
   private def loadingIndicatorHolder = Option(getView).map(_.findView(TR.moduleLoadingIndicator))
   private def errorNoticeHolder = Option(getView).map(_.findView(TR.fragmentEmoticonErrorNotice))
