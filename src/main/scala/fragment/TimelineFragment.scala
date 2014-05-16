@@ -76,7 +76,7 @@ class TimelineFragment extends Fragment {
 
   private def listViewHolder = Option(getView).map(_.findView(TR.fragmentTimelineListView))
   private def pullToRefreshHolder = Option(getView).map(_.findView(TR.fragementTimelinePullToRefresh))
-  private def loadingIndicatorHolder = Option(getView).map(_.findView(TR.moduleLoadingIndicator))
+  private def loadingIndicatorHolder = Option(getView).map(_.findView(TR.fragmentTimelineLoadingIndicator))
   private def errorNoticeHolder = Option(getView).map(_.findView(TR.fragmentTimelineErrorNotice))
 
   private var loadMoreFooter: LoadMoreFooter = _
@@ -180,13 +180,13 @@ class TimelineFragment extends Fragment {
   }
 
   private def showErrorNotice(message: String) {
-    loadingIndicatorHolder.foreach(_.setVisibility(View.GONE))
+    loadingIndicatorHolder.foreach(_.hide())
     errorNoticeHolder.foreach(_.setVisibility(View.VISIBLE))
     errorNoticeHolder.foreach { errorNotice =>
       errorNotice.setMessageWithRetry(message) { retryButton =>
         retryButton.setEnabled(false)
         errorNoticeHolder.foreach(_.setVisibility(View.GONE))
-        loadingIndicatorHolder.foreach(_.setVisibility(View.VISIBLE))
+        loadingIndicatorHolder.foreach(_.show())
         updateTimeline()
       }
     }
@@ -398,7 +398,7 @@ class TimelineFragment extends Fragment {
           MenuItemCompat.setActionView(button, null)
           button.setTitle(if (isUnreadOnly) "未讀噗" else "所有噗")
         }
-        loadingIndicatorHolder.foreach(_.setVisibility(View.GONE))
+        loadingIndicatorHolder.foreach(_.hide())
       }
     }
 

@@ -7,7 +7,7 @@
   <string name="titleEditPlurk">編輯</string>
   <string name="titlePostPlurk">發新噗</string>
 
-  <string name="moduleLoadingIndicatorText">讀取中，請稍候……</string>
+  <string name="viewLoadingIndicatorText">讀取中，請稍候……</string>
 
   <string name="moduleErrorMesssageTextDefault">發生錯誤了 :-(</string>
   <string name="moduleErrorMessageRetryButtonTitle">重試一次</string>
