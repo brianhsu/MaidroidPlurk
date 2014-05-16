@@ -12,6 +12,7 @@ import idv.brianhsu.maidroid.ui.model._
 import android.app.Activity
 import android.widget.Toast
 import android.content.Intent
+import android.content.DialogInterface
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.Menu
@@ -38,6 +39,7 @@ class PostPlurkActivity extends ActionBarActivity
                         with SelectLimitedToDialog.Listener
                         with SelectBlockPeopleDialog.Listener
                         with PostPublicFragment.Listener
+                        with ConfirmDialog.Listener
 {
 
   protected lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
@@ -243,14 +245,25 @@ class PostPlurkActivity extends ActionBarActivity
   private def showWarningDialog() {
 
     val alertDialog = ConfirmDialog.createDialog(
-      this, "取消", "確定要取消發噗嗎？這會造成目前的內容永遠消失喲！", "是", "否"
-    ) { dialog =>
-      setResult(Activity.RESULT_CANCELED)
-      dialog.dismiss()
-      PostPlurkActivity.this.finish()
-    }
+      this, 'ExitConfirm, 
+      "取消", "確定要取消發噗嗎？這會造成目前的內容永遠消失喲！", 
+      "是", "否"
+    ) 
 
-    alertDialog.show()
+    alertDialog.show(getSupportFragmentManager, "ExitConfirm")
+  }
+
+  override def onDialogOKClicked(dialogName: Symbol, dialog: DialogInterface, data: Bundle) {
+    dialogName match {
+      case 'LogoutConfirm => 
+        dialog.dismiss()
+        this.finish()
+        Logout.doLogout(this)
+      case 'ExitConfirm =>
+        setResult(Activity.RESULT_CANCELED)
+        dialog.dismiss()
+        finish()
+    }
   }
 
   override def onBackPressed() {

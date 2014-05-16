@@ -12,6 +12,7 @@ import org.bone.soplurk.model._
 
 import android.app.Activity
 import android.content.pm.ActivityInfo
+import android.content.DialogInterface
 
 import android.os.Bundle
 import android.content.Intent
@@ -35,6 +36,7 @@ class EditPlurkActivity extends ActionBarActivity
                            with SelectEmoticonActivity
                            with EmoticonFragment.Listener
                            with TypedViewHolder 
+                           with ConfirmDialog.Listener
 {
  
   private lazy val plurkID = getIntent.getLongExtra(EditPlurkActivity.PlurkIDBundle, -1)
@@ -101,13 +103,23 @@ class EditPlurkActivity extends ActionBarActivity
   private def showWarningDialog() {
 
     val alertDialog = ConfirmDialog.createDialog(
-      this, "取消", "確定要退出嗎？這會造成目前的內容永遠消失喲！", "是", "否"
-    ) { dialog =>
-      setResult(Activity.RESULT_CANCELED)
-      dialog.dismiss()
-      EditPlurkActivity.this.finish()
+      this, 'ExitConfirm, "取消", "確定要退出嗎？這會造成目前的內容永遠消失喲！", "是", "否"
+    ) 
+
+    alertDialog.show(getSupportFragmentManager(), "ExitConfirm")
+  }
+
+  override def onDialogOKClicked(dialogName: Symbol, dialog: DialogInterface, data: Bundle) {
+    dialogName match {
+      case 'LogoutConfirm => 
+        dialog.dismiss()
+        this.finish()
+        Logout.doLogout(this)
+      case 'ExitConfirm =>
+        setResult(Activity.RESULT_CANCELED)
+        dialog.dismiss()
+        EditPlurkActivity.this.finish()
     }
-    alertDialog.show()
   }
 
   override def onBackPressed() {

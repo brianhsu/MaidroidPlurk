@@ -3,6 +3,7 @@ package idv.brianhsu.maidroid.plurk.adapter
 import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.plurk.fragment._
+import idv.brianhsu.maidroid.plurk.dialog._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.view.ResponseView
 import idv.brianhsu.maidroid.plurk.view.PlurkView
@@ -21,12 +22,15 @@ import android.widget.TextView
 
 import android.graphics.BitmapFactory
 
+import android.support.v4.app.FragmentActivity
+
 import org.bone.soplurk.api.PlurkAPI._
 import org.bone.soplurk.model._
 
 import java.net.URL
 
-class ResponseAdapter(activity: Activity, plurk: Plurk, owner: User) extends BaseAdapter {
+class ResponseAdapter(activity: FragmentActivity with ConfirmDialog.Listener, 
+                      plurk: Plurk, owner: User) extends BaseAdapter {
 
   private implicit val mActivity = activity
 

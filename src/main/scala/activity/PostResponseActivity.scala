@@ -12,6 +12,7 @@ import org.bone.soplurk.model._
 
 import android.app.Activity
 import android.content.pm.ActivityInfo
+import android.content.DialogInterface
 
 import android.os.Bundle
 import android.content.Intent
@@ -30,6 +31,7 @@ class PostResponseActivity extends ActionBarActivity
                            with SelectEmoticonActivity
                            with EmoticonFragment.Listener
                            with TypedViewHolder 
+                           with ConfirmDialog.Listener
 {
   protected val emoticonFragmentHolderResID = R.id.activityPostResponseEmtoicon
   protected lazy val editorFragment = new PostResponseFragment
@@ -93,14 +95,25 @@ class PostResponseActivity extends ActionBarActivity
   private def showWarningDialog() {
 
     val alertDialog = ConfirmDialog.createDialog(
-      this, "取消", "確定要取消回應嗎？這會造成目前的內容永遠消失喲！", "是", "否"
-    ) { dialog =>
-      setResult(Activity.RESULT_CANCELED)
-      dialog.dismiss()
-      PostResponseActivity.this.finish()
-    }
+      this, 'ExitConfirm, 
+      "取消", "確定要取消回應嗎？這會造成目前的內容永遠消失喲！", 
+      "是", "否"
+    ) 
+    
+    alertDialog.show(getSupportFragmentManager, "ExitConfirm")
+  }
 
-    alertDialog.show()
+  override def onDialogOKClicked(dialogName: Symbol, dialog: DialogInterface, data: Bundle) {
+    dialogName match {
+      case 'LogoutConfirm => 
+        dialog.dismiss()
+        this.finish()
+        Logout.doLogout(this)
+      case 'ExitConfirm =>
+        setResult(Activity.RESULT_CANCELED)
+        dialog.dismiss()
+        finish()
+    }
   }
 
   override def onBackPressed() {

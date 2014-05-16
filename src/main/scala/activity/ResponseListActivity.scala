@@ -15,6 +15,7 @@ import org.bone.soplurk.model._
 import android.app.Activity
 import android.os.Bundle
 import android.content.Intent
+import android.content.DialogInterface
 import android.content.pm.ActivityInfo
 
 import android.view.View
@@ -37,6 +38,7 @@ object ResponseListActivity {
 
 class ResponseListActivity extends ActionBarActivity with TypedViewHolder 
                            with ResponseListFragment.Listener
+                           with ConfirmDialog.Listener
 {
 
   private implicit def activity = this
@@ -44,6 +46,12 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
   private lazy val dialogFrame = findView(TR.activityResponseListDialogFrame)
   private lazy val fragmentContainer = findView(TR.activityResponseListFragmentContainer)
   private lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
+
+  private def getResponseListFragment = Try {
+    getSupportFragmentManager.
+      findFragmentById(R.id.activityResponseListFragmentContainer).
+      asInstanceOf[ResponseListFragment]
+  }.filter(_ != null)
 
   override def onCreate(savedInstanceState: Bundle) {
 
@@ -54,11 +62,7 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
       Message(MaidMaro.Half.Happy, "小鈴正在幫主人讀取噗浪上的回應，請主人稍候一下喲……", None) :: Nil
     )
 
-    val responseListFragment = Try(
-      getSupportFragmentManager.
-        findFragmentById(R.id.activityResponseListFragmentContainer).
-        asInstanceOf[ResponseListFragment]
-    ).filter(_ != null)
+    val responseListFragment = getResponseListFragment
 
     responseListFragment match {
       case Success(fragment) =>
@@ -133,15 +137,60 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
 
   private def showConfirmDeleteDialog() {
     val dialog = ConfirmDialog.createDialog(
-      this, 
+      this,
+      'DeletePlurkConfirm, 
       "確定要刪除嗎",
       "確定要刪除這則噗浪？這個動作無法回復喲！",
-      "刪除"
-    ) { dialog =>
-      deletePlurk() 
-      dialog.dismiss()
+      "刪除",
+      "取消"
+    ) 
+    dialog.show(getSupportFragmentManager, "DeletePlurkConfirm")
+  }
+
+  override def onDialogOKClicked(dialogName: Symbol, dialog: DialogInterface, data: Bundle) {
+    dialogName match {
+      case 'LogoutConfirm => 
+        dialog.dismiss()
+        this.finish()
+        Logout.doLogout(this)
+      case 'ExitConfirm =>
+        deletePlurk()
+        dialog.dismiss()
+      case 'DeletePlurkConfirm =>
+        deletePlurk()
+      case 'DeleteResponseConfirm =>
+        val plurkID = data.getLong("plurkID", -1)
+        val responseID = data.getLong("responseID", -1)
+        deleteResponse(plurkID, responseID)
+      
     }
-    dialog.show()
+  }
+
+  private def deleteResponse(plurkID: Long, responseID: Long) {
+
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Smile, "要刪除這則回應嗎？好的，小鈴知道了，請主人稍等一下喔！") :: Nil
+    )
+
+    val deleteFuture = future {
+      plurkAPI.Responses.responseDelete(plurkID, responseID).get
+    }
+
+    deleteFuture.onSuccessInUI { _ =>
+      getResponseListFragment.foreach(_.deleteResponse(responseID))
+      dialogFrame.setMessages(
+        Message(MaidMaro.Half.Happy, "小鈴已經順利幫主把這則回應刪除了喲！") :: Nil
+      )
+    }
+
+    deleteFuture.onFailureInUI { case e: Exception =>
+      DebugLog("====> onDeleteResponseFailure....", e)
+      dialogFrame.setMessages(
+        Message(MaidMaro.Half.Normal, "真是對不起，小鈴沒辦刪除這則回應耶……", None) ::
+        Message(MaidMaro.Half.Normal, s"系統說錯誤是：「${e.getMessage}」造成的說。", None) ::
+        Message(MaidMaro.Half.Smile, "主人要不要檢查網路狀態後重新讀取一次試試看呢？") :: Nil
+      )
+    }
   }
 
   private def deletePlurk() {
@@ -227,27 +276,6 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
       Message(MaidMaro.Half.Normal, "好像怪怪的，沒辦法讀噗浪上的回應耶……", None) ::
       Message(MaidMaro.Half.Normal, s"系統說錯誤是：「${e.getMessage}」造成的說。", None) ::
       Message(MaidMaro.Half.Smile, "主人要不要檢查網路狀態後重新讀取一次試試看呢？") :: Nil
-    )
-  }
-
-  override def onDeleteResponseFailure(e: Exception) {
-    DebugLog("====> onDeleteResponseFailure....", e)
-    dialogFrame.setMessages(
-      Message(MaidMaro.Half.Normal, "真是對不起，小鈴沒辦刪除這則回應耶……", None) ::
-      Message(MaidMaro.Half.Normal, s"系統說錯誤是：「${e.getMessage}」造成的說。", None) ::
-      Message(MaidMaro.Half.Smile, "主人要不要檢查網路狀態後重新讀取一次試試看呢？") :: Nil
-    )
-  }
-
-  override def onDeleteResponse() {
-    dialogFrame.setMessages(
-      Message(MaidMaro.Half.Smile, "要刪除這則回應嗎？好的，小鈴知道了，請主人稍等一下喔！") :: Nil
-    )
-  }
-
-  override def onDeleteResponseSuccess() {
-    dialogFrame.setMessages(
-      Message(MaidMaro.Half.Happy, "小鈴已經順利幫主把這則回應刪除了喲！") :: Nil
     )
   }
 

@@ -3,9 +3,11 @@ package idv.brianhsu.maidroid.plurk.fragment
 import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.plurk.adapter._
+import idv.brianhsu.maidroid.plurk.dialog._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.view._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
+
 
 import android.app.Activity
 import android.os.Bundle
@@ -16,6 +18,8 @@ import android.view.ViewGroup
 import android.view.View
 import android.webkit.WebViewClient
 import android.webkit.WebView
+
+import android.support.v4.app.FragmentActivity
 
 import org.bone.soplurk.api._
 import org.bone.soplurk.api.PlurkAPI._
@@ -29,15 +33,12 @@ object ResponseListFragment {
   trait Listener {
     def onGetResponseSuccess(responses: PlurkResponses): Unit
     def onGetResponseFailure(e: Exception): Unit
-    def onDeleteResponse(): Unit
-    def onDeleteResponseSuccess(): Unit
-    def onDeleteResponseFailure(e: Exception): Unit
   }
 }
 
 class ResponseListFragment extends Fragment {
 
-  private implicit def activity = getActivity
+  private implicit def activity = getActivity.asInstanceOf[FragmentActivity with ConfirmDialog.Listener]
 
   private def plurkAPI = PlurkAPIHelper.getPlurkAPI(activity)
 
@@ -94,6 +95,10 @@ class ResponseListFragment extends Fragment {
       callbackHolder.foreach(_.onGetResponseFailure(e))
     }
 
+  }
+
+  def deleteResponse(responseID: Long) {
+    adapter.deleteResponse(responseID)
   }
 }
 

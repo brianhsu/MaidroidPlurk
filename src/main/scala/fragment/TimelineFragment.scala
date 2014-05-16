@@ -2,6 +2,7 @@ package idv.brianhsu.maidroid.plurk.fragment
 
 import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.activity._
+import idv.brianhsu.maidroid.plurk.dialog._
 import idv.brianhsu.maidroid.plurk.adapter._
 import idv.brianhsu.maidroid.plurk.activity._
 import idv.brianhsu.maidroid.plurk.cache._
@@ -37,6 +38,7 @@ import android.widget.Toast
 
 import android.support.v4.view.MenuItemCompat
 import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentActivity
 
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh
 import uk.co.senab.actionbarpulltorefresh.library.Options
@@ -58,9 +60,7 @@ object TimelineFragment {
     def onShowTimelinePlurksSuccess(timeline: Timeline, isNewFilter: Boolean, filter: Option[Filter], isOnlyUnread: Boolean): Unit
     def onRefreshTimelineSuccess(newTimeline: Timeline): Unit
     def onRefreshTimelineFailure(e: Exception): Unit
-    def onDeletePlurk(): Unit
     def onDeletePlurkSuccess(): Unit
-    def onDeletePlurkFailure(e: Exception): Unit
   }
 
   val RequestPostPlurk = 1
@@ -166,13 +166,16 @@ class TimelineFragment extends Fragment {
     } yield callback
   }
 
+  def deletePlurk(plurkID: Long) {
+    adapterHolder.foreach(_.deletePlurk(plurkID))
+  }
+
   override def onResume() {
 
     for {
       plurkID <- TimelineFragment.deletedPlurkIDHolder
-      adapter <- adapterHolder
     } {
-      adapter.deletePlurk(plurkID)
+      deletePlurk(plurkID)
       TimelineFragment.deletedPlurkIDHolder = None
       callbackHolder.foreach(_.onDeletePlurkSuccess())
     }
@@ -282,7 +285,8 @@ class TimelineFragment extends Fragment {
   }
 
   private def updateListAdapter() {
-    this.adapterHolder = Some(new PlurkAdapter(activity, false))
+    val callbackActivity = activity.asInstanceOf[FragmentActivity with ConfirmDialog.Listener]
+    this.adapterHolder = Some(new PlurkAdapter(callbackActivity, false))
     for {
       adapter <- this.adapterHolder
       listView <- this.listViewHolder
@@ -345,7 +349,7 @@ class TimelineFragment extends Fragment {
     case R.id.fragmentTimelineActionFavorite => switchToFilter(Some(OnlyFavorite), this.isUnreadOnly)
     case R.id.fragmentTimelineActionToggleUnreadOnly => switchToFilter(plurkFilter, !this.isUnreadOnly)
     case R.id.fragmentTimelineActionPost => startPostPlurkActivity(); false
-    case R.id.fragmentTimelineActionLogout => Logout.logout(this.getActivity); false
+    case R.id.fragmentTimelineActionLogout => Logout.logout(this.getActivity.asInstanceOf[FragmentActivity with ConfirmDialog.Listener]); false
     case _ => super.onOptionsItemSelected(item)
   }
 

@@ -14,6 +14,7 @@ import idv.brianhsu.maidroid.ui.util.CallbackConversions._
 import scala.concurrent._
 
 import android.app.Activity
+import android.os.Bundle
 import android.support.v4.app.FragmentActivity
 
 import android.content.Intent
@@ -81,7 +82,8 @@ object PlurkView {
 }
 
 class PlurkView(adapterHolder: Option[PlurkAdapter] = None, 
-                isInResponseList: Boolean = false)(implicit val activity: Activity)
+                isInResponseList: Boolean = false)
+               (implicit val activity: Activity with ConfirmDialog.Listener)
                 extends LinearLayout(activity) {
 
   private val inflater = activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE).
@@ -356,47 +358,19 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
     this
   }
 
-  private def deletePlurk(plurk: Plurk) {
-    val progressDialogFragment = new ProgressDialogFragment("刪除中", "請稍候……")
-    progressDialogFragment.show(activity.asInstanceOf[FragmentActivity].getSupportFragmentManager.beginTransaction, "deleteProgress")
-    val oldRequestedOrientation = activity.getRequestedOrientation
-    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
-
-    val activityCallback = activity.asInstanceOf[TimelineFragment.Listener]
-    activityCallback.onDeletePlurk()
-
-    val deleteFuture = future {
-      plurkAPI.Timeline.plurkDelete(plurk.plurkID).get
-    }
-
-
-    deleteFuture.onSuccessInUI { _ =>
-      adapterHolder.foreach(_.deletePlurk(plurk.plurkID))
-      activityCallback.onDeletePlurkSuccess()
-      progressDialogFragment.dismiss()
-      activity.setRequestedOrientation(oldRequestedOrientation)
-    }
-
-    deleteFuture.onFailureInUI { case e: Exception =>
-      progressDialogFragment.dismiss()
-      activity.setRequestedOrientation(oldRequestedOrientation)
-      activityCallback.onDeletePlurkFailure(e)
-    }
-  }
-
   private def showDeleteConfirmDialog(plurk: Plurk) {
-    val alertDialog = 
-      ConfirmDialog.createDialog(
-        activity, 
-        "確定要刪除嗎？",
-        "請問確定要刪除這則噗浪嗎？此動作無法回復喲",
-        "刪除"
-      ){ dialog =>
-        deletePlurk(plurk) 
-        dialog.dismiss()
-      }
-    
-    alertDialog.show()
+    val data = new Bundle
+    data.putLong("plurkID", plurk.plurkID)
+    val alertDialog = ConfirmDialog.createDialog(
+      activity,
+      'DeletePlurkConfirm, 
+      "確定要刪除嗎？", "請問確定要刪除這則噗浪嗎？此動作無法回復喲",
+      "刪除", "取消",
+      Some(data)
+    )
+      
+    val fm = activity.asInstanceOf[FragmentActivity].getSupportFragmentManager
+    alertDialog.show(fm, "DeletePlurkConfirm")
   }
 
   private def setDropdownMenu(plurk: Plurk) {
