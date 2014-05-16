@@ -4,23 +4,23 @@
   xmlns:maidroid="http://schemas.android.com/apk/res-auto">
 
   <item
-    android:id="@+id/editPlurkActionEmoticon"
+    android:id="@+id/activityPostResponseActionEmoticon"
     android:title="表情符號"
     android:icon="@drawable/ic_action_emoticon"
     maidroid:showAsAction="always" />
 
   <item
-    android:id="@+id/editPlurkActionUploadPhoto"
+    android:id="@+id/activityPostResponseActionUploadPhoto"
     android:title="上傳圖片"
     android:icon="@drawable/ic_action_photo"
     maidroid:showAsAction="always">
     <menu>
       <item
-        android:id="@+id/editPlurkActionPhotoFromGallery"
+        android:id="@+id/activityPostResponseActionPhotoFromGallery"
         android:icon="@drawable/ic_action_photo"
         android:title="自相簿選取" />
       <item
-        android:id="@+id/editPlurkActionPhotoFromCamera"
+        android:id="@+id/activityPostResponseActionPhotoFromCamera"
         android:icon="@drawable/ic_action_camera"
         android:title="拍攝新照片" />
 
@@ -28,13 +28,13 @@
   </item>
 
   <item
-    android:id="@+id/editPlurkActionSend"
-    android:title="完成"
+    android:id="@+id/activityPostResponseActionSend"
+    android:title="立刻發送"
     android:icon="@drawable/ic_action_send_now"
     maidroid:showAsAction="always" />
 
   <item
-    android:id="@+id/editPlurkActionLogout"
+    android:id="@+id/activityPostResponseActionLogout"
     android:title="登出"
     maidroid:showAsAction="never" />
 

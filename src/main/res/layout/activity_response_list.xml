@@ -11,14 +11,14 @@
     android:layout_height="match_parent">
 
     <FrameLayout
-      android:id="@+id/activityPlurkResponseFragmentContainer"
+      android:id="@+id/activityResponseListFragmentContainer"
       android:layout_width="match_parent"
       android:layout_height="match_parent" />
 
   </LinearLayout>
 
   <idv.brianhsu.maidroid.ui.DialogFrame
-    android:id="@+id/activityPlurkResponseDialogFrame"
+    android:id="@+id/activityResponseListDialogFrame"
     android:layout_weight="2"
     android:layout_marginTop="10dp"
     android:layout_width="match_parent"

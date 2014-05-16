@@ -5,6 +5,8 @@ import idv.brianhsu.maidroid.plurk.view._
 import android.app.Activity
 import android.os.Bundle
 import android.content.Intent
+import android.content.pm.ActivityInfo
+import android.content.DialogInterface
 
 import android.view.View
 import android.support.v7.app.ActionBarActivity
@@ -13,6 +15,7 @@ import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.adapter._
+import idv.brianhsu.maidroid.plurk.dialog._
 import idv.brianhsu.maidroid.ui.model._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
@@ -32,11 +35,13 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
                     with LoginFragment.Listener 
                     with TimelineFragment.Listener
                     with PlurkView.Listener
+                    with ConfirmDialog.Listener
 {
   implicit val activity = this
 
   private lazy val dialogFrame = findView(TR.dialogFrame)
   private lazy val fragmentContainer = findView(TR.activityMaidroidPlurkFragmentContainer)
+  private var timelineFragmentHolder: Option[TimelineFragment] = None
 
   def onGetAuthURLFailure(error: Exception) {
     dialogFrame.setMessages(
@@ -96,27 +101,6 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
     )
   }
 
-  override def onDeletePlurkFailure(e: Exception) {
-    DebugLog("====> onDeletePlurkFailure....", e)
-    dialogFrame.setMessages(
-      Message(MaidMaro.Half.Normal, "真是對不起，小鈴沒辦刪除這則噗浪耶……", None) ::
-      Message(MaidMaro.Half.Normal, s"系統說錯誤是：「${e.getMessage}」造成的說。", None) ::
-      Message(MaidMaro.Half.Smile, "主人要不要檢查網路狀態後重新讀取一次試試看呢？") :: Nil
-    )
-  }
-
-  override def onDeletePlurk() {
-    dialogFrame.setMessages(
-      Message(MaidMaro.Half.Smile, "要刪除這則發文嗎？好的，小鈴知道了，請主人稍等一下喔！") :: Nil
-    )
-  }
-
-  override def onDeletePlurkSuccess() {
-    dialogFrame.setMessages(
-      Message(MaidMaro.Half.Happy, "小鈴已經順利幫主把這則噗浪刪除了喲！") :: Nil
-    )
-  }
-
   override def onCreate(savedInstanceState: Bundle) {
 
     super.onCreate(savedInstanceState)
@@ -158,6 +142,11 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
     }
   }
 
+  override def onDeletePlurkSuccess() {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Happy, "小鈴已經順利幫主把這則噗浪刪除了喲！") :: Nil
+    )
+  }
 
   private def switchToFragment[T <: Fragment](fragment: T, addToBackStack: Boolean = false, isForcing: Boolean = false) {
 
@@ -165,6 +154,12 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
     val topFragment = Try(getSupportFragmentManager.findFragmentById(R.id.activityMaidroidPlurkFragmentContainer).asInstanceOf[T]).filter(_ != null)
 
     if (isForcing || topFragment.isFailure) {
+
+      if (fragment.isInstanceOf[TimelineFragment]) {
+        timelineFragmentHolder = Some(fragment.asInstanceOf[TimelineFragment])
+      } else {
+        timelineFragmentHolder = None
+      }
 
       val transaction = getSupportFragmentManager.beginTransaction
       transaction.replace(R.id.activityMaidroidPlurkFragmentContainer, fragment)
@@ -178,8 +173,54 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
   }
 
   override def startEditActivity(plurk: Plurk) {
-    val timelineFragment = Try(getSupportFragmentManager.findFragmentById(R.id.activityMaidroidPlurkFragmentContainer).asInstanceOf[TimelineFragment]).filter(_ != null)
-    timelineFragment.foreach(_.startEditActivity(plurk))
+    timelineFragmentHolder.foreach(_.startEditActivity(plurk))
+  }
+
+  override def onDialogOKClicked(dialogName: Symbol, dialog: DialogInterface, data: Bundle) {
+    dialogName match {
+      case 'LogoutConfirm => 
+        dialog.dismiss()
+        Logout.doLogout(this)
+      case 'DeletePlurkConfirm =>
+        val plurkID = data.getLong("plurkID")
+        deletePlurk(plurkID)
+    }
+  }
+
+  private def deletePlurk(plurkID: Long) {
+    val progressDialogFragment = new ProgressDialogFragment("刪除中", "請稍候……")
+    progressDialogFragment.show(getSupportFragmentManager.beginTransaction, "deleteProgress")
+    val oldRequestedOrientation = activity.getRequestedOrientation
+    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
+
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Smile, "要刪除這則發文嗎？好的，小鈴知道了，請主人稍等一下喔！") :: Nil
+    )
+
+    val deleteFuture = future {
+      val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
+      plurkAPI.Timeline.plurkDelete(plurkID).get
+    }
+
+    deleteFuture.onSuccessInUI { _ =>
+      timelineFragmentHolder.foreach { _.deletePlurk(plurkID) }
+      dialogFrame.setMessages(
+        Message(MaidMaro.Half.Happy, "小鈴已經順利幫主把這則噗浪刪除了喲！") :: Nil
+      )
+      progressDialogFragment.dismiss()
+      activity.setRequestedOrientation(oldRequestedOrientation)
+    }
+
+    deleteFuture.onFailureInUI { case e: Exception =>
+      progressDialogFragment.dismiss()
+      activity.setRequestedOrientation(oldRequestedOrientation)
+      DebugLog("====> onDeletePlurkFailure....", e)
+      dialogFrame.setMessages(
+        Message(MaidMaro.Half.Normal, "真是對不起，小鈴沒辦刪除這則噗浪耶……", None) ::
+        Message(MaidMaro.Half.Normal, s"系統說錯誤是：「${e.getMessage}」造成的說。", None) ::
+        Message(MaidMaro.Half.Smile, "主人要不要檢查網路狀態後重新讀取一次試試看呢？") :: Nil
+      )
+    }
   }
 
 }

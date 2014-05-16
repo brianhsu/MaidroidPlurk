@@ -3,9 +3,11 @@ package idv.brianhsu.maidroid.plurk.fragment
 import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.plurk.adapter._
+import idv.brianhsu.maidroid.plurk.dialog._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.view._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
+
 
 import android.app.Activity
 import android.os.Bundle
@@ -17,6 +19,8 @@ import android.view.View
 import android.webkit.WebViewClient
 import android.webkit.WebView
 
+import android.support.v4.app.FragmentActivity
+
 import org.bone.soplurk.api._
 import org.bone.soplurk.api.PlurkAPI._
 import org.bone.soplurk.model._
@@ -24,24 +28,20 @@ import org.bone.soplurk.model._
 import scala.concurrent._
 import scala.util.Try
 
-object ResponseList {
+object ResponseListFragment {
 
   trait Listener {
     def onGetResponseSuccess(responses: PlurkResponses): Unit
     def onGetResponseFailure(e: Exception): Unit
-    def onDeleteResponse(): Unit
-    def onDeleteResponseSuccess(): Unit
-    def onDeleteResponseFailure(e: Exception): Unit
   }
 }
 
-class ResponseList extends Fragment {
+class ResponseListFragment extends Fragment {
 
-  private implicit def activity = getActivity
+  private implicit def activity = getActivity.asInstanceOf[FragmentActivity with ConfirmDialog.Listener with ResponseListFragment.Listener with PlurkView.Listener]
 
   private def plurkAPI = PlurkAPIHelper.getPlurkAPI(activity)
 
-  private var callbackHolder: Option[ResponseList.Listener] = None
   private lazy val adapter = new ResponseAdapter(activity, plurk, owner)
 
   private def listHolder = Option(getView).map(_.findView(TR.fragmentResponseList))
@@ -53,14 +53,6 @@ class ResponseList extends Fragment {
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
                             savedInstanceState: Bundle): View = {
     inflater.inflate(R.layout.fragment_response, container, false)
-  }
-
-  override def onAttach(activity: Activity) {
-    super.onAttach(activity)
-    callbackHolder = for {
-      activity <- Option(activity)
-      callback <- Try(activity.asInstanceOf[ResponseList.Listener]).toOption
-    } yield callback
   }
 
   override def onStart() {
@@ -87,13 +79,17 @@ class ResponseList extends Fragment {
     responses.onSuccessInUI { response =>
       adapter.update(response.responses, response.friends)
       PlurkView.updatePlurkCommentInfo(plurk.plurkID, response.responses.size, true)
-      callbackHolder.foreach(_.onGetResponseSuccess(response))
+      activity.onGetResponseSuccess(response)
     }
 
     responses.onFailureInUI { case e: Exception =>
-      callbackHolder.foreach(_.onGetResponseFailure(e))
+      activity.onGetResponseFailure(e)
     }
 
+  }
+
+  def deleteResponse(responseID: Long) {
+    adapter.deleteResponse(responseID)
   }
 }
 

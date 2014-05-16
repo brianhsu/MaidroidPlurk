@@ -30,13 +30,12 @@ object LoginFragment {
 
 class LoginFragment extends Fragment {
 
-  private implicit def activity = getActivity
+  private implicit def activity = getActivity.asInstanceOf[Activity with LoginFragment.Listener]
+
   private lazy val plurkAPI = PlurkAPIHelper.getNewPlurkAPI
   private lazy val webViewHolder = Option(getView).map(_.findView(TR.fragmentLoginWebView))
   private lazy val loadingIndicatorHolder = Option(getView).map(_.findView(TR.moduleLoadingIndicator))
   private lazy val errorNoticeHolder = Option(getView).map(_.findView(TR.fragmentLoginErrorNotice))
-
-  private var callbackHolder: Option[LoginFragment.Listener] = None
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
                             savedInstanceState: Bundle): View = {
@@ -46,14 +45,6 @@ class LoginFragment extends Fragment {
   override def onStart() {
     super.onStart()
     startAuthorization()
-  }
-
-  override def onAttach(activity: Activity) {
-    super.onAttach(activity)
-    callbackHolder = for {
-      activity <- Option(activity)
-      callback <- Try(activity.asInstanceOf[LoginFragment.Listener]).toOption
-    } yield callback
   }
 
   private def showErrorNotice(message: String){
@@ -80,7 +71,7 @@ class LoginFragment extends Fragment {
     authorizationURL.onFailureInUI { 
       case error: Exception => {
         DebugLog("====> authorizationURL.onFailureInUI:" + error.getMessage, error) 
-        callbackHolder.foreach(_.onGetAuthURLFailure(error))
+        activity.onGetAuthURLFailure(error)
         showErrorNotice("無法取得噗浪登入網址")
       }
     }
@@ -98,7 +89,7 @@ class LoginFragment extends Fragment {
       
       url match {
         case "http://www.plurk.com/" => 
-          callbackHolder.foreach(_.onLoginFailure(new Exception("登入失敗，使用者拒絕授權")))
+          activity.onLoginFailure(new Exception("登入失敗，使用者拒絕授權"))
           showErrorNotice("登入失敗，使用者拒絕授權")
           false
         case _ if isCallbackURL => 
@@ -113,7 +104,7 @@ class LoginFragment extends Fragment {
                                  description: String, failingUrl: String) {
 
       if (!failingUrl.startsWith("http://localhost/auth")) {
-        callbackHolder.foreach(_.onLoginFailure(new Exception(s"登入失敗，${description}")))
+        activity.onLoginFailure(new Exception(s"登入失敗，${description}"))
       } else {
         super.onReceivedError(view, errorCode, description, failingUrl)
       }
@@ -143,12 +134,12 @@ class LoginFragment extends Fragment {
 
       authStatusFuture.onSuccessInUI{ _ => 
         PlurkAPIHelper.saveAccessToken(activity)
-        callbackHolder.foreach(_.onLoginSuccess())
+        activity.onLoginSuccess()
       }
 
       authStatusFuture.onFailureInUI{ case e: Exception => 
         showErrorNotice("無法正確登入噗浪")
-        callbackHolder.foreach(_.onLoginFailure(e))
+        activity.onLoginFailure(e)
       }
     }
   }

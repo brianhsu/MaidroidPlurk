@@ -1,5 +1,6 @@
 package idv.brianhsu.maidroid.plurk.activity
 
+import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.fragment._
 
 import org.bone.soplurk.model.Icon

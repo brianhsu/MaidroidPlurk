@@ -2,6 +2,7 @@ package idv.brianhsu.maidroid.plurk.view
 
 import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.adapter._
+import idv.brianhsu.maidroid.plurk.dialog._
 import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.plurk.cache._
@@ -12,6 +13,7 @@ import idv.brianhsu.maidroid.ui.util.CallbackConversions._
 import scala.concurrent._
 
 import android.app.Activity
+import android.os.Bundle
 import android.content.Context
 import android.graphics.Bitmap
 import android.text.method.LinkMovementMethod
@@ -20,6 +22,7 @@ import android.view.View
 import android.view.LayoutInflater
 import android.widget.LinearLayout
 import android.view.MenuItem
+import android.support.v4.app.FragmentActivity
 import android.support.v7.widget.PopupMenu
 import android.support.v7.internal.view.menu.MenuBuilder
 
@@ -30,10 +33,11 @@ import org.bone.soplurk.model._
 import java.text.SimpleDateFormat
 import java.net.URL
 
-class ResponseView(adapter: ResponseAdapter)(implicit val activity: Activity) extends LinearLayout(activity) {
+class ResponseView(adapter: ResponseAdapter)
+                  (implicit val activity: FragmentActivity with ConfirmDialog.Listener) 
+                  extends LinearLayout(activity) {
 
-  private val inflater = activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE).
-                                  asInstanceOf[LayoutInflater]
+  private val inflater = LayoutInflater.from(activity)
 
   initView()
 
@@ -54,38 +58,20 @@ class ResponseView(adapter: ResponseAdapter)(implicit val activity: Activity) ex
     content.setMovementMethod(LinkMovementMethod.getInstance())
   }
 
-  private def deleteResponse(response: Response) {
-
-    val activityCallback = activity.asInstanceOf[ResponseList.Listener]
-
-    activityCallback.onDeleteResponse()
-
-    val deleteFuture = future {
-      plurkAPI.Responses.responseDelete(response.plurkID, response.id).get
-    }
-
-    deleteFuture.onSuccessInUI { _ =>
-      adapter.deleteResponse(response.id)
-      activityCallback.onDeleteResponseSuccess()
-    }
-
-    deleteFuture.onFailureInUI { case e: Exception =>
-      activityCallback.onDeleteResponseFailure(e)
-    }
-  }
 
   private def showDeleteConfirmDialog(response: Response) {
+    val data = new Bundle
+    data.putLong("plurkID", response.plurkID)
+    data.putLong("responseID", response.id)
     val alertDialog = ConfirmDialog.createDialog(
-      activity, 
-      "確定要刪除嗎？",
-      "請問確定要刪除這則回應嗎？此動作無法回復喲",
-      "刪除"
-    ) { dialog =>
-      dialog.dismiss()
-      deleteResponse(response) 
-    }
+      activity, 'DeleteResponseConfirm, 
+      "確定要刪除嗎？", "請問確定要刪除這則回應嗎？此動作無法回復喲",
+      "刪除", "取消",
+      Some(data)
+    )
     
-    alertDialog.show()
+    val fm = activity.getSupportFragmentManager
+    alertDialog.show(fm, "DeleteResponseConfirm")
   }
 
   private def setDropdownMenu(response: Response, isDeletable: Boolean) {

@@ -2,6 +2,7 @@ package idv.brianhsu.maidroid.plurk.adapter
 
 import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.activity._
+import idv.brianhsu.maidroid.plurk.dialog._
 import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.view.PlurkView
@@ -18,13 +19,16 @@ import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.widget.BaseAdapter
 import android.graphics.BitmapFactory
+import android.support.v4.app.FragmentActivity
 
 import org.bone.soplurk.api.PlurkAPI._
 import org.bone.soplurk.model._
 
 import java.net.URL
 
-class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false) extends BaseAdapter {
+class PlurkAdapter(activity: FragmentActivity with PlurkView.Listener 
+                                              with ConfirmDialog.Listener, 
+                   isInResponseList: Boolean = false) extends BaseAdapter {
   private implicit val mActivity = activity
   private var plurks: Vector[Plurk] = Vector.empty
   private var users: Map[Long, User] = Map.empty
@@ -54,9 +58,9 @@ class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false) extend
 
     itemView.update(plurk, owner, replurker, textViewImageGetter)
     itemView.setOnCommentCountClickListener { 
-      val intent = new Intent(activity, classOf[PlurkResponse])
-      PlurkResponse.plurk = plurk
-      PlurkResponse.user = owner
+      val intent = new Intent(activity, classOf[ResponseListActivity])
+      ResponseListActivity.plurk = plurk
+      ResponseListActivity.user = owner
       activity.startActivity(intent)
     }
     itemView
@@ -98,9 +102,12 @@ class PlurkAdapter(activity: Activity, isInResponseList: Boolean = false) extend
 
   def updatePlurk(plurkID: Long, newContent: String, newContentRaw: Option[String]) {
     val index = plurks.indexWhere(_.plurkID == plurkID)
-    val newPlurk = plurks(index).copy(content = newContent, contentRaw = newContentRaw)
-    plurks = plurks.updated(index, newPlurk)
-    notifyDataSetChanged()
+
+    if (index >= 0) {
+      val newPlurk = plurks(index).copy(content = newContent, contentRaw = newContentRaw)
+      plurks = plurks.updated(index, newPlurk)
+      notifyDataSetChanged()
+    }
   }
 
   def updatePlurkContent() {

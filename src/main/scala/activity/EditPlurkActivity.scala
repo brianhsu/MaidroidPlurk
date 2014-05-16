@@ -2,6 +2,7 @@ package idv.brianhsu.maidroid.plurk.activity
 
 import idv.brianhsu.maidroid.ui.model._
 import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.dialog._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
@@ -11,6 +12,7 @@ import org.bone.soplurk.model._
 
 import android.app.Activity
 import android.content.pm.ActivityInfo
+import android.content.DialogInterface
 
 import android.os.Bundle
 import android.content.Intent
@@ -34,6 +36,7 @@ class EditPlurkActivity extends ActionBarActivity
                            with SelectEmoticonActivity
                            with EmoticonFragment.Listener
                            with TypedViewHolder 
+                           with ConfirmDialog.Listener
 {
  
   private lazy val plurkID = getIntent.getLongExtra(EditPlurkActivity.PlurkIDBundle, -1)
@@ -44,14 +47,17 @@ class EditPlurkActivity extends ActionBarActivity
   protected lazy val dialogFrame = findView(TR.activityEditPlurkDialogFrame)
   protected lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
 
-  def getCurrentEditor = getSupportFragmentManager.
-    findFragmentById(R.id.activityEditPlurkFragmentContainer).asInstanceOf[PlurkEditor]
+  def getCurrentEditor = editorFragment
 
   override def onCreate(savedInstanceState: Bundle) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_edit_plurk)
 
-    if (getCurrentEditor == null) {
+    val isFragmentHolderEmpty = 
+      getSupportFragmentManager.
+        findFragmentById(R.id.activityEditPlurkFragmentContainer) == null
+
+    if (isFragmentHolderEmpty) {
       getSupportFragmentManager.
         beginTransaction.
         replace(R.id.activityEditPlurkFragmentContainer, editorFragment).
@@ -73,16 +79,16 @@ class EditPlurkActivity extends ActionBarActivity
 
   override def onCreateOptionsMenu(menu: Menu): Boolean = {
     val inflater = getMenuInflater
-    inflater.inflate(R.menu.edit_plurk, menu)
+    inflater.inflate(R.menu.activity_edit_plurk, menu)
     super.onCreateOptionsMenu(menu)
   }
 
   override def onOptionsItemSelected(menuItem: MenuItem): Boolean = menuItem.getItemId match {
-    case R.id.editPlurkActionPhotoFromGallery => startPhotoPicker(); false
-    case R.id.editPlurkActionPhotoFromCamera => startCamera(); false
-    case R.id.editPlurkActionEmoticon => toggleEmoticonSelector(); false
-    case R.id.editPlurkActionSend => editPlurk(); false
-    case R.id.editPlurkActionLogout => Logout.logout(this); false
+    case R.id.activityEditPlurkActionPhotoFromGallery => startPhotoPicker(); false
+    case R.id.activityEditPlurkActionPhotoFromCamera => startCamera(); false
+    case R.id.activityEditPlurkActionEmoticon => toggleEmoticonSelector(); false
+    case R.id.activityEditPlurkActionSend => editPlurk(); false
+    case R.id.activityEditPlurkActionLogout => Logout.logout(this); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 
@@ -100,13 +106,23 @@ class EditPlurkActivity extends ActionBarActivity
   private def showWarningDialog() {
 
     val alertDialog = ConfirmDialog.createDialog(
-      this, "取消", "確定要退出嗎？這會造成目前的內容永遠消失喲！", "是", "否"
-    ) { dialog =>
-      setResult(Activity.RESULT_CANCELED)
-      dialog.dismiss()
-      EditPlurkActivity.this.finish()
+      this, 'ExitConfirm, "取消", "確定要退出嗎？這會造成目前的內容永遠消失喲！", "是", "否"
+    ) 
+
+    alertDialog.show(getSupportFragmentManager(), "ExitConfirm")
+  }
+
+  override def onDialogOKClicked(dialogName: Symbol, dialog: DialogInterface, data: Bundle) {
+    dialogName match {
+      case 'LogoutConfirm => 
+        dialog.dismiss()
+        this.finish()
+        Logout.doLogout(this)
+      case 'ExitConfirm =>
+        setResult(Activity.RESULT_CANCELED)
+        dialog.dismiss()
+        EditPlurkActivity.this.finish()
     }
-    alertDialog.show()
   }
 
   override def onBackPressed() {
@@ -124,7 +140,7 @@ class EditPlurkActivity extends ActionBarActivity
   }
 
   private def editPlurk() {
-    val contentLength = getCurrentEditor.getContentLength
+    val contentLength = editorFragment.getContentLength
 
     if (contentLength == 0) {
       dialogFrame.setMessages(
@@ -148,7 +164,7 @@ class EditPlurkActivity extends ActionBarActivity
       setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
       val editedPlurkFuture = future {
-        val newContent = getCurrentEditor.getEditorContent.map(_._1.toString) getOrElse this.rawContent
+        val newContent = editorFragment.getEditorContent.map(_._1.toString) getOrElse this.rawContent
         val newPlurk = plurkAPI.Timeline.plurkEdit(plurkID, newContent).get
         newPlurk
       }

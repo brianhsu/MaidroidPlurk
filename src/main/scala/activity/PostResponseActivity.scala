@@ -2,6 +2,7 @@ package idv.brianhsu.maidroid.plurk.activity
 
 import idv.brianhsu.maidroid.ui.model._
 import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.dialog._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
@@ -11,6 +12,7 @@ import org.bone.soplurk.model._
 
 import android.app.Activity
 import android.content.pm.ActivityInfo
+import android.content.DialogInterface
 
 import android.os.Bundle
 import android.content.Intent
@@ -29,6 +31,7 @@ class PostResponseActivity extends ActionBarActivity
                            with SelectEmoticonActivity
                            with EmoticonFragment.Listener
                            with TypedViewHolder 
+                           with ConfirmDialog.Listener
 {
   protected val emoticonFragmentHolderResID = R.id.activityPostResponseEmtoicon
   protected lazy val editorFragment = new PostResponseFragment
@@ -36,14 +39,17 @@ class PostResponseActivity extends ActionBarActivity
   protected lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
   private lazy val plurkID = getIntent.getLongExtra(PostResponseActivity.PlurkIDBundle, -1)
 
-  def getCurrentEditor = getSupportFragmentManager.
-    findFragmentById(R.id.activityPostResponseFragmentContainer).asInstanceOf[PlurkEditor]
+  def getCurrentEditor = editorFragment
 
   override def onCreate(savedInstanceState: Bundle) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_post_response)
 
-    if (getCurrentEditor == null) {
+    val isFragmentHolderEmpty = 
+      getSupportFragmentManager.
+        findFragmentById(R.id.activityPostResponseFragmentContainer) == null
+
+    if (isFragmentHolderEmpty) {
       getSupportFragmentManager.
         beginTransaction.
         replace(R.id.activityPostResponseFragmentContainer, editorFragment).
@@ -65,16 +71,16 @@ class PostResponseActivity extends ActionBarActivity
 
   override def onCreateOptionsMenu(menu: Menu): Boolean = {
     val inflater = getMenuInflater
-    inflater.inflate(R.menu.post_plurk, menu)
+    inflater.inflate(R.menu.activity_post_response, menu)
     super.onCreateOptionsMenu(menu)
   }
 
   override def onOptionsItemSelected(menuItem: MenuItem): Boolean = menuItem.getItemId match {
-    case R.id.postPlurkActionPhotoFromGallery => startPhotoPicker(); false
-    case R.id.postPlurkActionPhotoFromCamera => startCamera(); false
-    case R.id.postPlurkActionEmoticon => toggleEmoticonSelector(); false
-    case R.id.postPlurkActionSend => postResponse(); false
-    case R.id.postPlurkActionLogout => Logout.logout(this); false
+    case R.id.activityPostResponseActionPhotoFromGallery => startPhotoPicker(); false
+    case R.id.activityPostResponseActionPhotoFromCamera => startCamera(); false
+    case R.id.activityPostResponseActionEmoticon => toggleEmoticonSelector(); false
+    case R.id.activityPostResponseActionSend => postResponse(); false
+    case R.id.activityPostResponseActionLogout => Logout.logout(this); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 
@@ -92,14 +98,25 @@ class PostResponseActivity extends ActionBarActivity
   private def showWarningDialog() {
 
     val alertDialog = ConfirmDialog.createDialog(
-      this, "取消", "確定要取消回應嗎？這會造成目前的內容永遠消失喲！", "是", "否"
-    ) { dialog =>
-      setResult(Activity.RESULT_CANCELED)
-      dialog.dismiss()
-      PostResponseActivity.this.finish()
-    }
+      this, 'ExitConfirm, 
+      "取消", "確定要取消回應嗎？這會造成目前的內容永遠消失喲！", 
+      "是", "否"
+    ) 
+    
+    alertDialog.show(getSupportFragmentManager, "ExitConfirm")
+  }
 
-    alertDialog.show()
+  override def onDialogOKClicked(dialogName: Symbol, dialog: DialogInterface, data: Bundle) {
+    dialogName match {
+      case 'LogoutConfirm => 
+        dialog.dismiss()
+        this.finish()
+        Logout.doLogout(this)
+      case 'ExitConfirm =>
+        setResult(Activity.RESULT_CANCELED)
+        dialog.dismiss()
+        finish()
+    }
   }
 
   override def onBackPressed() {
@@ -117,7 +134,7 @@ class PostResponseActivity extends ActionBarActivity
   }
 
   private def postResponse() {
-    val contentLength = getCurrentEditor.getContentLength
+    val contentLength = editorFragment.getContentLength
 
     if (contentLength == 0) {
       dialogFrame.setMessages(
@@ -137,7 +154,7 @@ class PostResponseActivity extends ActionBarActivity
       val oldRequestedOrientation = getRequestedOrientation
       setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
-      val responseFuture = getCurrentEditor.postResponse(plurkID)
+      val responseFuture = editorFragment.postResponse(plurkID)
       responseFuture.onSuccessInUI { _ =>
         setResult(Activity.RESULT_OK)
         progressDialogFragment.dismiss()
