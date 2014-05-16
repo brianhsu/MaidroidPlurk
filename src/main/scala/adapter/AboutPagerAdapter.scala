@@ -23,7 +23,7 @@ class AboutPageAdapter(views: Vector[View])  extends PagerAdapter {
   }
  
   override def getPageTitle(position: Int) = position match {
-    case 0 => "版本"
+    case 0 => "版本資訊"
     case 1 => "自由軟體授權"
     case 2 => "圖示授權"
   }
