@@ -38,4 +38,8 @@
     android:title="登出"
     maidroid:showAsAction="never" />
 
+  <item
+    android:id="@+id/activityPostResponseActionAbout"
+    android:title="關於"
+    maidroid:showAsAction="never" />
 </menu>

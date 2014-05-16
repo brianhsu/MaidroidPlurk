@@ -7,8 +7,10 @@ import android.os.Bundle
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.DialogInterface
-
 import android.view.View
+import android.view.Menu
+import android.view.MenuItem
+
 import android.support.v7.app.ActionBarActivity
 
 import idv.brianhsu.maidroid.plurk._
@@ -221,6 +223,17 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
         Message(MaidMaro.Half.Smile, "主人要不要檢查網路狀態後重新讀取一次試試看呢？") :: Nil
       )
     }
+  }
+
+  override def onCreateOptionsMenu(menu: Menu): Boolean = {
+    val inflater = getMenuInflater
+    inflater.inflate(R.menu.activity_maidroid_plurk, menu)
+    super.onCreateOptionsMenu(menu)
+  }
+
+  override def onOptionsItemSelected(menuItem: MenuItem): Boolean = menuItem.getItemId match {
+    case R.id.activityMaidroidPlurkActionAbout => AboutActivity.startActivity(this); false
+    case _ => super.onOptionsItemSelected(menuItem)
   }
 
 }

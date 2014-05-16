@@ -154,6 +154,10 @@ class TimelineFragment extends Fragment {
       "responded" -> menu.findItem(R.id.fragmentTimelineActionResponded),
       "favorite" -> menu.findItem(R.id.fragmentTimelineActionFavorite)
     )
+
+    val aboutFromActivity = menu.findItem(R.id.activityMaidroidPlurkActionAbout)
+    aboutFromActivity.setVisible(false)
+
     actionMenu
   }
 
@@ -340,6 +344,7 @@ class TimelineFragment extends Fragment {
     case R.id.fragmentTimelineActionToggleUnreadOnly => switchToFilter(plurkFilter, !this.isUnreadOnly)
     case R.id.fragmentTimelineActionPost => startPostPlurkActivity(); false
     case R.id.fragmentTimelineActionLogout => Logout.logout(activity); false
+    case R.id.fragmentTimelineActionAbout => AboutActivity.startActivity(activity); false
     case _ => super.onOptionsItemSelected(item)
   }
 

@@ -23,6 +23,10 @@
       android:label="@string/titleResponseList" />
 
     <activity 
+      android:name=".activity.AboutActivity" 
+      android:label="@string/titleAbout" />
+
+    <activity 
       android:name=".activity.PostResponseActivity"
       android:label="@string/titlePostResponse"
       android:windowSoftInputMode="adjustResize"/>
