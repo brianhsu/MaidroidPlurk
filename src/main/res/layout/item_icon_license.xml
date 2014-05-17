@@ -23,10 +23,10 @@
 
   <TextView
     android:id="@+id/itemIconLicenseText"
-    android:gravity="center|center_vertical"
+    android:gravity="left|center_vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginLeft="-5dp"
+    android:layout_marginLeft="10dp"
 
     android:text="LicenseText"/>
 

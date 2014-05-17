@@ -22,7 +22,8 @@
       android:layout_weight="1"/>
 
     <TextView
-      android:text="MaidroidPlurk v0.0.1" 
+      android:id="@+id/aboutVersionText"
+      android:text="MaidroidPlurk vX.X.X" 
       android:textSize="25sp"
       android:layout_weight="4"
       android:gravity="center"

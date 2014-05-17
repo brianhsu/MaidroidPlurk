@@ -15,6 +15,8 @@ import android.text.method.LinkMovementMethod
 
 import android.support.v7.app.ActionBarActivity
 
+import scala.util.Try
+
 object AboutActivity {
   def startActivity(context: Context) {
     val intent = new Intent(context, classOf[AboutActivity])
@@ -33,12 +35,22 @@ class AboutActivity extends ActionBarActivity with TypedViewHolder
     startActivity(intent)
   }
 
+  private def getVersionName = Try {
+    val packageName = getApplicationContext.getPackageName
+    val packageManager = getApplicationContext.getPackageManager
+    packageManager.getPackageInfo(packageName, 0).versionName
+  }
+
   private def createAboutVersionPage() = {
     val aboutVersion = getLayoutInflater.inflate(R.layout.about_version, null)
+    val versionText  = aboutVersion.findView(TR.aboutVersionText)
     val authorButton = aboutVersion.findView(TR.aboutVersionAuthor)
     val githubButton = aboutVersion.findView(TR.aboutVersionGithub)
     val marketButton = aboutVersion.findView(TR.aboutVersionMarket)
 
+    val appNameWithVersion = getString(R.string.AppName) + getVersionName.getOrElse("O.O.O")
+
+    versionText.setText(appNameWithVersion)
     authorButton.setOnClickListener { view: View => startBrowser("http://about.me/brianhsu") }
     githubButton.setOnClickListener { view: View => startBrowser("http://github.com/brianhsu/MaidroidPlurk") }
     marketButton.setOnClickListener { view: View =>
