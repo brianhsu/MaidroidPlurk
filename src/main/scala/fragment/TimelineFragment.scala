@@ -133,8 +133,10 @@ class TimelineFragment extends Fragment {
   }
 
   override def onViewStateRestored (savedInstanceState: Bundle) {
-    val isRecreate = savedInstanceState != null
-    if (isRecreate) {
+    val isInError = (savedInstanceState != null && savedInstanceState.getBoolean("isInError", false))
+    val isRecreate = (savedInstanceState != null)
+
+    if (isRecreate && !isInError) {
       updateTimeline(isRecreate = true)
     } else {
       updateTimeline()
@@ -181,6 +183,12 @@ class TimelineFragment extends Fragment {
       adapter.updatePlurkContent()
     }
     super.onResume()
+  }
+
+  override def onSaveInstanceState(outState: Bundle) {
+    super.onSaveInstanceState(outState)
+    val isInError = errorNoticeHolder.map(_.getVisibility == View.VISIBLE).getOrElse(false)
+    outState.putBoolean("isInError", isInError)
   }
 
   private def showErrorNotice(message: String) {
