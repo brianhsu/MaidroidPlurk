@@ -43,11 +43,22 @@ class ResponseAdapter(activity: FragmentActivity with PlurkView.Listener
 
   private var responsesHolder: Option[Vector[Response]] = None
   private var friendsHolder: Option[Map[Long, User]] = None
-  private val textViewImageGetter = new PlurkImageGetter(activity, this)
-  private var hasError: Boolean = false
 
-  def setHasError(hasError: Boolean) {
-    this.hasError = hasError
+  private var retryCallbackHolder: Option[() => Any] = None
+  private var errorMessageHolder: Option[String] = None
+
+  private val textViewImageGetter = new PlurkImageGetter(activity, this)
+
+  def clearErrorCallback() {
+    this.retryCallbackHolder = None
+    this.errorMessageHolder = None
+    notifyDataSetChanged()
+  }
+
+  def setupErrorCallback(errorMessage: String, retryCallback: () => Any) {
+    this.errorMessageHolder = Some(errorMessage)
+    this.retryCallbackHolder = Some(retryCallback)
+    notifyDataSetChanged()
   }
 
   def getCount = responsesHolder.map(_.size).getOrElse(0) + 2
@@ -96,17 +107,32 @@ class ResponseAdapter(activity: FragmentActivity with PlurkView.Listener
     val view = infalter.inflate(R.layout.item_header_response, parent, false)
     val loadingIndicator = view.findView(TR.itemHeaderResponseLoadingIndicator)
     val emptyNotice = view.findView(TR.itemHeaderResponseEmptyNotice)
+    val errorNotice = view.findView(TR.itemHeaderResponseErrorNotice)
 
-    if (hasError) {
+    if (errorMessageHolder.isDefined && retryCallbackHolder.isDefined) {
+      for {
+        errorMessage <- this.errorMessageHolder
+        retryCallback <- this.retryCallbackHolder
+      } {
+        errorNotice.setVisibility(View.VISIBLE)
+        errorNotice.setMessageWithRetry("無法取得回應") { retryButton =>
+          retryButton.setEnabled(false)
+          errorNotice.setVisibility(View.GONE)
+          retryCallback()
+        }
+      }
       loadingIndicator.hide()
       emptyNotice.setVisibility(View.GONE)
     } else if (responsesHolder.isEmpty) {
+      errorNotice.setVisibility(View.GONE)
       loadingIndicator.show()
       emptyNotice.setVisibility(View.GONE)
     } else if (responsesHolder.map(_.isEmpty).getOrElse(false)){
+      errorNotice.setVisibility(View.GONE)
       loadingIndicator.hide()
       emptyNotice.setVisibility(View.VISIBLE)
     } else {
+      errorNotice.setVisibility(View.GONE)
       loadingIndicator.hide()
       emptyNotice.setVisibility(View.GONE)
     }

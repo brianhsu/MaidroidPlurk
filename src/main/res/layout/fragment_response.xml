@@ -22,6 +22,12 @@
       android:layout_height="match_parent"
       android:visibility="gone">
 
+      <idv.brianhsu.maidroid.plurk.view.ErrorNoticeView
+        android:id="@+id/fragmentResponseErrorNotice"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
       <TextView
         android:text="@string/fragmentResponseEmptyNoticeText"
         android:padding="20dp"

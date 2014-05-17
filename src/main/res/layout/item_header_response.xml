@@ -16,6 +16,12 @@
     android:padding="5dp"
     android:text="回應" />
 
+  <idv.brianhsu.maidroid.plurk.view.ErrorNoticeView
+    android:id="@+id/itemHeaderResponseErrorNotice"
+    android:visibility="gone"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"/>
+
   <idv.brianhsu.maidroid.plurk.view.LoadingIndicator
     android:id="@+id/itemHeaderResponseLoadingIndicator"
     android:focusable="true"
