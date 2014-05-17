@@ -159,8 +159,7 @@ class TimelineFragment extends Fragment {
 
     val aboutFromActivity = menu.findItem(R.id.activityMaidroidPlurkActionAbout)
     aboutFromActivity.setVisible(false)
-    updateToggleButtonEnabled(false)
-
+    updateToggleButtonTitle(false, None)
     actionMenu
   }
 
@@ -384,9 +383,14 @@ class TimelineFragment extends Fragment {
       adapterVersion += 1
     }
 
-    val plurksFuture = future { (getPlurks(isRecreate = isRecreate), adapterVersion) }
+    val plurksFuture = future { 
+      val plurks = getPlurks(isRecreate = isRecreate)
+      val unreadCounts = plurkAPI.Polling.getUnreadCount.get
+      (plurks, unreadCounts, adapterVersion) 
+    }
 
-    plurksFuture.onSuccessInUI { case (timeline, adapterVersion) => 
+    plurksFuture.onSuccessInUI { case (timeline, unreadCounts, adapterVersion) => 
+
       if (adapterVersion >= this.adapterVersion) {
 
         if (isNewFilter) { 
@@ -396,8 +400,7 @@ class TimelineFragment extends Fragment {
         adapterHolder.foreach(_.appendTimeline(timeline))
         activity.onShowTimelinePlurksSuccess(timeline, isNewFilter, plurkFilter, isUnreadOnly)
         filterButtonHolder.foreach { _.setEnabled(true) }
-        updateToggleButtonEnabled(true)
-        updateToggleButtonTitle()
+        updateToggleButtonTitle(true, Some(unreadCounts.all).filter(_ != 0))
         loadingIndicatorHolder.foreach(_.hide())
       }
     }
@@ -405,21 +408,39 @@ class TimelineFragment extends Fragment {
     plurksFuture.onFailureInUI { case e: Exception =>
       activity.onShowTimelinePlurksFailure(e)
       showErrorNotice("無法讀取噗浪河道資料")
-      updateToggleButtonTitle()
-      updateToggleButtonEnabled(false)
+      updateToggleButtonTitle(false)
     }
   }
 
   private def updateToggleButtonEnabled(isEnabled: Boolean) {
     toggleButtonHolder.foreach { button =>
       button.setEnabled(isEnabled)
-      MenuItemCompat.setActionView(button, null)
     }
   }
 
-  private def updateToggleButtonTitle() {
-    toggleButtonHolder.foreach { button =>
-      button.setTitle(if (isUnreadOnly) "未讀噗" else "所有噗")
+  private def updateToggleButtonTitle(isEnabled: Boolean, unreadCount: Option[Int] = None) {
+    toggleButtonHolder.foreach { menuItem =>
+      val infalter = this.getActivity.getLayoutInflater
+      val button = infalter.inflate(R.layout.view_toggle_button, null).asInstanceOf[android.widget.Button]
+      unreadCount match {
+        case Some(count) if !isUnreadOnly => 
+          button.setText(s"所有噗 ($count)")
+          button.setBackgroundResource(R.drawable.rounded_red)
+        case _ =>
+          button.setText(if (isUnreadOnly) "未讀噗" else "所有噗")
+          button.setBackgroundResource(R.drawable.rounded_blue)
+      }
+
+      if (!isEnabled) {
+        button.setEnabled(false)
+        button.setBackgroundResource(R.drawable.rounded_gray)
+      }
+
+      button.setOnClickListener { view: View =>
+        switchToFilter(plurkFilter, !this.isUnreadOnly)
+      }
+
+      MenuItemCompat.setActionView(menuItem, button)
     }
   }
 
