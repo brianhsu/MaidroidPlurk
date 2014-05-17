@@ -22,6 +22,9 @@ object AboutActivity {
     val intent = new Intent(context, classOf[AboutActivity])
     context.startActivity(intent)
   }
+
+  val AboutMeURL = "http://about.me/brianhsu"
+  val GitHubURL  = "http://github.com/brianhsu/MaidroidPlurk"
 }
 
 class AboutActivity extends ActionBarActivity with TypedViewHolder
@@ -51,8 +54,8 @@ class AboutActivity extends ActionBarActivity with TypedViewHolder
     val appNameWithVersion = getString(R.string.AppName) + getVersionName.getOrElse("O.O.O")
 
     versionText.setText(appNameWithVersion)
-    authorButton.setOnClickListener { view: View => startBrowser("http://about.me/brianhsu") }
-    githubButton.setOnClickListener { view: View => startBrowser("http://github.com/brianhsu/MaidroidPlurk") }
+    authorButton.setOnClickListener { view: View => startBrowser(AboutActivity.AboutMeURL) }
+    githubButton.setOnClickListener { view: View => startBrowser(AboutActivity.GitHubURL) }
     marketButton.setOnClickListener { view: View =>
       val appPackage = getApplicationContext.getPackageName
       val uri = s"market://details?id=${appPackage}"

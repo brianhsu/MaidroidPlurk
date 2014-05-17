@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="ActivityEditPlurkWelecomeMessage">主人不滿意這則噗嗎？小鈴知道了，請主人編輯完成後再通知我一聲喲！</string>
+  <string name="ActivityEditPlurkConfirmAbort">確定要退出嗎？這會造成目前的內容永遠消失喲！</string>
+
+  <string name="ActivityEditPlurkEditing">編輯中</string>
+  <string name="ActivityEditPlurkEditSuccess">已成功編輯此噗</string>
+
+  <string name="ActivityEditPlurkFailureMessage1">對不起！小鈴太沒用了，沒辦法順利幫主更新這則噗浪……</string>
+  <string name="ActivityEditPlurkFailureMessage2">系統說錯誤的原因是：%s，可不可以請主人檢查一次之後再重新按發送鍵一次呢？</string>
+
+</resources>

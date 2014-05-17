@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="UtilPlurkEditorEmptyNoticeMessage">主人還沒有填寫內容呢，這樣小鈴沒辦法幫主人發到噗浪上喲……</string>
+
+  <string name="UtilPlurkEditorOver210Message1">對不起，字數超過噗浪的 210 個字元的上限了呢……</string>
+  <string name="UtilPlurkEditorOver210Message2">主人要不要先刪除一些贅字，或試著寫得精鍊一些呢？</string>
+
+</resources>
