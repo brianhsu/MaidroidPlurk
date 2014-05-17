@@ -8,12 +8,14 @@ import android.content.Intent
 import android.content.Context
 import android.webkit.CookieManager
 import android.support.v4.app.FragmentActivity
+import android.webkit.CookieSyncManager
 
 object Logout {
 
   def doLogout(context: Context) {
     val intent = new Intent(context, classOf[MaidroidPlurk])
     PlurkAPIHelper.logout(context)
+    val syncManager = CookieSyncManager.createInstance(context)
     val cookieManager = CookieManager.getInstance()
     cookieManager.removeAllCookie()
     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
