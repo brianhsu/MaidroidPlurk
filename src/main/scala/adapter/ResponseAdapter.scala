@@ -44,6 +44,11 @@ class ResponseAdapter(activity: FragmentActivity with PlurkView.Listener
   private var responsesHolder: Option[Vector[Response]] = None
   private var friendsHolder: Option[Map[Long, User]] = None
   private val textViewImageGetter = new PlurkImageGetter(activity, this)
+  private var hasError: Boolean = false
+
+  def setHasError(hasError: Boolean) {
+    this.hasError = hasError
+  }
 
   def getCount = responsesHolder.map(_.size).getOrElse(0) + 2
 
@@ -92,14 +97,17 @@ class ResponseAdapter(activity: FragmentActivity with PlurkView.Listener
     val loadingIndicator = view.findView(TR.itemHeaderResponseLoadingIndicator)
     val emptyNotice = view.findView(TR.itemHeaderResponseEmptyNotice)
 
-    if (responsesHolder.isEmpty) {
-      loadingIndicator.setVisibility(View.VISIBLE)
+    if (hasError) {
+      loadingIndicator.hide()
+      emptyNotice.setVisibility(View.GONE)
+    } else if (responsesHolder.isEmpty) {
+      loadingIndicator.show()
       emptyNotice.setVisibility(View.GONE)
     } else if (responsesHolder.map(_.isEmpty).getOrElse(false)){
-      loadingIndicator.setVisibility(View.GONE)
+      loadingIndicator.hide()
       emptyNotice.setVisibility(View.VISIBLE)
     } else {
-      loadingIndicator.setVisibility(View.GONE)
+      loadingIndicator.hide()
       emptyNotice.setVisibility(View.GONE)
     }
 

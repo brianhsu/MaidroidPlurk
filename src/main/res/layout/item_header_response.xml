@@ -16,7 +16,7 @@
     android:padding="5dp"
     android:text="回應" />
 
-  <ProgressBar
+  <idv.brianhsu.maidroid.plurk.view.LoadingIndicator
     android:id="@+id/itemHeaderResponseLoadingIndicator"
     android:focusable="true"
     android:layout_width="match_parent"

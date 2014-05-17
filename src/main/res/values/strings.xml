@@ -8,8 +8,6 @@
   <string name="titlePostPlurk">發新噗</string>
   <string name="titleAbout">關於 MaidroidPlurk</string>
 
-  <string name="viewLoadingIndicatorText">讀取中，請稍候……</string>
-
   <string name="moduleErrorMesssageTextDefault">發生錯誤了 :-(</string>
   <string name="moduleErrorMessageRetryButtonTitle">重試一次</string>
 

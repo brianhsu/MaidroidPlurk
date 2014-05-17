@@ -84,6 +84,7 @@ class ResponseListFragment extends Fragment {
 
     responses.onFailureInUI { case e: Exception =>
       activity.onGetResponseFailure(e)
+      adapter.setHasError(true)
     }
 
   }
