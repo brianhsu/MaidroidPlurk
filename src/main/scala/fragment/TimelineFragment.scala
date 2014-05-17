@@ -410,6 +410,11 @@ class TimelineFragment extends Fragment {
     plurksFuture.onFailureInUI { case e: Exception =>
       activity.onShowTimelinePlurksFailure(e)
       showErrorNotice("無法讀取噗浪河道資料")
+      toggleButtonHolder.foreach { button =>
+        button.setEnabled(false)
+        MenuItemCompat.setActionView(button, null)
+        button.setTitle(if (isUnreadOnly) "未讀噗" else "所有噗")
+      }
     }
   }
 
