@@ -22,6 +22,7 @@ import java.util.Date
 
 import android.app.Activity
 import android.content.Context
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.content.Intent
 
@@ -46,6 +47,8 @@ import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener
 
 import scala.concurrent._
 import scala.util.Try
+
+import java.util.Date
 
 object TimelineFragment {
 
@@ -76,7 +79,7 @@ class TimelineFragment extends Fragment {
 
   private def listViewHolder = Option(getView).map(_.findView(TR.fragmentTimelineListView))
   private def pullToRefreshHolder = Option(getView).map(_.findView(TR.fragementTimelinePullToRefresh))
-  private def loadingIndicatorHolder = Option(getView).map(_.findView(TR.moduleLoadingIndicator))
+  private def loadingIndicatorHolder = Option(getView).map(_.findView(TR.fragmentTimelineLoadingIndicator))
   private def errorNoticeHolder = Option(getView).map(_.findView(TR.fragmentTimelineErrorNotice))
 
   private var loadMoreFooter: LoadMoreFooter = _
@@ -133,8 +136,10 @@ class TimelineFragment extends Fragment {
   }
 
   override def onViewStateRestored (savedInstanceState: Bundle) {
-    val isRecreate = savedInstanceState != null
-    if (isRecreate) {
+    val isInError = (savedInstanceState != null && savedInstanceState.getBoolean("isInError", false))
+    val isRecreate = (savedInstanceState != null)
+
+    if (isRecreate && !isInError) {
       updateTimeline(isRecreate = true)
     } else {
       updateTimeline()
@@ -154,6 +159,11 @@ class TimelineFragment extends Fragment {
       "responded" -> menu.findItem(R.id.fragmentTimelineActionResponded),
       "favorite" -> menu.findItem(R.id.fragmentTimelineActionFavorite)
     )
+
+    val aboutFromActivity = menu.findItem(R.id.activityMaidroidPlurkActionAbout)
+    aboutFromActivity.setVisible(false)
+    updateToggleButtonTitle(false, None)
+    updateFilterMark()
     actionMenu
   }
 
@@ -171,22 +181,24 @@ class TimelineFragment extends Fragment {
       activity.onDeletePlurkSuccess()
     }
 
-    DebugLog("====> TimelineFragment.notifyDataSetChanged")
-
-    adapterHolder.foreach { adapter =>
-      adapter.updatePlurkContent()
-    }
+    adapterHolder.foreach { adapter => adapter.updatePlurkContent() }
     super.onResume()
   }
 
+  override def onSaveInstanceState(outState: Bundle) {
+    super.onSaveInstanceState(outState)
+    val isInError = errorNoticeHolder.map(_.getVisibility == View.VISIBLE).getOrElse(false)
+    outState.putBoolean("isInError", isInError)
+  }
+
   private def showErrorNotice(message: String) {
-    loadingIndicatorHolder.foreach(_.setVisibility(View.GONE))
+    loadingIndicatorHolder.foreach(_.hide())
     errorNoticeHolder.foreach(_.setVisibility(View.VISIBLE))
     errorNoticeHolder.foreach { errorNotice =>
       errorNotice.setMessageWithRetry(message) { retryButton =>
         retryButton.setEnabled(false)
         errorNoticeHolder.foreach(_.setVisibility(View.GONE))
-        loadingIndicatorHolder.foreach(_.setVisibility(View.VISIBLE))
+        loadingIndicatorHolder.foreach(_.show())
         updateTimeline()
       }
     }
@@ -285,13 +297,6 @@ class TimelineFragment extends Fragment {
     }
   }
 
-  override def onPrepareOptionsMenu(menu: Menu) {
-    updateFilterMark()
-    toggleButtonHolder.foreach { button =>
-      button.setTitle(if (isUnreadOnly) "未讀噗" else "所有噗")
-    }
-  }
-
   override def onDestroy() {
     TimelineFragment.savedTimeline = adapterHolder.map(_.getTimeline)
     TimelineFragment.plurkFilter = this.plurkFilter
@@ -339,7 +344,9 @@ class TimelineFragment extends Fragment {
     case R.id.fragmentTimelineActionFavorite => switchToFilter(Some(OnlyFavorite), this.isUnreadOnly)
     case R.id.fragmentTimelineActionToggleUnreadOnly => switchToFilter(plurkFilter, !this.isUnreadOnly)
     case R.id.fragmentTimelineActionPost => startPostPlurkActivity(); false
+    case R.id.fragmentTimelineActionMarkAllAsRead => markAllAsRead(); false
     case R.id.fragmentTimelineActionLogout => Logout.logout(activity); false
+    case R.id.fragmentTimelineActionAbout => AboutActivity.startActivity(activity); false
     case _ => super.onOptionsItemSelected(item)
   }
 
@@ -365,6 +372,57 @@ class TimelineFragment extends Fragment {
     }
   }
 
+  private def markAllAsRead() {
+    val data = new Bundle
+    data.putString("filterName", plurkFilter.map(_.word).getOrElse(null))
+    val dialog = ConfirmDialog.createDialog(
+      activity, 'MarkAllAsReadConfirm, 
+      "標式為已讀", "真的要把這個類別裡的噗都標示為已讀嗎？",
+      "確定", "取消",
+      Some(data)
+    )
+    dialog.show(activity.getSupportFragmentManager, "markAllAsRead")
+  }
+
+  private def getUnreadPlurks(offset: Option[Date] = None, filter: Option[Filter]) = {
+    plurkAPI.Timeline.getUnreadPlurks(offset, filter = filter, minimalData = true)
+                     .get.plurks.sortBy(_.posted.getTime)
+  }
+
+  def markAllAsRead(filter: Option[Filter]) {
+    DebugLog("====> markAllAsRead:" + filter)
+
+    val progressDialogFragment = new ProgressDialogFragment("標示中", "請稍候……")
+    progressDialogFragment.show(activity.getSupportFragmentManager.beginTransaction, "markProgress")
+    val oldRequestedOrientation = activity.getRequestedOrientation
+    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
+
+    val markFuture = future {
+      var plurkIDs: List[Long] = Nil
+      var plurks = getUnreadPlurks(None, filter)
+      while (!plurks.isEmpty) {
+        val firstDate = plurks.head.posted
+        plurkIDs :::= plurks.map(_.plurkID)
+        plurks = getUnreadPlurks(Some(firstDate), filter)
+      }
+      DebugLog("====> mark all as read, plurkIDs:" + plurkIDs)
+      plurkAPI.Timeline.markAsRead(plurkIDs)
+    }
+
+    markFuture.onSuccessInUI { case plurk =>
+      import android.widget.Toast
+      progressDialogFragment.dismiss()
+      activity.setRequestedOrientation(oldRequestedOrientation)
+      Toast.makeText(activity, "已全部標示為已讀，自動重整理中……", Toast.LENGTH_LONG).show()
+      switchToFilter(filter, isUnreadOnly)
+    }
+
+    markFuture.onFailureInUI { case e =>
+      progressDialogFragment.dismiss()
+      activity.setRequestedOrientation(oldRequestedOrientation)
+    }
+  }
+
   private def startPostPlurkActivity() = {
     val intent = new Intent(activity, classOf[PostPlurkActivity])
     startActivityForResult(intent, TimelineFragment.RequestPostPlurk)
@@ -381,9 +439,14 @@ class TimelineFragment extends Fragment {
       adapterVersion += 1
     }
 
-    val plurksFuture = future { (getPlurks(isRecreate = isRecreate), adapterVersion) }
+    val plurksFuture = future { 
+      val plurks = getPlurks(isRecreate = isRecreate)
+      val unreadCounts = plurkAPI.Polling.getUnreadCount.get
+      (plurks, unreadCounts, adapterVersion) 
+    }
 
-    plurksFuture.onSuccessInUI { case (timeline, adapterVersion) => 
+    plurksFuture.onSuccessInUI { case (timeline, unreadCounts, adapterVersion) => 
+
       if (adapterVersion >= this.adapterVersion) {
 
         if (isNewFilter) { 
@@ -393,18 +456,47 @@ class TimelineFragment extends Fragment {
         adapterHolder.foreach(_.appendTimeline(timeline))
         activity.onShowTimelinePlurksSuccess(timeline, isNewFilter, plurkFilter, isUnreadOnly)
         filterButtonHolder.foreach { _.setEnabled(true) }
-        toggleButtonHolder.foreach { button =>
-          button.setEnabled(true)
-          MenuItemCompat.setActionView(button, null)
-          button.setTitle(if (isUnreadOnly) "未讀噗" else "所有噗")
-        }
-        loadingIndicatorHolder.foreach(_.setVisibility(View.GONE))
+        updateToggleButtonTitle(true, Some(unreadCounts.all).filter(_ != 0))
+        loadingIndicatorHolder.foreach(_.hide())
       }
     }
 
     plurksFuture.onFailureInUI { case e: Exception =>
       activity.onShowTimelinePlurksFailure(e)
       showErrorNotice("無法讀取噗浪河道資料")
+      updateToggleButtonTitle(false)
+    }
+  }
+
+  private def updateToggleButtonEnabled(isEnabled: Boolean) {
+    toggleButtonHolder.foreach { button =>
+      button.setEnabled(isEnabled)
+    }
+  }
+
+  private def updateToggleButtonTitle(isEnabled: Boolean, unreadCount: Option[Int] = None) {
+    toggleButtonHolder.foreach { menuItem =>
+      val infalter = this.getActivity.getLayoutInflater
+      val button = infalter.inflate(R.layout.view_toggle_button, null).asInstanceOf[android.widget.Button]
+      unreadCount match {
+        case Some(count) if !isUnreadOnly => 
+          button.setText(s"所有噗 ($count)")
+          button.setBackgroundResource(R.drawable.rounded_red)
+        case _ =>
+          button.setText(if (isUnreadOnly) "未讀噗" else "所有噗")
+          button.setBackgroundResource(R.drawable.rounded_blue)
+      }
+
+      if (!isEnabled) {
+        button.setEnabled(false)
+        button.setBackgroundResource(R.drawable.rounded_gray)
+      }
+
+      button.setOnClickListener { view: View =>
+        switchToFilter(plurkFilter, !this.isUnreadOnly)
+      }
+
+      MenuItemCompat.setActionView(menuItem, button)
     }
   }
 

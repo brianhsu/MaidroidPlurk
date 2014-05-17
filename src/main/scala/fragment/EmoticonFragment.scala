@@ -47,7 +47,7 @@ class EmoticonFragment extends Fragment {
 
   private implicit def activity = getActivity.asInstanceOf[Activity with EmoticonFragment.Listener]
 
-  private def loadingIndicatorHolder = Option(getView).map(_.findView(TR.moduleLoadingIndicator))
+  private def loadingIndicatorHolder = Option(getView).map(_.findView(TR.fragmentEmoticonLoadingIndicator))
   private def errorNoticeHolder = Option(getView).map(_.findView(TR.fragmentEmoticonErrorNotice))
 
   private def viewPagerHolder = Option(getView).map(_.findView(TR.fragmentEmoticonViewPager))
@@ -101,16 +101,16 @@ class EmoticonFragment extends Fragment {
         viewPagerIndicator.setViewPager(viewPager)
       }
 
-      loadingIndicatorHolder.foreach(_.setVisibility(View.GONE))
+      loadingIndicatorHolder.foreach(_.hide())
     }
 
     tabFuture.onFailureInUI { case e: Exception =>
-      loadingIndicatorHolder.foreach(_.setVisibility(View.GONE))
+      loadingIndicatorHolder.foreach(_.hide())
       errorNoticeHolder.foreach { errorNotice =>
         errorNotice.setVisibility(View.VISIBLE)
         errorNotice.setMessageWithRetry("取得表情符號失敗") { retryButton => 
           errorNotice.setVisibility(View.GONE)
-          loadingIndicatorHolder.foreach(_.setVisibility(View.VISIBLE))
+          loadingIndicatorHolder.foreach(_.show())
           setupTabs()
         }
       }

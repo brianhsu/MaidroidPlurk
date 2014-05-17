@@ -34,7 +34,7 @@ class LoginFragment extends Fragment {
 
   private lazy val plurkAPI = PlurkAPIHelper.getNewPlurkAPI
   private lazy val webViewHolder = Option(getView).map(_.findView(TR.fragmentLoginWebView))
-  private lazy val loadingIndicatorHolder = Option(getView).map(_.findView(TR.moduleLoadingIndicator))
+  private lazy val loadingIndicatorHolder = Option(getView).map(_.findView(TR.fragmentLoginLoadingIndicator))
   private lazy val errorNoticeHolder = Option(getView).map(_.findView(TR.fragmentLoginErrorNotice))
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
@@ -48,13 +48,13 @@ class LoginFragment extends Fragment {
   }
 
   private def showErrorNotice(message: String){
-    loadingIndicatorHolder.foreach(_.setVisibility(View.GONE))
+    loadingIndicatorHolder.foreach(_.hide())
     errorNoticeHolder.foreach(_.setVisibility(View.VISIBLE))
     errorNoticeHolder.foreach { errorNotice =>
       errorNotice.setMessageWithRetry(message) { retryButton =>
         retryButton.setEnabled(false)
         errorNoticeHolder.foreach(_.setVisibility(View.GONE))
-        loadingIndicatorHolder.foreach(_.setVisibility(View.VISIBLE))
+        loadingIndicatorHolder.foreach(_.show())
         startAuthorization()
       }
     }
@@ -118,7 +118,7 @@ class LoginFragment extends Fragment {
         url != "http://www.plurk.com/" && url != "http://www.plurk.com/m/"
 
       if (shouldShowPage) {
-        loadingIndicatorHolder.foreach(_.setVisibility(View.GONE))
+        loadingIndicatorHolder.foreach(_.hide())
       } else {
         super.onPageFinished(view, url)
       }
@@ -130,7 +130,7 @@ class LoginFragment extends Fragment {
       val code = uri.getQueryParameter("oauth_verifier")
       val authStatusFuture = future { plurkAPI.authorize(code).get }
 
-      loadingIndicatorHolder.foreach(_.setVisibility(View.VISIBLE))
+      loadingIndicatorHolder.foreach(_.show())
 
       authStatusFuture.onSuccessInUI{ _ => 
         PlurkAPIHelper.saveAccessToken(activity)

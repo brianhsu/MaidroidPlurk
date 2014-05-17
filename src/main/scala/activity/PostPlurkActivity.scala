@@ -99,6 +99,7 @@ class PostPlurkActivity extends ActionBarActivity
     case R.id.activityPostPlurkActionPhotoFromCamera => startCamera(); false
     case R.id.activityPostPlurkActionSend => postPlurk(); false
     case R.id.activityPostPlurkActionLogout => Logout.logout(this); false
+    case R.id.activityPostPlurkActionAbout => AboutActivity.startActivity(this); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 

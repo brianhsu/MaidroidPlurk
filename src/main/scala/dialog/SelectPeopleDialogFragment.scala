@@ -85,7 +85,7 @@ abstract class SelectPeopleDialog(title: String,
     val searchView = view.findView(TR.dialogSelectPeopleSearchView)
     val listView = view.findView(TR.dialogSelectPeopleListView)
     val content = view.findView(TR.dialogSelectPeopleContent)
-    val loadingIndicator = view.findView(TR.moduleLoadingIndicator)
+    val loadingIndicator = view.findView(TR.dialogSelectPeopleLoadingIndicator)
 
     val savedSelectedRow = for {
       bundle <- Option(savedInstanceState)
@@ -122,7 +122,7 @@ abstract class SelectPeopleDialog(title: String,
           adapter.onItemClick(position, view)
         }
       })
-      loadingIndicator.setVisibility(View.GONE)
+      loadingIndicator.hide()
       content.setVisibility(View.VISIBLE)
     }
 

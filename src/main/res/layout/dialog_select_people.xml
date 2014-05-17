@@ -6,7 +6,10 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent">
 
-  <include layout="@layout/module_loading_indicator"/>
+  <idv.brianhsu.maidroid.plurk.view.LoadingIndicator
+    android:id="@+id/dialogSelectPeopleLoadingIndicator"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"/>
 
   <LinearLayout
     android:id="@+id/dialogSelectPeopleContent"

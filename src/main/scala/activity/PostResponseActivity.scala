@@ -81,6 +81,7 @@ class PostResponseActivity extends ActionBarActivity
     case R.id.activityPostResponseActionEmoticon => toggleEmoticonSelector(); false
     case R.id.activityPostResponseActionSend => postResponse(); false
     case R.id.activityPostResponseActionLogout => Logout.logout(this); false
+    case R.id.activityPostPlurkActionAbout => AboutActivity.startActivity(this); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 

@@ -123,6 +123,7 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
     case R.id.activityResponseListActionEdit => startEditActivity() ; false
     case R.id.activityResponseListActionDelete => showConfirmDeleteDialog() ; false
     case R.id.activityResponseListActionLogout => logout(); false
+    case R.id.activityPostPlurkActionAbout => AboutActivity.startActivity(this); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 

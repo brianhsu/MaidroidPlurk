@@ -46,6 +46,7 @@ class ResponseListFragment extends Fragment {
 
   private def listHolder = Option(getView).map(_.findView(TR.fragmentResponseList))
   private def emptyViewHolder = Option(getView).map(_.findView(TR.fragmentResponseEmptyNotice))
+  private def errorNoticeHolder = Option(getView).map(_.findView(TR.fragmentResponseErrorNotice))
 
   var plurk: Plurk = _
   var owner: User = _
@@ -77,6 +78,7 @@ class ResponseListFragment extends Fragment {
     val responses = future { plurkAPI.Responses.get(plurk.plurkID).get }
 
     responses.onSuccessInUI { response =>
+      adapter.clearErrorCallback()
       adapter.update(response.responses, response.friends)
       PlurkView.updatePlurkCommentInfo(plurk.plurkID, response.responses.size, true)
       activity.onGetResponseSuccess(response)
@@ -84,6 +86,11 @@ class ResponseListFragment extends Fragment {
 
     responses.onFailureInUI { case e: Exception =>
       activity.onGetResponseFailure(e)
+      adapter.setupErrorCallback("無法取得回應", () => { 
+        DebugLog("====> inside callback")
+        adapter.clearErrorCallback()
+        loadResponses()
+      })
     }
 
   }
