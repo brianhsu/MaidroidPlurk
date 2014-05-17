@@ -58,8 +58,6 @@ class AboutActivity extends ActionBarActivity with TypedViewHolder
     aboutVersion
   }
 
-  import android.widget.TextView
-
   private def createAboutLibraryLicensePage = {
     val aboutLicense = getLayoutInflater.inflate(R.layout.about_library_licenses, null)
     val licenseTextView = aboutLicense.findView(TR.aboutLibraryLicenseTextView)
@@ -151,11 +149,44 @@ class AboutActivity extends ActionBarActivity with TypedViewHolder
     aboutLicense
   }
 
+  private def createAboutIconLicensePage = {
+    val aboutIconLicense = getLayoutInflater.inflate(R.layout.about_icon_licenses, null)
+    val holder = aboutIconLicense.findView(TR.aboutIconLicenseHolder)
+
+    val freePickLicense = """Icon made by <a href="http://www.freepik.com">Freepik</a> from <a href="http://www.flaticon.com/free-icon/smiling-emoticon-square-face_42877">www.flaticon.com</a>"""
+    holder.addView(createIconLicense(R.drawable.mute, freePickLicense))
+    holder.addView(createIconLicense(R.drawable.ic_btn_aboutme, freePickLicense))
+    holder.addView(createIconLicense(R.drawable.ic_btn_market, freePickLicense))
+    holder.addView(createIconLicense(R.drawable.ic_btn_more, freePickLicense))
+    holder.addView(createIconLicense(R.drawable.ic_btn_unviewable, freePickLicense))
+    holder.addView(createIconLicense(R.drawable.ic_message_broken, freePickLicense))
+    holder.addView(createIconLicense(R.drawable.ic_action_emoticon, freePickLicense))
+
+    val iconMoonLicense = """Icon made by <a href="http://www.flaticon.com/free-icon/github-character-silhouette_23957">Icomoon</a> from <a href="http://www.flaticon.com">www.flaticon.com</a>"""
+    holder.addView(createIconLicense(R.drawable.ic_btn_github, iconMoonLicense))
+    holder.addView(createIconLicense(R.drawable.ic_btn_viewable, iconMoonLicense))
+    holder.addView(createIconLicense(R.drawable.like, iconMoonLicense))
+
+    val simpleIconLicense = """Icon made by <a href="http://www.flaticon.com/free-icon/images_33502">SimpleIcon</a> from <a href="http://www.flaticon.com">www.flaticon.com</a>"""
+
+    holder.addView(createIconLicense(R.drawable.ic_action_photo, simpleIconLicense))
+
+    aboutIconLicense
+  }
+
+  private def createIconLicense(drawableID: Int, licenseText: String) = {
+    val licenseRow = getLayoutInflater.inflate(R.layout.item_icon_license, null)
+    val iconView = licenseRow.findView(TR.itemIconLicenseIcon)
+    val textView = licenseRow.findView(TR.itemIconLicenseText)
+    iconView.setImageResource(drawableID)
+    textView.setText(Html.fromHtml(licenseText))
+    textView.setMovementMethod(new LinkMovementMethod()) 
+    licenseRow
+  }
+
   private lazy val pageAdapter = {
 
-    val view3 = new TextView(this)
-    view3.setText("C")
-    val pages = Vector(createAboutVersionPage, createAboutLibraryLicensePage, view3)
+    val pages = Vector(createAboutVersionPage, createAboutLibraryLicensePage, createAboutIconLicensePage)
     new AboutPageAdapter(pages)
   }
 
