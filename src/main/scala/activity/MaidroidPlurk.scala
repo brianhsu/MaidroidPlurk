@@ -33,6 +33,8 @@ import android.support.v4.app.FragmentActivity
 import scala.concurrent._
 import scala.util.Try
 
+import org.bone.soplurk.constant.Filter
+
 class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
                     with LoginFragment.Listener 
                     with TimelineFragment.Listener
@@ -186,6 +188,15 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
       case 'DeletePlurkConfirm =>
         val plurkID = data.getLong("plurkID")
         deletePlurk(plurkID)
+      case 'MarkAllAsReadConfirm =>
+        val filter = Option(data.getString("filterName")) match {
+          case Some("only_user")      => Some(Filter.OnlyUser)
+          case Some("only_responded") => Some(Filter.OnlyResponded)
+          case Some("only_private")   => Some(Filter.OnlyPrivate)
+          case Some("only_favorite")  => Some(Filter.OnlyFavorite)
+          case _ => None
+        }
+        timelineFragmentHolder.foreach(_.markAllAsRead(filter))
     }
   }
 

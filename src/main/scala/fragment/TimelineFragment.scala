@@ -22,6 +22,7 @@ import java.util.Date
 
 import android.app.Activity
 import android.content.Context
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.content.Intent
 
@@ -46,6 +47,8 @@ import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener
 
 import scala.concurrent._
 import scala.util.Try
+
+import java.util.Date
 
 object TimelineFragment {
 
@@ -160,6 +163,7 @@ class TimelineFragment extends Fragment {
     val aboutFromActivity = menu.findItem(R.id.activityMaidroidPlurkActionAbout)
     aboutFromActivity.setVisible(false)
     updateToggleButtonTitle(false, None)
+    updateFilterMark()
     actionMenu
   }
 
@@ -340,6 +344,7 @@ class TimelineFragment extends Fragment {
     case R.id.fragmentTimelineActionFavorite => switchToFilter(Some(OnlyFavorite), this.isUnreadOnly)
     case R.id.fragmentTimelineActionToggleUnreadOnly => switchToFilter(plurkFilter, !this.isUnreadOnly)
     case R.id.fragmentTimelineActionPost => startPostPlurkActivity(); false
+    case R.id.fragmentTimelineActionMarkAllAsRead => markAllAsRead(); false
     case R.id.fragmentTimelineActionLogout => Logout.logout(activity); false
     case R.id.fragmentTimelineActionAbout => AboutActivity.startActivity(activity); false
     case _ => super.onOptionsItemSelected(item)
@@ -364,6 +369,57 @@ class TimelineFragment extends Fragment {
           adapterHolder.foreach(_.updatePlurk(plurkID, newContent, newContentRaw))
         }
       case _ =>
+    }
+  }
+
+  private def markAllAsRead() {
+    val data = new Bundle
+    data.putString("filterName", plurkFilter.map(_.word).getOrElse(null))
+    val dialog = ConfirmDialog.createDialog(
+      activity, 'MarkAllAsReadConfirm, 
+      "標式為已讀", "真的要把這個類別裡的噗都標示為已讀嗎？",
+      "確定", "取消",
+      Some(data)
+    )
+    dialog.show(activity.getSupportFragmentManager, "markAllAsRead")
+  }
+
+  private def getUnreadPlurks(offset: Option[Date] = None, filter: Option[Filter]) = {
+    plurkAPI.Timeline.getUnreadPlurks(offset, filter = filter, minimalData = true)
+                     .get.plurks.sortBy(_.posted.getTime)
+  }
+
+  def markAllAsRead(filter: Option[Filter]) {
+    DebugLog("====> markAllAsRead:" + filter)
+
+    val progressDialogFragment = new ProgressDialogFragment("標示中", "請稍候……")
+    progressDialogFragment.show(activity.getSupportFragmentManager.beginTransaction, "markProgress")
+    val oldRequestedOrientation = activity.getRequestedOrientation
+    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
+
+    val markFuture = future {
+      var plurkIDs: List[Long] = Nil
+      var plurks = getUnreadPlurks(None, filter)
+      while (!plurks.isEmpty) {
+        val firstDate = plurks.head.posted
+        plurkIDs :::= plurks.map(_.plurkID)
+        plurks = getUnreadPlurks(Some(firstDate), filter)
+      }
+      DebugLog("====> mark all as read, plurkIDs:" + plurkIDs)
+      plurkAPI.Timeline.markAsRead(plurkIDs)
+    }
+
+    markFuture.onSuccessInUI { case plurk =>
+      import android.widget.Toast
+      progressDialogFragment.dismiss()
+      activity.setRequestedOrientation(oldRequestedOrientation)
+      Toast.makeText(activity, "已全部標示為已讀，自動重整理中……", Toast.LENGTH_LONG).show()
+      switchToFilter(filter, isUnreadOnly)
+    }
+
+    markFuture.onFailureInUI { case e =>
+      progressDialogFragment.dismiss()
+      activity.setRequestedOrientation(oldRequestedOrientation)
     }
   }
 

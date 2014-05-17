@@ -38,6 +38,11 @@
     maidroid:showAsAction="always" />
 
   <item
+    android:id="@+id/fragmentTimelineActionMarkAllAsRead"
+    android:title="將此分類全部標為已讀"
+    maidroid:showAsAction="never" />
+
+  <item
     android:id="@+id/fragmentTimelineActionLogout"
     android:title="登出"
     maidroid:showAsAction="never" />
