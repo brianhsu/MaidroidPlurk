@@ -24,6 +24,12 @@ class FilterSpinnerAdapter(context: Context) extends BaseAdapter {
     case 4 => Some(Filter.OnlyFavorite)
   }
 
+  override def getDropDownView(position: Int, convertView: View, parent:ViewGroup) = {
+    val label = getView(position, convertView, parent)
+    label.asInstanceOf[TextView].setPadding(15, 20, 0, 20)
+    label
+  }
+
   def getView(position: Int, convertView: View, parent: ViewGroup): View = {
     val label = convertView match {
       case oldView: TextView => oldView
@@ -39,7 +45,6 @@ class FilterSpinnerAdapter(context: Context) extends BaseAdapter {
     }
 
     label.setText(title)
-    label.setPadding(30, 20, 0, 20)
     label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18)
     label
   }

@@ -106,7 +106,7 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
     val filter = navigationAdapter.getItem(itemPosition).asInstanceOf[Option[Filter]]
 
     if (isRecreate && !isInError) {
-      updateToggleButtonTitle(true, Some(unreadCount))
+      updateToggleButtonTitle(true, Some(unreadCount).filter(_ != 0))
     } else {
       switchToFilter(filter, isUnreadOnly)
     }

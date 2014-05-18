@@ -9,16 +9,16 @@
     maidroid:showAsAction="always" />
 
   <item
-    android:icon="@drawable/ic_action_edit"
-    android:id="@+id/fragmentTimelineActionPost"
-    android:title="@string/menuNewPlurk"
-    maidroid:showAsAction="always" />
-
-  <item
     android:id="@+id/fragmentTimelineActionMarkAllAsRead"
     android:icon="@drawable/ic_action_read"
     android:title="@string/menuMarkAllAsRead"
     maidroid:showAsAction="ifRoom" />
+
+  <item
+    android:icon="@drawable/ic_action_edit"
+    android:id="@+id/fragmentTimelineActionPost"
+    android:title="@string/menuNewPlurk"
+    maidroid:showAsAction="always" />
 
   <item
     android:id="@+id/fragmentTimelineActionLogout"

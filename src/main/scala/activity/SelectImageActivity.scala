@@ -72,7 +72,7 @@ trait SelectImageActivity {
   protected def uploadFiles(fileList: List[File]) {
 
     val progressDialogFragment = new ProgressDialogFragment(
-      getString(R.string.activitySelectImageTitle), 
+      getString(R.string.activitySelectImageUploading), 
       getString(R.string.pleaseWait),
       Some(fileList.size)
     )
