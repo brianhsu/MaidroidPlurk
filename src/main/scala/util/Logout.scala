@@ -1,5 +1,7 @@
 package idv.brianhsu.maidroid.plurk.util
 
+import idv.brianhsu.maidroid.plurk.R
+
 import idv.brianhsu.maidroid.plurk.activity._
 import idv.brianhsu.maidroid.plurk.dialog._
 import idv.brianhsu.maidroid.plurk.fragment._
@@ -22,7 +24,11 @@ object Logout {
 
   def logout(activity: FragmentActivity with ConfirmDialog.Listener) {
     val dialog = ConfirmDialog.createDialog(
-      activity, 'LogoutConfirm, "要登出嗎？", "確定要登出嗎？", "登出", "取消"
+      activity, 'LogoutConfirm, 
+      activity.getString(R.string.utilLogoutConfirmTitle),
+      activity.getString(R.string.utilLogoutConfirm),
+      activity.getString(R.string.utilLogoutLogout),
+      activity.getString(R.string.cancel)
     ) 
 
     dialog.show(activity.getSupportFragmentManager, "LogoutConfirm")
