@@ -72,7 +72,7 @@ class EditPlurkActivity extends ActionBarActivity
     }
 
     dialogFrame.setMessages(
-      Message(MaidMaro.Half.Normal, getString(R.string.ActivityEditPlurkWelecomeMessage)) ::
+      Message(MaidMaro.Half.Normal, getString(R.string.activityEditPlurkWelecomeMessage)) ::
       Nil
     )
   }
@@ -108,8 +108,8 @@ class EditPlurkActivity extends ActionBarActivity
 
     val alertDialog = ConfirmDialog.createDialog(
       this, 'ExitConfirm, 
-      getString(R.string.Cancel), getString(R.string.ActivityEditPlurkConfirmAbort),
-      getString(R.string.Yes), getString(R.string.No)
+      getString(R.string.cancel), getString(R.string.activityEditPlurkConfirmAbort),
+      getString(R.string.yes), getString(R.string.no)
     ) 
 
     alertDialog.show(getSupportFragmentManager(), "ExitConfirm")
@@ -147,23 +147,23 @@ class EditPlurkActivity extends ActionBarActivity
 
     if (contentLength == 0) {
       dialogFrame.setMessages(
-        Message(MaidMaro.Half.Normal, getString(R.string.UtilPlurkEditorEmptyNoticeMessage)) ::
+        Message(MaidMaro.Half.Normal, getString(R.string.utilPlurkEditorEmptyNoticeMessage)) ::
         Nil
       )
 
     } else if (contentLength > 210) {
 
       dialogFrame.setMessages(
-        Message(MaidMaro.Half.Normal, getString(R.string.UtilPlurkEditorOver210Message1)) ::
-        Message(MaidMaro.Half.Smile, getString(R.string.UtilPlurkEditorOver210Message2)) ::
+        Message(MaidMaro.Half.Normal, getString(R.string.utilPlurkEditorOver210Message1)) ::
+        Message(MaidMaro.Half.Smile, getString(R.string.utilPlurkEditorOver210Message2)) ::
         Nil
       )
 
     } else {
 
       val progressDialogFragment = new ProgressDialogFragment(
-        getString(R.string.ActivityEditPlurkEditing), 
-        getString(R.string.PleaseWait)
+        getString(R.string.activityEditPlurkEditing), 
+        getString(R.string.pleaseWait)
       )
 
       progressDialogFragment.show(
@@ -198,7 +198,7 @@ class EditPlurkActivity extends ActionBarActivity
         setRequestedOrientation(oldRequestedOrientation)
 
         Toast.makeText(
-          this, getString(R.string.ActivityEditPlurkEditSuccess), 
+          this, getString(R.string.activityEditPlurkEditSuccess), 
           Toast.LENGTH_LONG
         ).show()
 
@@ -210,8 +210,8 @@ class EditPlurkActivity extends ActionBarActivity
         progressDialogFragment.dismiss()
         setRequestedOrientation(oldRequestedOrientation)
         dialogFrame.setMessages(
-          Message(MaidMaro.Half.Panic, getString(R.string.ActivityEditPlurkFailureMessage1)) :: 
-          Message(MaidMaro.Half.Normal, getString(R.string.ActivityEditPlurkFailureMessage2).format(e)) ::
+          Message(MaidMaro.Half.Panic, getString(R.string.activityEditPlurkFailureMessage1)) :: 
+          Message(MaidMaro.Half.Normal, getString(R.string.activityEditPlurkFailureMessage2).format(e)) ::
           Nil
         )
       }

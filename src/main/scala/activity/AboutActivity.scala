@@ -51,7 +51,7 @@ class AboutActivity extends ActionBarActivity with TypedViewHolder
     val githubButton = aboutVersion.findView(TR.aboutVersionGithub)
     val marketButton = aboutVersion.findView(TR.aboutVersionMarket)
 
-    val appNameWithVersion = getString(R.string.AppName) + getVersionName.getOrElse("O.O.O")
+    val appNameWithVersion = getString(R.string.appName) + getVersionName.getOrElse("O.O.O")
 
     versionText.setText(appNameWithVersion)
     authorButton.setOnClickListener { view: View => startBrowser(AboutActivity.AboutMeURL) }

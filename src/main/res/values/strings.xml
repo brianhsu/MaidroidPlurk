@@ -36,10 +36,11 @@
   <string name="qWishes">期待</string>
   <string name="qWonders">好奇</string>
 
-  <string name="Cancel">取消</string>
-  <string name="Yes">是</string>
-  <string name="No">否</string>
-  <string name="PleaseWait">請稍候……</string>
+  <string name="delete">刪除</string>
+  <string name="cancel">取消</string>
+  <string name="yes">是</string>
+  <string name="no">否</string>
+  <string name="pleaseWait">請稍候……</string>
 
 
 

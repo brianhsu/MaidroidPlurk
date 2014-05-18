@@ -66,16 +66,23 @@ class PostPlurkActivity extends ActionBarActivity
     val actionbar = getSupportActionBar
 
     actionbar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS)
-    actionbar.addTab(actionbar.newTab().setText("一般").setTabListener(this))
-    actionbar.addTab(actionbar.newTab().setText("私噗").setTabListener(this))
-    actionbar.addTab(actionbar.newTab().setText("背刺").setTabListener(this))
+
+    actionbar.addTab(
+      actionbar.newTab().setText(R.string.activityPostPlurkPublic).setTabListener(this)
+    )
+    actionbar.addTab(
+      actionbar.newTab().setText(R.string.activityPostPlurkPrivate).setTabListener(this)
+    )
+    actionbar.addTab(
+      actionbar.newTab().setText(R.string.activityPostPlurkBackstab).setTabListener(this)
+    )
  
     viewPager.setAdapter(adapter)
     viewPager.setOnPageChangeListener(this)
 
     dialogFrame.setMessages(
-      Message(MaidMaro.Half.Happy, "主人有有趣的事情想要和大家分享嗎？請告訴小鈴，小鈴會幫主人發到噗浪上喔！", None) :: 
-      Message(MaidMaro.Half.Smile, "如果主人只想和某些特定的好友分享的話，也可以切換到「私噗」標籤，選擇要和誰分享喲。") ::
+      Message(MaidMaro.Half.Happy, getString(R.string.activityPostPlurkWelcome01)) :: 
+      Message(MaidMaro.Half.Smile, getString(R.string.activityPostPlurkWelcome02)) ::
       Nil
     )
 
@@ -149,14 +156,13 @@ class PostPlurkActivity extends ActionBarActivity
   private def showBackstabIntro() {
     if (currentPage == 2) {
       dialogFrame.setMessages(
-        Message(MaidMaro.Half.Smile, "主人是不是很好奇「背刺」是什麼呢？其實這是小鈴為主人提供的特別發文服務喲！", None) ::
-        Message(MaidMaro.Half.Smile, "不知道主人有沒有過想要說一些不能被家人或同事知道的話，但因為家人是噗浪上的好友，所以沒辦法暢所欲言的情況呢？", None) ::
-        Message(MaidMaro.Half.Happy, "小鈴幫主人想了一個辦法，就是這個「背刺」的功能喲。主人除了可以選擇誰可以看到這則發文外，也可以選擇誰不能看喲！", None) ::
-        Message(MaidMaro.Half.Happy, "舉例來講，主人可以設定 A 看不到這則發文，而「同學」的小圈圈可以看到，這樣就算 A 在「同學」這個小圈圈裡，他也還是看不到的喔。", None) ::
+        Message(MaidMaro.Half.Smile, getString(R.string.activityPostPlurkBackstabIntro01)) ::
+        Message(MaidMaro.Half.Smile, getString(R.string.activityPostPlurkBackstabIntro02)) ::
+        Message(MaidMaro.Half.Happy, getString(R.string.activityPostPlurkBackstabIntro03)) ::
+        Message(MaidMaro.Half.Happy, getString(R.string.activityPostPlurkBackstabIntro04)) ::
         Nil
       )
     }
-
   }
 
   override def onPageSelected(position: Int) {
@@ -201,21 +207,24 @@ class PostPlurkActivity extends ActionBarActivity
 
     if (contentLength == 0) {
       dialogFrame.setMessages(
-        Message(MaidMaro.Half.Normal, "主人還沒有填寫內容呢，這樣小鈴沒辦法幫主人發到噗浪上喲……", None) :: 
+        Message(MaidMaro.Half.Normal, getString(R.string.utilPlurkEditorEmptyNoticeMessage)) :: 
         Nil
       )
 
     } else if (contentLength > 210) {
 
       dialogFrame.setMessages(
-        Message(MaidMaro.Half.Normal, "對不起，字數超過噗浪的 210 個字元的上限了呢……", None) ::
-        Message(MaidMaro.Half.Smile, "主人要不要先刪除一些贅字，或試著寫得精鍊一些呢？", None) ::
+        Message(MaidMaro.Half.Normal, getString(R.string.utilPlurkEditorOver210Message1)) ::
+        Message(MaidMaro.Half.Smile, getString(R.string.utilPlurkEditorOver210Message2)) ::
         Nil
       )
 
     } else {
 
-      val progressDialogFragment = new ProgressDialogFragment("發噗中", "請稍候……")
+      val progressDialogFragment = new ProgressDialogFragment(
+        getString(R.string.activityPostPlurkPosting),
+        getString(R.string.pleaseWait)
+      )
       progressDialogFragment.show(getSupportFragmentManager.beginTransaction, "postProgress")
       val oldRequestedOrientation = getRequestedOrientation
       setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
@@ -226,7 +235,10 @@ class PostPlurkActivity extends ActionBarActivity
         setResult(Activity.RESULT_OK)
         progressDialogFragment.dismiss()
         setRequestedOrientation(oldRequestedOrientation)
-        Toast.makeText(this, "已成功發送至噗浪", Toast.LENGTH_LONG).show()
+        Toast.makeText(
+          this, getString(R.string.activityPostPlurkPosted), 
+          Toast.LENGTH_LONG
+        ).show()
         finish()
       }
 
@@ -235,8 +247,8 @@ class PostPlurkActivity extends ActionBarActivity
         progressDialogFragment.dismiss()
         setRequestedOrientation(oldRequestedOrientation)
         dialogFrame.setMessages(
-          Message(MaidMaro.Half.Panic, "對不起！小鈴太沒用了，沒辦法順利幫主人把這則噗放到噗浪上……", None) :: 
-          Message(MaidMaro.Half.Normal, s"系統說錯誤的原因是：${e}，可不可以請主人檢查一次之後再重新按發送鍵一次呢？") ::
+          Message(MaidMaro.Half.Panic, getString(R.string.activityPostPlurkFailure01)) :: 
+          Message(MaidMaro.Half.Normal, getString(R.string.activityPostPlurkFailure02).format(e.getMessage)) ::
           Nil
         )
       }
@@ -247,8 +259,9 @@ class PostPlurkActivity extends ActionBarActivity
 
     val alertDialog = ConfirmDialog.createDialog(
       this, 'ExitConfirm, 
-      "取消", "確定要取消發噗嗎？這會造成目前的內容永遠消失喲！", 
-      "是", "否"
+      getString(R.string.cancel),
+      getString(R.string.activityPostPlurkAbortConfirm),
+      getString(R.string.yes), getString(R.string.no)
     ) 
 
     alertDialog.show(getSupportFragmentManager, "ExitConfirm")

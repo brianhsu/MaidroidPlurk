@@ -53,7 +53,10 @@ trait SelectImageActivity {
     val photoPickerIntent = new Intent(Intent.ACTION_GET_CONTENT)
     photoPickerIntent.addCategory(Intent.CATEGORY_OPENABLE)
     photoPickerIntent.setType("image/*")
-    val photoChooserIntent = Intent.createChooser(photoPickerIntent, "選擇一張圖片")
+    val photoChooserIntent = Intent.createChooser(
+      photoPickerIntent, 
+      getString(R.string.activitySelectImageTitle)
+    )
     startActivityForResult(photoChooserIntent, SelectImageActivity.RequestPhotoPicker)
   }
 
@@ -69,7 +72,8 @@ trait SelectImageActivity {
   protected def uploadFiles(fileList: List[File]) {
 
     val progressDialogFragment = new ProgressDialogFragment(
-      "上傳圖檔", "請稍候……", 
+      getString(R.string.activitySelectImageTitle), 
+      getString(R.string.pleaseWait),
       Some(fileList.size)
     )
 
@@ -95,7 +99,7 @@ trait SelectImageActivity {
       progressDialogFragment.dismiss()
       setRequestedOrientation(oldRequestedOrientation)
       dialogFrame.setMessages(
-        Message(MaidMaro.Half.Happy, "小鈴已經幫主人把這些照片上傳了喲，主人的照片好多喲，難道說主人是照片松鼠嗎？") :: 
+        Message(MaidMaro.Half.Happy, getString(R.string.activitySelectImageUploadMultipleOK)) :: 
         Nil
       )
     }
@@ -105,9 +109,9 @@ trait SelectImageActivity {
       progressDialogFragment.dismiss()
       setRequestedOrientation(oldRequestedOrientation)
       dialogFrame.setMessages(
-        Message(MaidMaro.Half.Normal, "咦？為什麼照片沒辦法順利傳到噗浪上面呢……", None) :: 
-        Message(MaidMaro.Half.Normal, s"系統說錯誤的原因是 ${e} 的說。") ::
-        Message(MaidMaro.Half.Smile, "主人要不要檢查一下之後再重試一次呢？") ::
+        Message(MaidMaro.Half.Normal, getString(R.string.activitySelectImageUploadMultipleFailure01)) :: 
+        Message(MaidMaro.Half.Normal, getString(R.string.activitySelectImageUploadMultipleFailure02).format(e.getMessage)) ::
+        Message(MaidMaro.Half.Smile, getString(R.string.activitySelectImageUploadMultipleFailure03)) ::
         Nil
       )
     }
@@ -128,7 +132,10 @@ trait SelectImageActivity {
 
   protected def uploadFile(file: File) {
 
-    val progressDialogFragment = new ProgressDialogFragment("上傳圖檔", "請稍候……")
+    val progressDialogFragment = new ProgressDialogFragment(
+      getString(R.string.activitySelectImageUploading),
+      getString(R.string.pleaseWait)
+    )
     progressDialogFragment.show(getSupportFragmentManager.beginTransaction, "uploadFileProgress")
     val oldRequestedOrientation = getRequestedOrientation
     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
@@ -140,7 +147,7 @@ trait SelectImageActivity {
       progressDialogFragment.dismiss()
       setRequestedOrientation(oldRequestedOrientation)
       dialogFrame.setMessages(
-        Message(MaidMaro.Half.Smile, "照片已經上傳到噗浪上了，主人快點把它分享給大家吧！") :: 
+        Message(MaidMaro.Half.Smile, getString(R.string.activitySelectImageUploadOK)) :: 
         Nil
       )
     }
@@ -150,9 +157,9 @@ trait SelectImageActivity {
       progressDialogFragment.dismiss()
       setRequestedOrientation(oldRequestedOrientation)
       dialogFrame.setMessages(
-        Message(MaidMaro.Half.Normal, "咦？為什麼照片沒辦法順利傳到噗浪上面呢……", None) :: 
-        Message(MaidMaro.Half.Normal, s"系統說錯誤的原因是 ${e} 的說。") ::
-        Message(MaidMaro.Half.Smile, "主人要不要檢查一下之後再重試一次呢？") ::
+        Message(MaidMaro.Half.Normal, getString(R.string.activitySelectImageUploadFailure01)) :: 
+        Message(MaidMaro.Half.Normal, getString(R.string.activitySelectImageUploadFailure02).format(e.getMessage)) ::
+        Message(MaidMaro.Half.Smile, getString(R.string.activitySelectImageUploadFailure03)) ::
         Nil
       )
 

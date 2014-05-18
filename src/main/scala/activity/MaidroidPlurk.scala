@@ -49,26 +49,26 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
 
   def onGetAuthURLFailure(error: Exception) {
     dialogFrame.setMessages(
-      Message(MaidMaro.Half.Panic, "咦咦咦咦？！怎麼會這樣，沒辦法找到噗浪的登入網頁耶……", None) :: 
-      Message(MaidMaro.Half.Panic, "可不可以請主人檢查一下網路的狀態，看是不是網路不穩定或者忘了開網路呢？", None) :: 
-      Message(MaidMaro.Half.Normal, "還是說，是小鈴太沒用了……", None) :: 
-      Message(MaidMaro.Half.Normal, s"對了，系統說這個錯誤是：「${error.getMessage}」造成的說") :: Nil
+      Message(MaidMaro.Half.Panic, getString(R.string.activityMaidroidPlurkGetAuthFailure01)) ::
+      Message(MaidMaro.Half.Panic, getString(R.string.activityMaidroidPlurkGetAuthFailure02)) :: 
+      Message(MaidMaro.Half.Normal, getString(R.string.activityMaidroidPlurkGetAuthFailure03)) :: 
+      Message(MaidMaro.Half.Normal, getString(R.string.activityMaidroidPlurkGetAuthFailure04).format(error.getMessage)) :: Nil
     )
   }
 
   def onLoginFailure(error: Exception) {
     dialogFrame.setMessages(
-      Message(MaidMaro.Half.Normal, "好像怪怪的，沒辦法正常登入噗浪耶……", None) :: 
-      Message(MaidMaro.Half.Normal, "該不會是小鈴太沒用了，所以才一直出錯吧？", None) :: 
-      Message(MaidMaro.Half.Normal, s"對了，系統說這個錯誤是：「${error.getMessage}」造成的說") :: Nil
+      Message(MaidMaro.Half.Normal, getString(R.string.activityMaidroidPlurkLoginFailure01)) :: 
+      Message(MaidMaro.Half.Normal, getString(R.string.activityMaidroidPlurkLoginFailure02)) :: 
+      Message(MaidMaro.Half.Normal, getString(R.string.activityMaidroidPlurkLoginFailure03).format(error.getMessage)) :: Nil
     )
   }
 
   def onLoginSuccess() {
     switchToFragment(new TimelineFragment, isForcing = true)
     dialogFrame.setMessages(
-      Message(MaidMaro.Half.Happy, "成功登入噗浪了呢！", None) :: 
-      Message(MaidMaro.Half.Smile, "小鈴正在幫主人整理河道上的資料，請主人稍候一下喲。", None) ::
+      Message(MaidMaro.Half.Happy, getString(R.string.activityMaidroidPlurkLoginSuccess01)) :: 
+      Message(MaidMaro.Half.Smile, getString(R.string.activityMaidroidPlurkLoginSuccess02)) ::
       Nil
     )
 
@@ -79,9 +79,10 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
       switchToFragment(new LoginFragment, isForcing = true)
     } else {
       dialogFrame.setMessages(
-        Message(MaidMaro.Half.Panic, "糟糕，讀不到河道上的資料啊！", None) :: 
-        Message(MaidMaro.Half.Normal, "會不會是網路有問題呢？", None) ::
-        Message(MaidMaro.Half.Normal, s"對了，系統說這個錯誤是：「${error.getMessage}」造成的說") :: Nil
+        Message(MaidMaro.Half.Panic, getString(R.string.activityMaidroidPlurkTimelineFailure01)) :: 
+        Message(MaidMaro.Half.Normal, getString(R.string.activityMaidroidPlurkTimelineFailure02)) ::
+        Message(MaidMaro.Half.Normal, getString(R.string.activityMaidroidPlurkTimelineFailure03).format(error.getMessage)) :: 
+        Nil
       )
     }
   }
@@ -89,19 +90,29 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
   def onShowTimelinePlurksSuccess(timeline: Timeline, isNewFilter: Boolean, 
                                   filter: Option[Filter], isOnlyUnread: Boolean) {
 
-    val unreadText = if (isOnlyUnread) "未讀" else ""
+    val unreadText = isOnlyUnread match {
+      case true  => getString(R.string.activityMaidroidPlurkUnread)
+      case false => ""
+    }
+
     val filterText = filter match {
-      case Some(OnlyUser) => s"我發表的${unreadText}訊息"
-      case Some(OnlyPrivate) => s"私人的${unreadText}訊息"
-      case Some(OnlyResponded) => s"回應過的${unreadText}訊息"
-      case Some(OnlyFavorite) => s"說讚或轉噗的${unreadText}訊息"
-      case _ => s"全部的${unreadText}訊息"
+      case Some(OnlyUser) => 
+        getString(R.string.activityMaidroidPlurkFilterUser).format(unreadText)
+      case Some(OnlyPrivate) => 
+        getString(R.string.activityMaidroidPlurkFilterPrivate).format(unreadText)
+      case Some(OnlyResponded) => 
+        getString(R.string.activityMaidroidPlurkFilterRespond).format(unreadText)
+      case Some(OnlyFavorite) => 
+        getString(R.string.activityMaidroidPlurkFilterFavorite).format(unreadText)
+      case _ => 
+        getString(R.string.activityMaidroidPlurkFilterAll).format(unreadText)
     }
 
     dialogFrame.setMessages(
-      Message(MaidMaro.Half.Smile, s"順利幫主讀到噗浪上的資料了喲，現在列出的是「${filterText}」喲。", None) ::
-      Message(MaidMaro.Half.Happy, "不知道最近有沒有什麼有趣的事發生呢？", None) :: 
-      Message(MaidMaro.Half.Smile, "如果有好玩的事，記得要和小鈴分享一下喲！", None) :: Nil
+      Message(MaidMaro.Half.Smile, getString(R.string.activityMaidroidPlurkTimelineSuccess01).format(filterText)) ::
+      Message(MaidMaro.Half.Happy, getString(R.string.activityMaidroidPlurkTimelineSuccess02)) :: 
+      Message(MaidMaro.Half.Smile, getString(R.string.activityMaidroidPlurkTimelineSuccess03)) :: 
+      Nil
     )
   }
 
@@ -111,9 +122,9 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
     setContentView(R.layout.activity_maidroid_plurk)
 
     dialogFrame.setMessages(
-      Message(MaidMaro.Half.Smile, "お帰りなさいませ、ご主人様。歡迎使用 Maidroid Plurk，把對話框網左拉的話，就可以繼續對話喔！", None) :: 
-      Message(MaidMaro.Half.Happy, "沒錯，就是這樣。我是女僕小鈴，很高興可以在這裡服務主人喲。", None) :: 
-      Message(MaidMaro.Half.Normal, "看起來主人還沒登入噗浪呢，可以請主人先登入嗎？這樣小鈴才有辦法幫主人整理大家的聊天的說。", None) :: Nil
+      Message(MaidMaro.Half.Smile, getString(R.string.activityMaidroidPlurkWelcome01)) :: 
+      Message(MaidMaro.Half.Happy, getString(R.string.activityMaidroidPlurkWelcome02)) :: 
+      Message(MaidMaro.Half.Normal, getString(R.string.activityMaidroidPlurkWelcome03)) :: Nil
     )
 
     if (PlurkAPIHelper.isLoggedIn(this)) {
@@ -125,30 +136,33 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
 
   override def onRefreshTimelineFailure(e: Exception) {
     dialogFrame.setMessages(
-      Message(MaidMaro.Half.Normal, "奇怪，怎麼沒辦法從噗浪拿到新的資料呢……", None) :: 
-      Message(MaidMaro.Half.Panic, s"哇啊啊，「${e}」是怎麼回事啊？", None) :: 
-      Message(MaidMaro.Half.Normal, "可不可以請主人檢查網路狀態後再重試一次？") :: Nil
+      Message(MaidMaro.Half.Normal, getString(R.string.activityMaidroidPlurkRefreshFailure01)) :: 
+      Message(MaidMaro.Half.Panic, getString(R.string.activityMaidroidPlurkRefreshFailure02).format(e.getMessage)) :: 
+      Message(MaidMaro.Half.Normal, getString(R.string.activityMaidroidPlurkRefreshFailure03)) :: Nil
     )
   }
 
   override def onRefreshTimelineSuccess(newTimeline: Timeline) {
 
-    if (newTimeline.plurks.size > 0) {
+    val count = newTimeline.plurks.size
+    if (count > 0) {
       dialogFrame.setMessages(
-        Message(MaidMaro.Half.Happy, s"已經幫主人把河道上最新的噗抓下來囉！總共有 ${newTimeline.plurks.size} 則新的噗喲。", None) :: 
-        Message(MaidMaro.Half.Smile, "不知道主人有沒有在河道上發現什麼新的趣事呢？") :: Nil
+        Message(MaidMaro.Half.Happy, getString(R.string.activityMaidroidPlurkTimelineOK01).format(count)) :: 
+        Message(MaidMaro.Half.Smile, getString(R.string.activityMaidroidPlurkTimelineOK02)) :: 
+        Nil
       )
     } else {
       dialogFrame.setMessages(
-        Message(MaidMaro.Half.Normal, "對不起，現在噗浪的河道上好像沒有什麼人發新的文章呢……", None) :: 
-        Message(MaidMaro.Half.Smile, "主人要不要晚一點再試試看？") :: Nil
+        Message(MaidMaro.Half.Normal, getString(R.string.activityMaidroidPlurkTimelineEmpty01)) :: 
+        Message(MaidMaro.Half.Smile, getString(R.string.activityMaidroidPlurkTimelineEmpty02)) :: 
+        Nil
       )
     }
   }
 
   override def onDeletePlurkSuccess() {
     dialogFrame.setMessages(
-      Message(MaidMaro.Half.Happy, "小鈴已經順利幫主把這則噗浪刪除了喲！") :: Nil
+      Message(MaidMaro.Half.Happy, getString(R.string.activityMaidroidPlurkDeleteOK)) :: Nil
     )
   }
 
@@ -201,14 +215,15 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
   }
 
   private def deletePlurk(plurkID: Long) {
-    val progressDialogFragment = new ProgressDialogFragment("刪除中", "請稍候……")
+    val progressDialogFragment = new ProgressDialogFragment(
+      getString(R.string.activityMaidroidPlurkDeleting),
+      getString(R.string.pleaseWait)
+    )
+
     progressDialogFragment.show(getSupportFragmentManager.beginTransaction, "deleteProgress")
+
     val oldRequestedOrientation = activity.getRequestedOrientation
     activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
-
-    dialogFrame.setMessages(
-      Message(MaidMaro.Half.Smile, "要刪除這則發文嗎？好的，小鈴知道了，請主人稍等一下喔！") :: Nil
-    )
 
     val deleteFuture = future {
       val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
@@ -217,9 +232,7 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
 
     deleteFuture.onSuccessInUI { _ =>
       timelineFragmentHolder.foreach { _.deletePlurk(plurkID) }
-      dialogFrame.setMessages(
-        Message(MaidMaro.Half.Happy, "小鈴已經順利幫主把這則噗浪刪除了喲！") :: Nil
-      )
+      onDeletePlurkSuccess()
       progressDialogFragment.dismiss()
       activity.setRequestedOrientation(oldRequestedOrientation)
     }
@@ -229,9 +242,10 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
       activity.setRequestedOrientation(oldRequestedOrientation)
       DebugLog("====> onDeletePlurkFailure....", e)
       dialogFrame.setMessages(
-        Message(MaidMaro.Half.Normal, "真是對不起，小鈴沒辦刪除這則噗浪耶……", None) ::
-        Message(MaidMaro.Half.Normal, s"系統說錯誤是：「${e.getMessage}」造成的說。", None) ::
-        Message(MaidMaro.Half.Smile, "主人要不要檢查網路狀態後重新讀取一次試試看呢？") :: Nil
+        Message(MaidMaro.Half.Normal, getString(R.string.activityMaidroidPlurkDeleteFailure01)) ::
+        Message(MaidMaro.Half.Normal, getString(R.string.activityMaidroidPlurkDeleteFailure02).format(e.getMessage)) ::
+        Message(MaidMaro.Half.Smile, getString(R.string.activityMaidroidPlurkDeleteFailure03)) :: 
+        Nil
       )
     }
   }
