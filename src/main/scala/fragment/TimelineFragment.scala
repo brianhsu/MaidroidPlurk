@@ -93,6 +93,7 @@ class TimelineFragment extends Fragment {
 
   // To avoid race condition, only update listView if adapterVersion is newer than current one.
   private var adapterVersion: Int = 0  
+  private var unreadCount: Int = 0
   private var isUnreadOnly = false
   private var plurkFilter: Option[Filter] = None
 
@@ -139,11 +140,12 @@ class TimelineFragment extends Fragment {
     val isInError = (savedInstanceState != null && savedInstanceState.getBoolean("isInError", false))
     val isRecreate = (savedInstanceState != null)
 
-    if (isRecreate && !isInError) {
+    if (isRecreate) {
       updateTimeline(isRecreate = true)
     } else {
       updateTimeline()
     }
+
     super.onViewStateRestored(savedInstanceState)
   }
 
@@ -461,7 +463,10 @@ class TimelineFragment extends Fragment {
 
     val plurksFuture = future { 
       val plurks = getPlurks(isRecreate = isRecreate)
-      val unreadCounts = plurkAPI.Polling.getUnreadCount.get
+      val unreadCounts = isRecreate match {
+        case true  => this.unreadCount
+        case false => plurkAPI.Polling.getUnreadCount.get.all
+      }
       (plurks, unreadCounts, adapterVersion) 
     }
 
@@ -473,10 +478,11 @@ class TimelineFragment extends Fragment {
           updateListAdapter() 
         }
 
+        this.unreadCount = unreadCount
         adapterHolder.foreach(_.appendTimeline(timeline))
         activity.onShowTimelinePlurksSuccess(timeline, isNewFilter, plurkFilter, isUnreadOnly)
         filterButtonHolder.foreach { _.setEnabled(true) }
-        updateToggleButtonTitle(true, Some(unreadCounts.all).filter(_ != 0))
+        updateToggleButtonTitle(true, Some(unreadCounts).filter(_ != 0))
         loadingIndicatorHolder.foreach(_.hide())
       }
     }
