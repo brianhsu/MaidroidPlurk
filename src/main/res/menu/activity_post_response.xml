@@ -5,41 +5,41 @@
 
   <item
     android:id="@+id/activityPostResponseActionEmoticon"
-    android:title="表情符號"
+    android:title="@string/menuEmoticon"
     android:icon="@drawable/ic_action_emoticon"
     maidroid:showAsAction="always" />
 
   <item
     android:id="@+id/activityPostResponseActionUploadPhoto"
-    android:title="上傳圖片"
+    android:title="@string/menuUploadPhoto"
     android:icon="@drawable/ic_action_photo"
     maidroid:showAsAction="always">
     <menu>
       <item
         android:id="@+id/activityPostResponseActionPhotoFromGallery"
         android:icon="@drawable/ic_action_photo"
-        android:title="自相簿選取" />
+        android:title="@string/menuUploadPhotoSelect" />
       <item
         android:id="@+id/activityPostResponseActionPhotoFromCamera"
         android:icon="@drawable/ic_action_camera"
-        android:title="拍攝新照片" />
+        android:title="@string/menuUploadPhotoCamera" />
 
     </menu>
   </item>
 
   <item
     android:id="@+id/activityPostResponseActionSend"
-    android:title="立刻發送"
+    android:title="@string/menuSendNow"
     android:icon="@drawable/ic_action_send_now"
     maidroid:showAsAction="always" />
 
   <item
     android:id="@+id/activityPostResponseActionLogout"
-    android:title="登出"
+    android:title="@string/menuLogout"
     maidroid:showAsAction="never" />
 
   <item
     android:id="@+id/activityPostResponseActionAbout"
-    android:title="關於"
+    android:title="@string/menuAbout"
     maidroid:showAsAction="never" />
 </menu>
