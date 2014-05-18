@@ -35,7 +35,8 @@ object AvatarCache {
       val avatarBitmap = BitmapFactory.decodeStream(avatarURLStream)
       avatarURLStream.close()
       if (avatarBitmap == null) {
-        throw new Exception(s"Cannot get avatar bitmap from ${avatarURL}")
+        val message = context.getString(R.string.cannotGetAvatar).format(avatarURL)
+        throw new Exception(message)
       }
       (user.id, avatarBitmap)
     }

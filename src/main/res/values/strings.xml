@@ -41,7 +41,11 @@
   <string name="yes">是</string>
   <string name="no">否</string>
   <string name="pleaseWait">請稍候……</string>
+  <string name="select">選取</string>
+  <string name="ok">確定</string>
 
+  <!-- AvatarCache.scala -->
+  <string name="cannotGetAvatar">無法從 %s 取得大頭貼</string>
 
 
 </resources>

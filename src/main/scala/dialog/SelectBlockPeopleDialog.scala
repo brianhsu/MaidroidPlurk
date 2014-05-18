@@ -1,18 +1,19 @@
 package idv.brianhsu.maidroid.plurk.dialog
 
 import idv.brianhsu.maidroid.plurk.adapter._
+import idv.brianhsu.maidroid.plurk.R
 
 object SelectBlockPeopleDialog {
+  val titleResID = R.string.dialogSelectPeopleBlockTitle
   trait Listener {
     def onBlockSelected(selectedCliques: Set[String], selectedUsers: Set[(Long, String)])
   }
 }
 
-class SelectBlockPeopleDialog (
-  defaultSelectedCliques: Set[String], 
-  defaultSelectedUsers: Set[Long]) extends SelectPeopleDialog("誰看不到這則發文？", 
-                                                              defaultSelectedCliques, 
-                                                              defaultSelectedUsers) {
+class SelectBlockPeopleDialog (defaultSelectedCliques: Set[String], 
+                               defaultSelectedUsers: Set[Long]) extends 
+      SelectPeopleDialog(SelectBlockPeopleDialog.titleResID, 
+                         defaultSelectedCliques, defaultSelectedUsers) {
 
   def this() = this(Set.empty, Set.empty)
 
