@@ -65,8 +65,10 @@ class ResponseView(adapter: ResponseAdapter)
     data.putLong("responseID", response.id)
     val alertDialog = ConfirmDialog.createDialog(
       activity, 'DeleteResponseConfirm, 
-      "確定要刪除嗎？", "請問確定要刪除這則回應嗎？此動作無法回復喲",
-      "刪除", "取消",
+      activity.getString(R.string.viewResponseViewDeleteConfirmTitle),
+      activity.getString(R.string.viewResponseViewDeleteConfirm),
+      activity.getString(R.string.delete),
+      activity.getString(R.string.cancel),
       Some(data)
     )
     

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="viewResponseTypeSpinnerOpen">開放回應</string>
+  <string name="viewResponseTypeSpinnerOnlyFriends">只有好友可以回應</string>
+  <string name="viewResponseTypeSpinnerDisabled">關閉回應</string>
+
+</resources>

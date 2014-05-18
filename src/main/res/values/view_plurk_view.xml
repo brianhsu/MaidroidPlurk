@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="viewPlurkViewProcessing">設定中</string>
+
+  <string name="viewPlurkViewUnmute">解除消音</string>
+  <string name="viewPlurkViewMute">消音</string>
+
+  <string name="viewPlurkViewDeleteConfirmTitle">確定要刪除嗎？</string>
+  <string name="viewPlurkViewDeleteConfirm">請問確定要刪除這則噗浪嗎？此動作無法回復喲！</string>
+
+</resources>
