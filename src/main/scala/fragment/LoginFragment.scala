@@ -72,7 +72,7 @@ class LoginFragment extends Fragment {
       case error: Exception => {
         DebugLog("====> authorizationURL.onFailureInUI:" + error.getMessage, error) 
         activity.onGetAuthURLFailure(error)
-        showErrorNotice("無法取得噗浪登入網址")
+        showErrorNotice(getString(R.string.fragmentLoginGetAuthURLFail))
       }
     }
 
@@ -89,8 +89,9 @@ class LoginFragment extends Fragment {
       
       url match {
         case "http://www.plurk.com/" => 
-          activity.onLoginFailure(new Exception("登入失敗，使用者拒絕授權"))
-          showErrorNotice("登入失敗，使用者拒絕授權")
+          val message = getString(R.string.fragmentLoginAuthRefused)
+          activity.onLoginFailure(new Exception(message))
+          showErrorNotice(message)
           false
         case _ if isCallbackURL => 
           startAuth(url)
@@ -104,7 +105,8 @@ class LoginFragment extends Fragment {
                                  description: String, failingUrl: String) {
 
       if (!failingUrl.startsWith("http://localhost/auth")) {
-        activity.onLoginFailure(new Exception(s"登入失敗，${description}"))
+        val message = getString(R.string.fragmentLoginFailed).format(description)
+        activity.onLoginFailure(new Exception(message))
       } else {
         super.onReceivedError(view, errorCode, description, failingUrl)
       }
@@ -138,7 +140,7 @@ class LoginFragment extends Fragment {
       }
 
       authStatusFuture.onFailureInUI{ case e: Exception => 
-        showErrorNotice("無法正確登入噗浪")
+        showErrorNotice(getString(R.string.fragmentLoginFailedGeneric))
         activity.onLoginFailure(e)
       }
     }

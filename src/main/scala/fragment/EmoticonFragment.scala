@@ -107,8 +107,9 @@ class EmoticonFragment extends Fragment {
     tabFuture.onFailureInUI { case e: Exception =>
       loadingIndicatorHolder.foreach(_.hide())
       errorNoticeHolder.foreach { errorNotice =>
+        val message = getString(R.string.cannotGetEmoticon)
         errorNotice.setVisibility(View.VISIBLE)
-        errorNotice.setMessageWithRetry("取得表情符號失敗") { retryButton => 
+        errorNotice.setMessageWithRetry(message) { retryButton => 
           errorNotice.setVisibility(View.GONE)
           loadingIndicatorHolder.foreach(_.show())
           setupTabs()

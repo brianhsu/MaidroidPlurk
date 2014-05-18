@@ -36,6 +36,7 @@
   <string name="qWishes">期待</string>
   <string name="qWonders">好奇</string>
 
+  <!-- Generic -->
   <string name="delete">刪除</string>
   <string name="cancel">取消</string>
   <string name="yes">是</string>
@@ -43,9 +44,12 @@
   <string name="pleaseWait">請稍候……</string>
   <string name="select">選取</string>
   <string name="ok">確定</string>
-
-  <!-- AvatarCache.scala -->
   <string name="cannotGetAvatar">無法從 %s 取得大頭貼</string>
+  <string name="cannotGetEmoticon">取得表情符號失敗</string>
+  <string name="cannotGetResponse">無法取得回應</string>
+  <string name="unreadWithCount">所有噗 (%d)</string>
+  <string name="unreadPlurk">未讀噗</string>
+  <string name="allPlurk">所有噗</string>
 
 
 </resources>
