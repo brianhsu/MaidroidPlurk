@@ -114,8 +114,9 @@ class ResponseAdapter(activity: FragmentActivity with PlurkView.Listener
         errorMessage <- this.errorMessageHolder
         retryCallback <- this.retryCallbackHolder
       } {
+        val errorMessage = activity.getString(R.string.adapterResponseGetResponseError)
         errorNotice.setVisibility(View.VISIBLE)
-        errorNotice.setMessageWithRetry("無法取得回應") { retryButton =>
+        errorNotice.setMessageWithRetry(errorMessage) { retryButton =>
           retryButton.setEnabled(false)
           errorNotice.setVisibility(View.GONE)
           retryCallback()

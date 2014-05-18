@@ -4,7 +4,7 @@
   xmlns:maidroid="http://schemas.android.com/apk/res-auto">
 
   <item
-    android:title="所有噗"
+    android:title="@string/allPlurk"
     android:id="@+id/fragmentTimelineActionToggleUnreadOnly"
     maidroid:showAsAction="always" />
 
@@ -34,21 +34,22 @@
   <item
     android:icon="@drawable/ic_action_edit"
     android:id="@+id/fragmentTimelineActionPost"
-    android:title="發新噗"
+    android:title="@string/menuNewPlurk"
     maidroid:showAsAction="always" />
 
   <item
     android:id="@+id/fragmentTimelineActionMarkAllAsRead"
-    android:title="將此分類全部標為已讀"
-    maidroid:showAsAction="never" />
+    android:icon="@drawable/ic_action_read"
+    android:title="@string/menuMarkAllAsRead"
+    maidroid:showAsAction="ifRoom" />
 
   <item
     android:id="@+id/fragmentTimelineActionLogout"
-    android:title="登出"
+    android:title="@string/menuLogout"
     maidroid:showAsAction="never" />
 
   <item
     android:id="@+id/fragmentTimelineActionAbout"
-    android:title="關於"
+    android:title="@string/menuAbout"
     maidroid:showAsAction="never" />
 </menu>

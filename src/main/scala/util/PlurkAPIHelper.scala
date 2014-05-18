@@ -7,6 +7,8 @@ import org.scribe.model.Token
 object PlurkAPIHelper {
 
   private var plurkAPIHolder: Option[PlurkAPI] = None
+  private val apiKey = "6T7KUTeSbwha"
+  private val apiSecret = "AZIpUPdkTARzbDmdKBsu4kpxhHUJ3eWX"
   
   private def savedAccessToken(context: Context) = {
     val preference = context.getSharedPreferences("AccessToken", Context.MODE_PRIVATE)
@@ -20,15 +22,15 @@ object PlurkAPIHelper {
   private def createNewPlurkAPI(context: Context) = {
     savedAccessToken(context) match {
       case Some(token) =>
-        Some(PlurkAPI.withAccessToken("6T7KUTeSbwha", "AZIpUPdkTARzbDmdKBsu4kpxhHUJ3eWX", token.getToken, token.getSecret))
+        Some(PlurkAPI.withAccessToken(apiKey, apiSecret, token.getToken, token.getSecret))
       case None =>
-        Some(PlurkAPI.withCallback("6T7KUTeSbwha", "AZIpUPdkTARzbDmdKBsu4kpxhHUJ3eWX", "http://localhost/auth"))
+        Some(PlurkAPI.withCallback(apiKey, apiSecret, "http://localhost/auth"))
     }
   }
 
 
   def getNewPlurkAPI = {
-    plurkAPIHolder = Some(PlurkAPI.withCallback("6T7KUTeSbwha", "AZIpUPdkTARzbDmdKBsu4kpxhHUJ3eWX", "http://localhost/auth"))
+    plurkAPIHolder = Some(PlurkAPI.withCallback(apiKey, apiSecret, "http://localhost/auth"))
     plurkAPIHolder.get
   }
 

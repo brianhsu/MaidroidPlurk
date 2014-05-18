@@ -5,42 +5,41 @@
 
   <item
     android:id="@+id/activityEditPlurkActionEmoticon"
-    android:title="表情符號"
+    android:title="@string/menuEmoticon"
     android:icon="@drawable/ic_action_emoticon"
     maidroid:showAsAction="always" />
 
   <item
     android:id="@+id/activityEditPlurkActionUploadPhoto"
-    android:title="上傳圖片"
+    android:title="@string/menuUploadPhoto"
     android:icon="@drawable/ic_action_photo"
     maidroid:showAsAction="always">
     <menu>
       <item
         android:id="@+id/activityEditPlurkActionPhotoFromGallery"
         android:icon="@drawable/ic_action_photo"
-        android:title="自相簿選取" />
+        android:title="@string/menuUploadPhotoSelect" />
       <item
         android:id="@+id/activityEditPlurkActionPhotoFromCamera"
         android:icon="@drawable/ic_action_camera"
-        android:title="拍攝新照片" />
-
+        android:title="@string/menuUploadPhotoCamera" />
     </menu>
   </item>
 
   <item
     android:id="@+id/activityEditPlurkActionSend"
-    android:title="完成"
+    android:title="@string/menuDone"
     android:icon="@drawable/ic_action_send_now"
     maidroid:showAsAction="always" />
 
   <item
     android:id="@+id/activityEditPlurkActionLogout"
-    android:title="登出"
+    android:title="@string/menuLogout"
     maidroid:showAsAction="never" />
 
   <item
     android:id="@+id/activityEditPlurkActionAbout"
-    android:title="關於"
+    android:title="@string/menuAbout"
     maidroid:showAsAction="never" />
 
 </menu>

@@ -64,7 +64,7 @@ class PostResponseActivity extends ActionBarActivity
     }
 
     dialogFrame.setMessages(
-      Message(MaidMaro.Half.Smile, "小鈴已經準備好幫主人回應訊息了，如果主人準備好要發送的話，請再告訴我一聲喲！", None) ::
+      Message(MaidMaro.Half.Smile, getString(R.string.activitPostResponseWelcome01)) ::
       Nil
     )
   }
@@ -100,8 +100,9 @@ class PostResponseActivity extends ActionBarActivity
 
     val alertDialog = ConfirmDialog.createDialog(
       this, 'ExitConfirm, 
-      "取消", "確定要取消回應嗎？這會造成目前的內容永遠消失喲！", 
-      "是", "否"
+      getString(R.string.cancel),
+      getString(R.string.activitPostResponseAbortConfirm),
+      getString(R.string.yes), getString(R.string.no)
     ) 
     
     alertDialog.show(getSupportFragmentManager, "ExitConfirm")
@@ -139,19 +140,22 @@ class PostResponseActivity extends ActionBarActivity
 
     if (contentLength == 0) {
       dialogFrame.setMessages(
-        Message(MaidMaro.Half.Normal, "主人沒有寫任何東西呢，主人是不是不小心按到發送鍵了啊？ ", None) ::
-        Message(MaidMaro.Half.Happy, "不過沒關係的，等主人準備好了之後歡迎隨時告訴小鈴喲！") ::
+        Message(MaidMaro.Half.Normal, getString(R.string.utilPlurkEditorEmptyNoticeMessage01)) ::
+        Message(MaidMaro.Half.Happy, getString(R.string.utilPlurkEditorEmptyNoticeMessage02)) ::
         Nil
       )
     } else if (contentLength > 210) {
       dialogFrame.setMessages(
-        Message(MaidMaro.Half.Normal, "對不起，主人的發言超過噗浪上限的 210 字元呢……", None) ::
-        Message(MaidMaro.Half.Normal, "可能要麻煩主人稍微刪除一些內容，或是分成兩篇回應喲。") ::
+        Message(MaidMaro.Half.Normal, getString(R.string.utilPlurkEditorOver210Message1)) ::
+        Message(MaidMaro.Half.Normal, getString(R.string.utilPlurkEditorOver210Message2)) ::
         Nil
       )
     } else if (plurkID != -1) {
-      val progressDialogFragment = new ProgressDialogFragment("發噗中", "請稍候……")
-      progressDialogFragment.show(getSupportFragmentManager.beginTransaction, "uploadFileProgress")
+      val progressDialogFragment = new ProgressDialogFragment(
+        getString(R.string.activitPostResponsePosting),
+        getString(R.string.pleaseWait)
+      )
+      progressDialogFragment.show(getSupportFragmentManager.beginTransaction, "respondProgress")
       val oldRequestedOrientation = getRequestedOrientation
       setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
@@ -160,7 +164,11 @@ class PostResponseActivity extends ActionBarActivity
         setResult(Activity.RESULT_OK)
         progressDialogFragment.dismiss()
         setRequestedOrientation(oldRequestedOrientation)
-        Toast.makeText(this, "已成功發送至噗浪", Toast.LENGTH_LONG).show()
+        Toast.makeText(
+          this, 
+          getString(R.string.activitPostResponsePosted), 
+          Toast.LENGTH_LONG
+        ).show()
         this.finish()
       }
 
@@ -169,14 +177,14 @@ class PostResponseActivity extends ActionBarActivity
         setRequestedOrientation(oldRequestedOrientation)
         if (e.getMessage.contains("No permissions")) {
           dialogFrame.setMessages(
-            Message(MaidMaro.Half.Normal, "主人真是對不起，對方好像把這則噗設成只有朋友能夠發文呢……", None) ::
-            Message(MaidMaro.Half.Normal, "都怪小鈴沒事先提醒主人，真是抱歉。", None) :: 
+            Message(MaidMaro.Half.Normal, getString(R.string.activitPostResponseOnlyFriends01)) ::
+            Message(MaidMaro.Half.Normal, getString(R.string.activitPostResponseOnlyFriends02)) :: 
             Nil
           )
         } else {
           dialogFrame.setMessages(
-            Message(MaidMaro.Half.Panic, "對不起！小鈴太沒用了，沒辦法順利幫主人把這則回應發到噗浪上……", None) :: 
-            Message(MaidMaro.Half.Normal, s"系統說錯誤的原因是：${e}，可不可以請主人檢查一次之後再重新按發送鍵一次呢？", None) ::
+            Message(MaidMaro.Half.Panic, getString(R.string.activitPostResponseFailure01)) :: 
+            Message(MaidMaro.Half.Normal, getString(R.string.activitPostResponseFailure02).format(e.getMessage)) ::
             Nil
           )
         }

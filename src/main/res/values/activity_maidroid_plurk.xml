@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="activityMaidroidPlurkGetAuthFailure01">咦咦咦咦？！怎麼會這樣，沒辦法找到噗浪的登入網頁耶……</string>
+  <string name="activityMaidroidPlurkGetAuthFailure02">可不可以請主人檢查一下網路的狀態，看是不是網路不穩定或者忘了開網路呢？</string>
+  <string name="activityMaidroidPlurkGetAuthFailure03">還是說，是小鈴太沒用了……</string>
+  <string name="activityMaidroidPlurkGetAuthFailure04">對了，系統說這個錯誤是：「%s」造成的說</string>
+
+  <string name="activityMaidroidPlurkLoginFailure01">好像怪怪的，沒辦法正常登入噗浪耶……</string>
+  <string name="activityMaidroidPlurkLoginFailure02">該不會是小鈴太沒用了，所以才一直出錯吧？</string>
+  <string name="activityMaidroidPlurkLoginFailure03">對了，系統說這個錯誤是：「%s」造成的說。</string>
+
+  <string name="activityMaidroidPlurkLoginSuccess01">成功登入噗浪了呢！</string>
+  <string name="activityMaidroidPlurkLoginSuccess02">小鈴正在幫主人整理河道上的資料，請主人稍候一下喲。</string>
+
+  <string name="activityMaidroidPlurkTimelineFailure01">糟糕，讀不到河道上的資料啊！</string>
+  <string name="activityMaidroidPlurkTimelineFailure02">會不會是網路有問題呢？</string>
+  <string name="activityMaidroidPlurkTimelineFailure03">對了，系統說這個錯誤是：「%s」造成的說。</string>
+
+  <string name="activityMaidroidPlurkTimelineSuccess01">順利幫主讀到噗浪上的資料了喲，現在列出的是「%s」喲。</string>
+  <string name="activityMaidroidPlurkTimelineSuccess02">不知道最近有沒有什麼有趣的事發生呢？</string>
+  <string name="activityMaidroidPlurkTimelineSuccess03">如果有好玩的事，記得要和小鈴分享一下喲！</string>
+
+  <string name="activityMaidroidPlurkFilterAll">全部的%s訊息</string>
+  <string name="activityMaidroidPlurkFilterUser">我發表的%s訊息</string>
+  <string name="activityMaidroidPlurkFilterPrivate">私人的%s訊息</string>
+  <string name="activityMaidroidPlurkFilterRespond">回應過的%s訊息</string>
+  <string name="activityMaidroidPlurkFilterFavorite">說讚或轉噗的%s訊息</string>
+
+
+  <string name="activityMaidroidPlurkWelcome01">お帰りなさいませ、ご主人様。歡迎使用 Maidroid Plurk，把對話>框網左拉的話，就可以繼續對話喔！</string>
+  <string name="activityMaidroidPlurkWelcome02">沒錯，就是這樣。我是女僕小鈴，很高興可以在這裡服務主人喲。</string>
+  <string name="activityMaidroidPlurkWelcome03">看起來主人還沒登入噗浪呢，可以請主人先登入嗎？這樣小鈴才有>辦法幫主人整理大家的聊天的說。</string>
+
+  <string name="activityMaidroidPlurkRefreshFailure01">奇怪，怎麼沒辦法從噗浪拿到新的資料呢……</string>
+  <string name="activityMaidroidPlurkRefreshFailure02">哇啊啊，「%s」是怎麼回事啊？</string>
+  <string name="activityMaidroidPlurkRefreshFailure03">可不可以請主人檢查網路狀態後再重試一次？</string>
+
+  <string name="activityMaidroidPlurkTimelineOK01">已經幫主人把河道上最新的噗抓下來囉！總共有 %s 則新的噗喲。</string>
+  <string name="activityMaidroidPlurkTimelineOK02">不知道主人有沒有在河道上發現什麼新的趣事呢？</string>
+  <string name="activityMaidroidPlurkTimelineEmpty01">對不起，現在噗浪的河道上好像沒有什麼人發新的文章呢……</string>
+  <string name="activityMaidroidPlurkTimelineEmpty02">主人要不要晚一點再試試看？</string>
+
+  <string name="activityMaidroidPlurkDeleteOK">小鈴已經順利幫主把這則噗浪刪除了喲！</string>
+  <string name="activityMaidroidPlurkDeleting">刪除中</string>
+
+  <string name="activityMaidroidPlurkDeleteFailure01">真是對不起，小鈴沒辦刪除這則噗浪耶……</string>
+  <string name="activityMaidroidPlurkDeleteFailure02">系統說錯誤是：「%s」造成的說。</string>
+  <string name="activityMaidroidPlurkDeleteFailure03">主人要不要檢查網路狀態後重新讀取一次試試看呢？</string>
+
+  <string name="activityMaidroidPlurkUnread">未讀</string>
+  <string name="activityMaidroidPlurkAll">未讀</string>
+
+</resources>

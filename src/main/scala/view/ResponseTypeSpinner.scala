@@ -1,5 +1,6 @@
 package idv.brianhsu.maidroid.plurk.view
 
+import idv.brianhsu.maidroid.plurk.R
 import idv.brianhsu.maidroid.plurk.adapter._
 
 import org.bone.soplurk.constant.Qualifier
@@ -36,9 +37,9 @@ class ResponseTypeAdapter(context: Context) extends BaseAdapter {
     view.setPadding(10, 10, 10, 10)
     view.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16)
     position match {
-      case 0 => view.setText("開放回應")
-      case 1 => view.setText("只有好友可以回應")
-      case 2 => view.setText("關閉回應")
+      case 0 => view.setText(R.string.viewResponseTypeSpinnerOpen)
+      case 1 => view.setText(R.string.viewResponseTypeSpinnerOnlyFriends)
+      case 2 => view.setText(R.string.viewResponseTypeSpinnerDisabled)
     }
     view
   }

@@ -354,7 +354,11 @@ class TimelineFragment extends Fragment {
 
     requestCode match {
       case TimelineFragment.RequestPostPlurk if resultCode == Activity.RESULT_OK =>
-        Toast.makeText(this.getActivity, "發噗成功", Toast.LENGTH_SHORT)
+        Toast.makeText(
+          this.getActivity, 
+          R.string.fragmentTimelinePosted, 
+          Toast.LENGTH_SHORT
+        )
         pullToRefreshHolder.foreach { pullToRefresh =>
           pullToRefresh.setRefreshing(true)
           refreshTimeline()
@@ -377,8 +381,10 @@ class TimelineFragment extends Fragment {
     data.putString("filterName", plurkFilter.map(_.word).getOrElse(null))
     val dialog = ConfirmDialog.createDialog(
       activity, 'MarkAllAsReadConfirm, 
-      "標式為已讀", "真的要把這個類別裡的噗都標示為已讀嗎？",
-      "確定", "取消",
+      getString(R.string.fragmentTimelineMarkAllAsReadConfirmTitle),
+      getString(R.string.fragmentTimelineMarkAllAsReadConfirm),
+      getString(R.string.ok),
+      getString(R.string.cancel),
       Some(data)
     )
     dialog.show(activity.getSupportFragmentManager, "markAllAsRead")
@@ -392,8 +398,16 @@ class TimelineFragment extends Fragment {
   def markAllAsRead(filter: Option[Filter]) {
     DebugLog("====> markAllAsRead:" + filter)
 
-    val progressDialogFragment = new ProgressDialogFragment("標示中", "請稍候……")
-    progressDialogFragment.show(activity.getSupportFragmentManager.beginTransaction, "markProgress")
+    val progressDialogFragment = new ProgressDialogFragment(
+      getString(R.string.fragmentTimelineMarking), 
+      getString(R.string.pleaseWait)
+    )
+
+    progressDialogFragment.show(
+      activity.getSupportFragmentManager.beginTransaction, 
+      "markProgress"
+    )
+
     val oldRequestedOrientation = activity.getRequestedOrientation
     activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
@@ -410,10 +424,16 @@ class TimelineFragment extends Fragment {
     }
 
     markFuture.onSuccessInUI { case plurk =>
-      import android.widget.Toast
+
       progressDialogFragment.dismiss()
       activity.setRequestedOrientation(oldRequestedOrientation)
-      Toast.makeText(activity, "已全部標示為已讀，自動重整理中……", Toast.LENGTH_LONG).show()
+
+      Toast.makeText(
+        activity, 
+        getString(R.string.fragmentTimelineMarkedToast), 
+        Toast.LENGTH_LONG
+      ).show()
+
       switchToFilter(filter, isUnreadOnly)
     }
 
@@ -463,7 +483,7 @@ class TimelineFragment extends Fragment {
 
     plurksFuture.onFailureInUI { case e: Exception =>
       activity.onShowTimelinePlurksFailure(e)
-      showErrorNotice("無法讀取噗浪河道資料")
+      showErrorNotice(getString(R.string.fragmentTimelineGetTimelineFailure))
       updateToggleButtonTitle(false)
     }
   }
@@ -480,10 +500,10 @@ class TimelineFragment extends Fragment {
       val button = infalter.inflate(R.layout.view_toggle_button, null).asInstanceOf[android.widget.Button]
       unreadCount match {
         case Some(count) if !isUnreadOnly => 
-          button.setText(s"所有噗 ($count)")
+          button.setText(getString(R.string.unreadWithCount).format(count))
           button.setBackgroundResource(R.drawable.rounded_red)
         case _ =>
-          button.setText(if (isUnreadOnly) "未讀噗" else "所有噗")
+          button.setText(if (isUnreadOnly) R.string.unreadPlurk else R.string.allPlurk)
           button.setBackgroundResource(R.drawable.rounded_blue)
       }
 

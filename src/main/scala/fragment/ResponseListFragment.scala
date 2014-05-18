@@ -8,7 +8,6 @@ import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.view._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
-
 import android.app.Activity
 import android.os.Bundle
 import android.net.Uri
@@ -86,8 +85,8 @@ class ResponseListFragment extends Fragment {
 
     responses.onFailureInUI { case e: Exception =>
       activity.onGetResponseFailure(e)
-      adapter.setupErrorCallback("無法取得回應", () => { 
-        DebugLog("====> inside callback")
+      val message = getString(R.string.cannotGetResponse)
+      adapter.setupErrorCallback(message, () => { 
         adapter.clearErrorCallback()
         loadResponses()
       })

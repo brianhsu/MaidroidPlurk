@@ -140,7 +140,7 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
 
     replurk.setOnClickListener { view: View =>
 
-      replurk.setText("設定中")
+      replurk.setText(R.string.viewPlurkViewProcessing)
       replurk.setEnabled(false)
 
       val isReplurkedFuture = replurkInfo.isReplurked match {
@@ -191,7 +191,7 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
 
     favorite.setOnClickListener { view: View =>
 
-      favorite.setText("設定中")
+      favorite.setText(R.string.viewPlurkViewProcessing)
       favorite.setEnabled(false)
 
       val isFavoriteFuture = favoriteInfo.isFavorite match {
@@ -235,11 +235,11 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
       currentMuteState match {
         case true =>
           mute.setBackgroundResource(R.drawable.rounded_blue)
-          mute.setText("解除消音")
+          mute.setText(R.string.viewPlurkViewUnmute)
           isMuted = true
         case false =>
           mute.setBackgroundResource(R.drawable.rounded_gray)
-          mute.setText("消音")
+          mute.setText(R.string.viewPlurkViewMute)
           isMuted = false
       }
 
@@ -268,7 +268,7 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
 
 
       mute.setEnabled(false)
-      mute.setText("設定中")
+      mute.setText(R.string.viewPlurkViewProcessing)
       newMutedStatusFuture.onSuccessInUI { status: Symbol =>
 
         status match {
@@ -363,8 +363,10 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
     val alertDialog = ConfirmDialog.createDialog(
       activity,
       'DeletePlurkConfirm, 
-      "確定要刪除嗎？", "請問確定要刪除這則噗浪嗎？此動作無法回復喲",
-      "刪除", "取消",
+      activity.getString(R.string.viewPlurkViewDeleteConfirmTitle),
+      activity.getString(R.string.viewPlurkViewDeleteConfirm),
+      activity.getString(R.string.delete), 
+      activity.getString(R.string.cancel),
       Some(data)
     )
       

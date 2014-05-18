@@ -22,7 +22,7 @@ import android.text.TextWatcher
 import android.graphics.Color
 
 object PlurkEditor {
-  object NoContentException extends Exception("無內容可以發噗")
+  object NoContentException extends Exception("No Content")
 }
 
 trait PlurkEditor {

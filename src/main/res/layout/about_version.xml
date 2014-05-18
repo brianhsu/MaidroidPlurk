@@ -53,7 +53,7 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="10dp"
         style="@style/ButtonText"
-        android:text="作者：BrianHsu"/>
+        android:text="@string/layoutAboutVersionAboutMe"/>
 
       <Button
         android:id="@+id/aboutVersionGithub"
@@ -63,7 +63,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         style="@style/ButtonText"
-        android:text="程式碼 @ GitHub"/>
+        android:text="@string/layoutAboutVersionGitHub"/>
     </LinearLayout>
 
     <Button
@@ -74,8 +74,7 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       style="@style/ButtonText"
-      android:text="到 Play 商店給個分吧！"/>
-
+      android:text="@string/layoutAboutVersionMarket"/>
   </LinearLayout>
 
 </LinearLayout>

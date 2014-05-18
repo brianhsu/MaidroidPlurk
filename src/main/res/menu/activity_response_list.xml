@@ -6,29 +6,29 @@
   <item
     android:icon="@drawable/ic_action_discard"
     android:id="@+id/activityResponseListActionDelete"
-    android:title="刪除"
+    android:title="@string/menuDelete"
     maidroid:showAsAction="ifRoom" />
 
   <item
     android:icon="@drawable/ic_action_edit"
     android:id="@+id/activityResponseListActionEdit"
-    android:title="編輯"
+    android:title="@string/menuEdit"
     maidroid:showAsAction="ifRoom" />
 
   <item
     android:icon="@drawable/ic_action_reply"
     android:id="@+id/activityResponseListActionReply"
-    android:title="回噗"
+    android:title="@string/menuRespond"
     maidroid:showAsAction="always" />
 
   <item
     android:id="@+id/activityResponseListActionLogout"
-    android:title="登出"
+    android:title="@string/menuLogout"
     maidroid:showAsAction="never" />
 
   <item
     android:id="@+id/activityResponseListActionAbout"
-    android:title="關於"
+    android:title="@string/menuAbout"
     maidroid:showAsAction="never" />
 
 </menu>

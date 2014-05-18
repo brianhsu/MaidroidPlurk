@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="activitPostResponseWelcome01">小鈴已經準備好幫主人回應訊息了，如果主人準備好要發送的話，請再告訴我一聲喲！</string>
+
+  <string name="activitPostResponseAbortConfirm">確定要取消回應嗎？這會造成目前的內容永遠消失喲！</string>
+
+  <string name="activitPostResponsePosting">發表回應中</string>
+  <string name="activitPostResponsePosted">已成功發送回應至噗浪</string>
+
+  <string name="activitPostResponseFailure01">對不起！小鈴太沒用了，沒辦法順利幫主人把這則回應發到噗浪上……</string>
+  <string name="activitPostResponseFailure02">系統說錯誤的原因是：「%s」，可不可以請主人檢查一次之後再重新按發送鍵一次呢？</string>
+
+  <string name="activitPostResponseOnlyFriends01">主人真是對不起，對方好像把這則噗設成只有朋友能夠發文呢……</string>
+  <string name="activitPostResponseOnlyFriends02">都怪小鈴沒事先提醒主人，真是抱歉。</string>
+
+</resources>

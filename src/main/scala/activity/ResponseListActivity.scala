@@ -56,7 +56,7 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
 
     setContentView(R.layout.activity_response_list)
     dialogFrame.setMessages(
-      Message(MaidMaro.Half.Happy, "小鈴正在幫主人讀取噗浪上的回應，請主人稍候一下喲……", None) :: Nil
+      Message(MaidMaro.Half.Happy, getString(R.string.activityResponseListWelcome01)) :: Nil
     )
 
     responseListFragment match {
@@ -135,10 +135,9 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
     val dialog = ConfirmDialog.createDialog(
       this,
       'DeletePlurkConfirm, 
-      "確定要刪除嗎",
-      "確定要刪除這則噗浪？這個動作無法回復喲！",
-      "刪除",
-      "取消"
+      getString(R.string.activityResponseListConfirmDeleteTitle),
+      getString(R.string.activityResponseListConfirmDelete),
+      getString(R.string.delete), getString(R.string.cancel)
     ) 
     dialog.show(getSupportFragmentManager, "DeletePlurkConfirm")
   }
@@ -164,9 +163,18 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
 
   private def deleteResponse(plurkID: Long, responseID: Long) {
 
-    dialogFrame.setMessages(
-      Message(MaidMaro.Half.Smile, "要刪除這則回應嗎？好的，小鈴知道了，請主人稍等一下喔！") :: Nil
+    val progressDialogFragment = new ProgressDialogFragment(
+      getString(R.string.activityResponseListDeleteing), 
+      getString(R.string.pleaseWait)
     )
+
+    progressDialogFragment.show(
+      getSupportFragmentManager.beginTransaction, 
+      "deleteResponseProgress"
+    )
+
+    val oldRequestedOrientation = getRequestedOrientation
+    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
     val deleteFuture = future {
       plurkAPI.Responses.responseDelete(plurkID, responseID).get
@@ -174,32 +182,42 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
 
     deleteFuture.onSuccessInUI { _ =>
       responseListFragment.foreach(_.deleteResponse(responseID))
+
+      progressDialogFragment.dismiss()
+      setRequestedOrientation(oldRequestedOrientation)
+
       dialogFrame.setMessages(
-        Message(MaidMaro.Half.Happy, "小鈴已經順利幫主把這則回應刪除了喲！") :: Nil
+        Message(MaidMaro.Half.Happy, getString(R.string.activityResponseListDeleteResponseOK)) :: 
+        Nil
       )
     }
 
     deleteFuture.onFailureInUI { case e: Exception =>
+      progressDialogFragment.dismiss()
+      setRequestedOrientation(oldRequestedOrientation)
+
       DebugLog("====> onDeleteResponseFailure....", e)
       dialogFrame.setMessages(
-        Message(MaidMaro.Half.Normal, "真是對不起，小鈴沒辦刪除這則回應耶……", None) ::
-        Message(MaidMaro.Half.Normal, s"系統說錯誤是：「${e.getMessage}」造成的說。", None) ::
-        Message(MaidMaro.Half.Smile, "主人要不要檢查網路狀態後重新讀取一次試試看呢？") :: Nil
+        Message(MaidMaro.Half.Normal, getString(R.string.activityResponseListDeleteResponseFailure01)) ::
+        Message(MaidMaro.Half.Normal, getString(R.string.activityResponseListDeleteResponseFailure02).format(e.getMessage)) ::
+        Message(MaidMaro.Half.Smile, getString(R.string.activityResponseListDeleteResponseFailure03)) :: 
+        Nil
       )
     }
   }
 
   private def deletePlurk() {
 
-    dialogFrame.setMessages(
-      Message(MaidMaro.Half.Smile, "要刪除這則噗浪嗎？好的，小鈴知道了，請主人稍等一下喔！") :: Nil
+    val progressDialogFragment = new ProgressDialogFragment(
+      getString(R.string.activityResponseListDeleteing),
+      getString(R.string.pleaseWait)
     )
 
-    val progressDialogFragment = new ProgressDialogFragment("刪除中", "請稍候……")
     progressDialogFragment.show(
       getSupportFragmentManager.beginTransaction, 
       "deletePlurkProgress"
     )
+
     val oldRequestedOrientation = getRequestedOrientation
     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
@@ -218,9 +236,9 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
     deleteFuture.onFailureInUI { case e: Exception =>
       DebugLog("====> deletePlurkFailure....", e)
       dialogFrame.setMessages(
-        Message(MaidMaro.Half.Normal, "真是對不起，小鈴沒辦刪除這則噗浪耶……", None) ::
-        Message(MaidMaro.Half.Normal, s"系統說錯誤是：「${e.getMessage}」造成的說。", None) ::
-        Message(MaidMaro.Half.Smile, "主人要不要檢查網路狀態後重新讀取一次試試看呢？") :: Nil
+        Message(MaidMaro.Half.Normal, getString(R.string.activityResponseListDeletePlurkFailure01)) ::
+        Message(MaidMaro.Half.Normal, getString(R.string.activityResponseListDeletePlurkFailure02).format(e.getMessage)) ::
+        Message(MaidMaro.Half.Smile, getString(R.string.activityResponseListDeletePlurkFailure03)) :: Nil
       )
       progressDialogFragment.dismiss()
       setRequestedOrientation(oldRequestedOrientation)
@@ -250,15 +268,17 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
 
     val dialog = responses.responses.size match {
       case 0 => 
-        Message(MaidMaro.Half.Normal, "咦？這則噗浪好像沒有什麼人留言耶……", None) :: 
-        Message(MaidMaro.Half.Normal, "主人要不要參與討論，讓這則噗浪熱鬧一些呢？", None) :: Nil
+        Message(MaidMaro.Half.Normal, getString(R.string.activityResponseListLow01)) :: 
+        Message(MaidMaro.Half.Normal, getString(R.string.activityResponseListLow02)) :: 
+        Nil
       case n if n <= 50 =>
-        Message(MaidMaro.Half.Smile, "已經幫主人把大家的回應整理好囉！主人也對這個話題有興趣嗎？", None) :: 
-        Message(MaidMaro.Half.Smile, "如果主人想要回應，請告訴小鈴，小鈴會幫忙主人發佈回應喲！", None) :: Nil
+        Message(MaidMaro.Half.Smile, getString(R.string.activityResponseListMid01)) :: 
+        Message(MaidMaro.Half.Smile, getString(R.string.activityResponseListMid02)) :: 
+        Nil
       case n =>
-        Message(MaidMaro.Half.Happy, s"哇，這則噗浪好熱鬧，總共有 $n 個回應耶，有這麼多回應，發噗的人一定很高興吧？", None) :: 
-        Message(MaidMaro.Half.Happy, "請主人也加油，讓自己的河道和這個噗浪一樣熱鬧喲！", None) :: Nil
-
+        Message(MaidMaro.Half.Happy, getString(R.string.activityResponseListHigh01).format(n)) :: 
+        Message(MaidMaro.Half.Happy, getString(R.string.activityResponseListHigh02)) ::
+        Nil
     }
 
     if (showWelcomeMessage) {
@@ -271,9 +291,10 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
   override def onGetResponseFailure(e: Exception) {
     DebugLog("====> onGetResponseFailure....", e)
     dialogFrame.setMessages(
-      Message(MaidMaro.Half.Normal, "好像怪怪的，沒辦法讀噗浪上的回應耶……", None) ::
-      Message(MaidMaro.Half.Normal, s"系統說錯誤是：「${e.getMessage}」造成的說。", None) ::
-      Message(MaidMaro.Half.Smile, "主人要不要檢查網路狀態後重新讀取一次試試看呢？") :: Nil
+      Message(MaidMaro.Half.Normal, getString(R.string.activityResponseListGetResponseFailure01)) ::
+      Message(MaidMaro.Half.Normal, getString(R.string.activityResponseListGetResponseFailure02).format(e.getMessage)) ::
+      Message(MaidMaro.Half.Smile, getString(R.string.activityResponseListGetResponseFailure03)) :: 
+      Nil
     )
   }
 
@@ -286,8 +307,8 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
         showWelcomeMessage = false
         updateFragment()
         dialogFrame.setMessages(
-          Message(MaidMaro.Half.Happy, "已經幫主人把回應發到噗浪上去囉！", None) ::
-          Message(MaidMaro.Half.Smile, "有了主人的參與，這個討論一定會更有趣的。", None) ::
+          Message(MaidMaro.Half.Happy, getString(R.string.activityResponseListPosted01)) ::
+          Message(MaidMaro.Half.Smile, getString(R.string.activityResponseListPosted02)) ::
           Nil
         )
       case ResponseListActivity.RequestEditPlurk if resultCode == Activity.RESULT_OK => 

@@ -26,7 +26,7 @@ object SelectPeopleDialog {
   val SelectedUsersBundle = "idv.brianhsu.maidroid.plurk.SelectedUsersBundle"
 }
 
-abstract class SelectPeopleDialog(title: String,
+abstract class SelectPeopleDialog(title: Int,
                                  defaultSelectedCliques: Set[String], 
                                  defaultSelectedUsers: Set[Long]) extends DialogFragment {
 
@@ -98,10 +98,10 @@ abstract class SelectPeopleDialog(title: String,
     searchView.setIconifiedByDefault(false)
 
     val dialog = new AlertDialog.Builder(getActivity).
-        setTitle("選取").
+        setTitle(R.string.select).
         setView(view).
-        setNegativeButton("取消", getOnCancelListener).
-        setPositiveButton("確定", getOnOKListener).
+        setNegativeButton(R.string.cancel, getOnCancelListener).
+        setPositiveButton(R.string.ok, getOnOKListener).
         create()
 
     adapterFuture.onSuccessInUI { adapter =>
@@ -128,7 +128,8 @@ abstract class SelectPeopleDialog(title: String,
 
     adapterFuture.onFailureInUI { case e: Exception =>
       Toast.makeText(
-        getActivity, "無法取得小圈圈與朋友列表，請檢查網路後重試一次", 
+        getActivity, 
+        R.string.dialogSelectPeopleFetchCliqueFailure, 
         Toast.LENGTH_LONG
       ).show()
       dialog.dismiss()

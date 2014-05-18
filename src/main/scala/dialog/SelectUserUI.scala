@@ -47,6 +47,12 @@ abstract class SelectUserUI(fragment: Fragment,
     button
   }
 
+  protected def createButton(resID: Int) = {
+    val button = inflater.inflate(buttonResID, null).asInstanceOf[Button]
+    button.setText(resID)
+    button
+  }
+
   def updateUI() {
     if (selectedCliques.isEmpty && selectedUsers.isEmpty) {
       updateUISelectedNone()
@@ -60,7 +66,7 @@ abstract class SelectUserUI(fragment: Fragment,
     fragment.getActivity.runOnUIThread { 
       listHolder.foreach { viewGroup =>
         viewGroup.removeAllViews()
-        val button = createButton("[所有好友]")
+        val button = createButton(R.string.dialogSelectPeopleAllFriends)
         val layoutParams = new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
         layoutParams.setMargins(10, 10, 10, 10)
         viewGroup.addView(button, layoutParams)
@@ -77,12 +83,14 @@ abstract class SelectUserUI(fragment: Fragment,
       listHolder.foreach { viewGroup =>
 
         viewGroup.removeAllViews()
-        val sortedClique = selectedCliques.filterNot(_ == "[所有好友]").toVector.sortWith(_ < _)
+        val allFriendsTitle = fragment.getString(R.string.dialogSelectPeopleAllFriends)
+        val sortedClique = selectedCliques.filterNot(_ == allFriendsTitle).toVector.sortWith(_ < _)
         val sortedUsers = selectedUsers.toVector.sortWith(_._2 < _._2)
 
         for (clique <- sortedClique) {
 
-          val title = s"[小圈圈] ${clique}"
+          val cliquePrefix = fragment.getString(R.string.dialogSelectPeopleCliquePrefix)
+          val title = s"${cliquePrefix} ${clique}"
           val button = createButton(title)
           val layoutParams = new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
           layoutParams.setMargins(10, 10, 10, 10)

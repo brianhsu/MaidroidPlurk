@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="adapterAboutPagerVersion">版本資訊</string>
+  <string name="adapterAboutPagerLibraryLicenes">自由軟體授權</string>
+  <string name="adapterAboutPagerIconLicenes">圖示授權</string>
+</resources>

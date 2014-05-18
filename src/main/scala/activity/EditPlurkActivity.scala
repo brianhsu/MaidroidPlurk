@@ -72,7 +72,7 @@ class EditPlurkActivity extends ActionBarActivity
     }
 
     dialogFrame.setMessages(
-      Message(MaidMaro.Half.Normal, "主人不滿意這則噗嗎？小鈴知道了，請主人編輯完成後再通知我一聲喲！", None) ::
+      Message(MaidMaro.Half.Normal, getString(R.string.activityEditPlurkWelecomeMessage)) ::
       Nil
     )
   }
@@ -107,7 +107,9 @@ class EditPlurkActivity extends ActionBarActivity
   private def showWarningDialog() {
 
     val alertDialog = ConfirmDialog.createDialog(
-      this, 'ExitConfirm, "取消", "確定要退出嗎？這會造成目前的內容永遠消失喲！", "是", "否"
+      this, 'ExitConfirm, 
+      getString(R.string.cancel), getString(R.string.activityEditPlurkConfirmAbort),
+      getString(R.string.yes), getString(R.string.no)
     ) 
 
     alertDialog.show(getSupportFragmentManager(), "ExitConfirm")
@@ -145,40 +147,61 @@ class EditPlurkActivity extends ActionBarActivity
 
     if (contentLength == 0) {
       dialogFrame.setMessages(
-        Message(MaidMaro.Half.Normal, "主人還沒有填寫內容呢，這樣小鈴沒辦法幫主人發到噗浪上喲……", None) :: 
+        Message(MaidMaro.Half.Normal, getString(R.string.utilPlurkEditorEmptyNoticeMessage)) ::
         Nil
       )
 
     } else if (contentLength > 210) {
 
       dialogFrame.setMessages(
-        Message(MaidMaro.Half.Normal, "對不起，字數超過噗浪的 210 個字元的上限了呢……", None) ::
-        Message(MaidMaro.Half.Smile, "主人要不要先刪除一些贅字，或試著寫得精鍊一些呢？", None) ::
+        Message(MaidMaro.Half.Normal, getString(R.string.utilPlurkEditorOver210Message1)) ::
+        Message(MaidMaro.Half.Smile, getString(R.string.utilPlurkEditorOver210Message2)) ::
         Nil
       )
 
     } else {
 
-      val progressDialogFragment = new ProgressDialogFragment("編輯中", "請稍候……")
-      progressDialogFragment.show(getSupportFragmentManager.beginTransaction, "editPlurkProgress")
+      val progressDialogFragment = new ProgressDialogFragment(
+        getString(R.string.activityEditPlurkEditing), 
+        getString(R.string.pleaseWait)
+      )
+
+      progressDialogFragment.show(
+        getSupportFragmentManager.beginTransaction, 
+        "editPlurkProgress"
+      )
+
       val oldRequestedOrientation = getRequestedOrientation
       setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
       val editedPlurkFuture = future {
-        val newContent = editorFragment.getEditorContent.map(_._1.toString) getOrElse this.rawContent
+        val newContent = editorFragment.getEditorContent.map(_._1.toString).
+                                        getOrElse(this.rawContent)
+
         val newPlurk = plurkAPI.Timeline.plurkEdit(plurkID, newContent).get
         newPlurk
       }
 
       editedPlurkFuture.onSuccessInUI { case plurk =>
         val intent = new Intent
+
         intent.putExtra(EditPlurkActivity.PlurkIDBundle, plurk.plurkID)
         intent.putExtra(EditPlurkActivity.EditedContentBundle, plurk.content)
-        intent.putExtra(EditPlurkActivity.EditedContentRawBundle, plurk.contentRaw getOrElse null)
+        intent.putExtra(
+          EditPlurkActivity.EditedContentRawBundle, 
+          plurk.contentRaw getOrElse null
+        )
+
         setResult(Activity.RESULT_OK, intent)
+
         progressDialogFragment.dismiss()
         setRequestedOrientation(oldRequestedOrientation)
-        Toast.makeText(this, "已成功編輯此噗", Toast.LENGTH_LONG).show()
+
+        Toast.makeText(
+          this, getString(R.string.activityEditPlurkEditSuccess), 
+          Toast.LENGTH_LONG
+        ).show()
+
         finish()
       }
 
@@ -187,8 +210,8 @@ class EditPlurkActivity extends ActionBarActivity
         progressDialogFragment.dismiss()
         setRequestedOrientation(oldRequestedOrientation)
         dialogFrame.setMessages(
-          Message(MaidMaro.Half.Panic, "對不起！小鈴太沒用了，沒辦法順利幫主更新這則噗浪……", None) :: 
-          Message(MaidMaro.Half.Normal, s"系統說錯誤的原因是：${e}，可不可以請主人檢查一次之後再重新按發送鍵一次呢？") ::
+          Message(MaidMaro.Half.Panic, getString(R.string.activityEditPlurkFailureMessage1)) :: 
+          Message(MaidMaro.Half.Normal, getString(R.string.activityEditPlurkFailureMessage2).format(e)) ::
           Nil
         )
       }

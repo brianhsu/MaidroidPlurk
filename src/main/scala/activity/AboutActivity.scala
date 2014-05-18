@@ -22,6 +22,9 @@ object AboutActivity {
     val intent = new Intent(context, classOf[AboutActivity])
     context.startActivity(intent)
   }
+
+  val AboutMeURL = "http://about.me/brianhsu"
+  val GitHubURL  = "http://github.com/brianhsu/MaidroidPlurk"
 }
 
 class AboutActivity extends ActionBarActivity with TypedViewHolder
@@ -48,11 +51,11 @@ class AboutActivity extends ActionBarActivity with TypedViewHolder
     val githubButton = aboutVersion.findView(TR.aboutVersionGithub)
     val marketButton = aboutVersion.findView(TR.aboutVersionMarket)
 
-    val appNameWithVersion = getString(R.string.AppName) + getVersionName.getOrElse("O.O.O")
+    val appNameWithVersion = getString(R.string.appName) + getVersionName.getOrElse("O.O.O")
 
     versionText.setText(appNameWithVersion)
-    authorButton.setOnClickListener { view: View => startBrowser("http://about.me/brianhsu") }
-    githubButton.setOnClickListener { view: View => startBrowser("http://github.com/brianhsu/MaidroidPlurk") }
+    authorButton.setOnClickListener { view: View => startBrowser(AboutActivity.AboutMeURL) }
+    githubButton.setOnClickListener { view: View => startBrowser(AboutActivity.GitHubURL) }
     marketButton.setOnClickListener { view: View =>
       val appPackage = getApplicationContext.getPackageName
       val uri = s"market://details?id=${appPackage}"
@@ -198,8 +201,12 @@ class AboutActivity extends ActionBarActivity with TypedViewHolder
 
   private lazy val pageAdapter = {
 
-    val pages = Vector(createAboutVersionPage, createAboutLibraryLicensePage, createAboutIconLicensePage)
-    new AboutPageAdapter(pages)
+    val pages = Vector(
+      createAboutVersionPage, 
+      createAboutLibraryLicensePage, 
+      createAboutIconLicensePage
+    )
+    new AboutPageAdapter(getApplicationContext, pages)
   }
 
   override def onCreate(savedInstanceState: Bundle) {
