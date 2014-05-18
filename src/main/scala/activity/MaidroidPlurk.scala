@@ -12,6 +12,7 @@ import android.view.Menu
 import android.view.MenuItem
 
 import android.support.v7.app.ActionBarActivity
+import android.support.v7.app.ActionBar
 
 import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.fragment._
@@ -120,6 +121,10 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
 
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_maidroid_plurk)
+
+    val actionBar = getSupportActionBar
+    actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD)
+    actionBar.setDisplayShowTitleEnabled(true)
 
     dialogFrame.setMessages(
       Message(MaidMaro.Half.Smile, getString(R.string.activityMaidroidPlurkWelcome01)) :: 

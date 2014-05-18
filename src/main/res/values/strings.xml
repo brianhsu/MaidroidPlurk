@@ -16,6 +16,7 @@
 
   <string name="fragmentResponseEmptyNoticeText">還沒有人回應哦，趕快來搶頭香囉！:)</string>
 
+  <!-- Qualifier -->
   <string name="qAsks">問</string>
   <string name="qFeels">覺得</string>
   <string name="qGives">給</string>
@@ -52,6 +53,14 @@
   <string name="unreadPlurk">未讀噗</string>
   <string name="allPlurk">所有噗</string>
   <string name="loading">讀取中……</string>
+
+  <!-- Filter -->
+  <string name="filterAll">所有的噗</string>
+  <string name="filterOnlyUser">我發的噗</string>
+  <string name="filterOnlyPrivate">私人的噗</string>
+  <string name="filterOnlyResponded">回過的噗</string>
+  <string name="filterOnlyFavorite">喜歡的噗</string>
+
 
 
 </resources>

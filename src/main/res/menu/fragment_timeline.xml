@@ -9,29 +9,6 @@
     maidroid:showAsAction="always" />
 
   <item
-    android:icon="@drawable/ic_action_labels"
-    android:id="@+id/fragmentTimelineActionFilter"
-    android:title="Filter"
-    maidroid:showAsAction="always">
-    <menu>
-      <item
-        android:id="@+id/fragmentTimelineActionAll"
-        android:title="所有的訊息" />
-      <item 
-        android:id="@+id/fragmentTimelineActionMine"
-        android:title="我發表的訊息" />
-      <item
-        android:id="@+id/fragmentTimelineActionPrivate"
-        android:title="私人訊息" />
-      <item 
-        android:id="@+id/fragmentTimelineActionResponded"
-        android:title="回應過的訊息" />
-      <item 
-        android:id="@+id/fragmentTimelineActionFavorite"
-        android:title="說讚 &amp; 轉噗的訊息" />
-    </menu>
-  </item>
-  <item
     android:icon="@drawable/ic_action_edit"
     android:id="@+id/fragmentTimelineActionPost"
     android:title="@string/menuNewPlurk"
