@@ -66,13 +66,6 @@ class PlurkAdapter(activity: FragmentActivity with PlurkView.Listener
     itemView
   }
 
-  def prependTimeline(newPlurks: Timeline) {
-    val newUsers = newPlurks.users.filterKeys(userID => !(users.keySet contains userID))
-    plurks ++:= newPlurks.plurks
-    users ++= newUsers
-    notifyDataSetChanged
-  }
-
   def appendTimeline(timeline: Timeline) {
     val newUsers = timeline.users.filterKeys(userID => !(users.keySet contains userID))
 

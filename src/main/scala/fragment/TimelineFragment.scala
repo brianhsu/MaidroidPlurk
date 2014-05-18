@@ -210,7 +210,7 @@ class TimelineFragment extends Fragment {
     val options = Options.create.refreshOnUp(true).scrollDistance(0.3f).noMinimize().build()
     val onRefresh = new OnRefreshListener() {
       override def onRefreshStarted(view: View) { 
-        refreshTimeline() 
+        updateTimeline(true, false)
       }
     }
 
@@ -219,23 +219,6 @@ class TimelineFragment extends Fragment {
         from(activity).options(options).
         allChildrenArePullable.listener(onRefresh).
         setup(view)
-    }
-  }
-
-  private def refreshTimeline() {
-    val newTimelineFuture = future { refreshTimeline(adapterHolder.get.firstPlurkShow) }
-
-    newTimelineFuture.onFailureInUI {
-      case e: Exception => 
-        DebugLog(s"error: $e", e)
-        activity.onRefreshTimelineFailure(e)
-        pullToRefreshHolder.foreach(_.setRefreshComplete())
-      }
-
-    newTimelineFuture.onSuccessInUI { newTimeline: Timeline => 
-      adapterHolder.foreach(_.prependTimeline(newTimeline))
-      activity.onRefreshTimelineSuccess(newTimeline)
-      pullToRefreshHolder.foreach(_.setRefreshComplete())
     }
   }
 
@@ -260,26 +243,6 @@ class TimelineFragment extends Fragment {
   }
 
   
-  private def refreshTimeline(latestPlurkShown: Option[Plurk]) = {
-
-    var newTimeline = getPlurks()
-    var newPlurks = newTimeline.plurks
-    var newUsers = newTimeline.users
-    val latestTimestamp: Option[Long] = latestPlurkShown.map(_.posted.getTime)
-    def isOlderEnough = newPlurks.lastOption.map(_.posted.getTime <= (latestTimestamp getOrElse Long.MaxValue)).getOrElse(false)
-
-    while (!isOlderEnough && !newTimeline.plurks.isEmpty) {
-      newTimeline = getPlurks(offset = Some(newPlurks.last.posted))
-      newPlurks ++= newTimeline.plurks
-      newUsers ++= newTimeline.users
-    }
-
-    new Timeline(
-      newUsers,
-      newPlurks.takeWhile(_.posted.getTime > latestTimestamp.getOrElse(0L))
-    )
-  }
-
   private def getPlurks(offset: Option[Date] = None, isRecreate: Boolean = false) = {
     val shouldRecreate = isRecreate && TimelineFragment.savedTimeline.isDefined
     isUnreadOnly match {
@@ -363,7 +326,7 @@ class TimelineFragment extends Fragment {
         )
         pullToRefreshHolder.foreach { pullToRefresh =>
           pullToRefresh.setRefreshing(true)
-          refreshTimeline()
+          updateTimeline(true, true)
         }
       case TimelineFragment.RequestEditPlurk if resultCode == Activity.RESULT_OK =>
 
@@ -484,6 +447,7 @@ class TimelineFragment extends Fragment {
         filterButtonHolder.foreach { _.setEnabled(true) }
         updateToggleButtonTitle(true, Some(unreadCounts).filter(_ != 0))
         loadingIndicatorHolder.foreach(_.hide())
+        pullToRefreshHolder.foreach(_.setRefreshComplete())
       }
     }
 
@@ -491,6 +455,7 @@ class TimelineFragment extends Fragment {
       activity.onShowTimelinePlurksFailure(e)
       showErrorNotice(getString(R.string.fragmentTimelineGetTimelineFailure))
       updateToggleButtonTitle(false)
+      pullToRefreshHolder.foreach(_.setRefreshComplete())
     }
   }
 
