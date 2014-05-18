@@ -30,8 +30,11 @@ class PeopleListAdapter(context: Context,
   case class ViewTag(checkbox: CheckBox, title: TextView) {
     def update(item: RowItem, isSelected: Boolean) {
       item match {
-        case Clique(cliqueTitle) => title.setText(s"[小圈圈] ${cliqueTitle}")
-        case Friend(userID, name) => title.setText(s"${name}")
+        case Clique(cliqueTitle) => 
+          val prefix = context.getString(R.string.adapterPeopleListCliquePrefix)
+          title.setText(s"${prefix} ${cliqueTitle}")
+        case Friend(userID, name) => 
+          title.setText(s"${name}")
       }
 
       checkbox.setChecked(isSelected)

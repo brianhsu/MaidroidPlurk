@@ -201,8 +201,12 @@ class AboutActivity extends ActionBarActivity with TypedViewHolder
 
   private lazy val pageAdapter = {
 
-    val pages = Vector(createAboutVersionPage, createAboutLibraryLicensePage, createAboutIconLicensePage)
-    new AboutPageAdapter(pages)
+    val pages = Vector(
+      createAboutVersionPage, 
+      createAboutLibraryLicensePage, 
+      createAboutIconLicensePage
+    )
+    new AboutPageAdapter(getApplicationContext, pages)
   }
 
   override def onCreate(savedInstanceState: Bundle) {

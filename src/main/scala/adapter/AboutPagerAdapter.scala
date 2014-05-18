@@ -1,11 +1,14 @@
 package idv.brianhsu.maidroid.plurk.adapter
 
+import idv.brianhsu.maidroid.plurk._
+
+import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 
 import android.support.v4.view.PagerAdapter
 
-class AboutPageAdapter(views: Vector[View])  extends PagerAdapter {
+class AboutPageAdapter(context: Context, views: Vector[View])  extends PagerAdapter {
 
   override def getCount = views.size
 
@@ -23,9 +26,9 @@ class AboutPageAdapter(views: Vector[View])  extends PagerAdapter {
   }
  
   override def getPageTitle(position: Int) = position match {
-    case 0 => "版本資訊"
-    case 1 => "自由軟體授權"
-    case 2 => "圖示授權"
+    case 0 => context.getString(R.string.adapterAboutPagerVersion)
+    case 1 => context.getString(R.string.adapterAboutPagerLibraryLicenes)
+    case 2 => context.getString(R.string.adapterAboutPagerIconLicenes)
   }
 }
 

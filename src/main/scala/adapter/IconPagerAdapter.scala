@@ -1,5 +1,7 @@
 package idv.brianhsu.maidroid.plurk.adapter
 
+import idv.brianhsu.maidroid.plurk.R
+
 import org.bone.soplurk.model.Icon
 
 import idv.brianhsu.maidroid.plurk.fragment.EmoticonFragment
@@ -11,7 +13,8 @@ import android.view.ViewGroup
 import android.view.View
 import android.support.v4.view.PagerAdapter
 
-class IconPagerAdapter(activity: Activity with EmoticonFragment.Listener, tabs: EmoticonTabs)  extends PagerAdapter {
+class IconPagerAdapter(activity: Activity with EmoticonFragment.Listener, 
+                       tabs: EmoticonTabs)  extends PagerAdapter {
 
   val orderedTab = Vector(tabs.customPage, tabs.basicPage, tabs.morePage, tabs.hiddenPage)
   val tabsGrid = orderedTab.map { icons =>
@@ -35,10 +38,10 @@ class IconPagerAdapter(activity: Activity with EmoticonFragment.Listener, tabs: 
   }
  
   override def getPageTitle(position: Int) = position match {
-    case 0 => "自訂表情"
-    case 1 => "常用表情"
-    case 2 => "更多表情"
-    case 3 => "隱藏表情"
+    case 0 => activity.getString(R.string.adapterIconPagerCustom)
+    case 1 => activity.getString(R.string.adapterIconPagerOften) 
+    case 2 => activity.getString(R.string.adapterIconPagerMore) 
+    case 3 => activity.getString(R.string.adapterIconPagerHidden) 
   }
 }
 
