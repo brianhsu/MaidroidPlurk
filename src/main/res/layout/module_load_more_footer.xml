@@ -16,7 +16,7 @@
 
   <Button
     android:id="@+id/moduleLoadMoreFooterRetry"
-    android:text="重試一次"
+    android:text="@string/loadMoreFooterRetry"
     android:visibility="gone"
     android:enabled="false"
     android:layout_width="match_parent"

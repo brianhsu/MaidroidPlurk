@@ -37,7 +37,7 @@
 
     <Button
       android:id="@+id/itemPlurkLockIcon"
-      android:text="私密"
+      android:text="@string/itemPlurkPrivate"
       android:minHeight="10dp"
       android:textSize="14sp"
       android:textColor="?android:textColorPrimary"
@@ -79,7 +79,7 @@
         android:paddingLeft="2dp"
         android:paddingRight="2dp"
         android:layout_marginLeft="5dp"
-        android:text="轉噗" />
+        android:text="@string/itemPlurkReplurk" />
     </LinearLayout>
 
     <LinearLayout 
@@ -105,7 +105,7 @@
         android:paddingLeft="2dp"
         android:paddingRight="2dp"
         android:layout_marginLeft="5dp"
-        android:text="說" />
+        android:text="Says" />
       <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -151,7 +151,6 @@
 
       <Button
         android:id="@+id/itemPlurkMute"
-        android:text="消音"
         android:minHeight="10dp"
         android:textColor="?android:textColorPrimary"
         android:layout_marginBottom="10dp"

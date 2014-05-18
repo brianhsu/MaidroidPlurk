@@ -14,7 +14,7 @@
     android:focusable="true"
     android:textSize="14sp"
     android:padding="5dp"
-    android:text="回應" />
+    android:text="@string/itemHeaderResponseResponseTitle" />
 
   <idv.brianhsu.maidroid.plurk.view.ErrorNoticeView
     android:id="@+id/itemHeaderResponseErrorNotice"
@@ -35,6 +35,6 @@
     android:layout_margin="10dp"
     android:focusable="true"
     android:gravity="center"
-    android:text="還沒有人回應哦，趕快來搶頭香囉！:)" />
+    android:text="@string/itemHeaderResponseEmpty" />
 
 </LinearLayout>

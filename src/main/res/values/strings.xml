@@ -51,6 +51,7 @@
   <string name="unreadWithCount">所有噗 (%d)</string>
   <string name="unreadPlurk">未讀噗</string>
   <string name="allPlurk">所有噗</string>
+  <string name="loading">讀取中……</string>
 
 
 </resources>

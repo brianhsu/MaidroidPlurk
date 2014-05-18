@@ -18,7 +18,7 @@
     android:textSize="10sp"
     android:layout_marginLeft="5dp"
     android:gravity="center_vertical"
-    android:text="讀取中……" />
+    android:text="@string/loading" />
 </LinearLayout>
 
 
