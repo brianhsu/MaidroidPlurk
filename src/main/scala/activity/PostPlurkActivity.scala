@@ -195,11 +195,11 @@ class PostPlurkActivity extends ActionBarActivity
   }
 
   override def onActionSendImage(uri: Uri) {
-    uploadFile(getFileFromUri(uri))
+    uploadFile(uri)
   }
 
   def onActionSendMultipleImage(uriList: List[Uri]) {
-    uploadFiles(uriList.map(getFileFromUri))
+    uploadFiles(uriList)
   }
 
   private def postPlurk() {

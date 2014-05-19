@@ -30,6 +30,10 @@ class ProgressDialogFragment(title: String, message: String,
     getDialog.asInstanceOf[ProgressDialog].setProgress(progress)
   }
 
+  def setTitle(title: String) {
+    getDialog.setTitle(title)
+  }
+
   setCancelable(isCancelable)
 
 }

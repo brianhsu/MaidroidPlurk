@@ -24,6 +24,9 @@ import java.io.File
 import java.util.UUID
 
 import scala.concurrent._
+import scala.util.{Try, Success, Failure}
+
+object NoSuchFileException extends Exception("找不到這個檔案")
 
 object SelectImageActivity {
   val RequestPhotoPicker = 1
@@ -40,7 +43,7 @@ trait SelectImageActivity {
 
   protected def processImage(resultCode: Int, data: Intent) {
     if (resultCode == Activity.RESULT_OK) {
-      uploadFile(getFileFromUri(data.getData))
+      uploadFile(data.getData)
     }
   }
 
@@ -60,21 +63,32 @@ trait SelectImageActivity {
     startActivityForResult(photoChooserIntent, SelectImageActivity.RequestPhotoPicker)
   }
 
-  protected def getFileFromUri(uri: Uri) = {
+  protected def getLocalFile(uri: Uri): Try[File] = Try {
     val column = Array(android.provider.MediaStore.MediaColumns.DATA)
     val cursor = getContentResolver().query(uri, column, null, null, null)
-    cursor.moveToFirst()
-    val file = new File(cursor.getString(0))
-    cursor.close()
-    file
+
+    try {
+      val file = new File(cursor.getString(0))
+      if (!file.exists) {
+        throw NoSuchFileException
+      }
+      file
+    } catch {
+      case NoSuchFileException => throw NoSuchFileException
+      case e: Exception => throw new Exception("無法取得本地端檔案")
+    }
   }
 
-  protected def uploadFiles(fileList: List[File]) {
+  protected def getFileFromUri(uri: Uri) = {
+    getLocalFile(uri).get
+  }
+
+  protected def uploadFiles(uriList: List[Uri]) {
 
     val progressDialogFragment = new ProgressDialogFragment(
       getString(R.string.activitySelectImageUploading), 
       getString(R.string.pleaseWait),
-      Some(fileList.size)
+      Some(uriList.size)
     )
 
     progressDialogFragment.show(
@@ -86,8 +100,10 @@ trait SelectImageActivity {
     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
     val imageListFuture = future {
-      fileList.zipWithIndex.foreach { case(file, index) =>
-        val (imageURL, bitmapDrawable) = uploadToPlurk(file)
+      uriList.zipWithIndex.foreach { case(uri, index) =>
+
+        val (imageURL, bitmapDrawable) = readAndUploadFile(progressDialogFragment, uri)
+
         this.runOnUIThread {
           getCurrentEditor.insertDrawable(s" ${imageURL} ", bitmapDrawable) 
           progressDialogFragment.setProgress(index + 1)
@@ -130,17 +146,58 @@ trait SelectImageActivity {
     (imageURL, bitmapDrawable)
   }
 
-  protected def uploadFile(file: File) {
+
+  private def readAndUploadFile(dialog: ProgressDialogFragment, uri: Uri) = {
+
+    def formatedByteCount(bytes: Long) = {
+      val unit = 1024
+      if (bytes < unit) {
+        bytes + " B"
+      } else {
+        val exp = (Math.log(bytes) / Math.log(unit)).asInstanceOf[Int]
+        val pre = "KMGTPE".charAt(exp-1)
+        "%.1f %sB".format(bytes / Math.pow(unit, exp), pre)
+      }
+    }
+
+    def updateProgressBar(bytes: Long) {
+      activity.runOnUIThread {
+        val title = getString(R.string.activitySelectImageDownloading)
+        dialog.setTitle(title + formatedByteCount(bytes))
+      }
+    }
+
+    getLocalFile(uri) match {
+      case Success(file) => uploadToPlurk(file)
+      case _ => 
+        DiskCacheHelper.writeUriToCache(this, uri, updateProgressBar) match {
+          case Some(file) => 
+            activity.runOnUIThread {
+              dialog.setTitle(getString(R.string.activitySelectImageUploading))
+            }
+            uploadToPlurk(file)
+          case None => 
+            throw new Exception("無法取得遠端檔案")
+        }
+    }
+  }
+
+  protected def uploadFile(uri: Uri) {
 
     val progressDialogFragment = new ProgressDialogFragment(
       getString(R.string.activitySelectImageUploading),
       getString(R.string.pleaseWait)
     )
-    progressDialogFragment.show(getSupportFragmentManager.beginTransaction, "uploadFileProgress")
+
+    progressDialogFragment.show(
+      getSupportFragmentManager.beginTransaction, 
+      "uploadFileProgress"
+    )
+
     val oldRequestedOrientation = getRequestedOrientation
     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
-    val imageURLFuture = future { uploadToPlurk(file) }
+    val imageURLFuture = future { readAndUploadFile(progressDialogFragment, uri) }
 
     imageURLFuture.onSuccessInUI { case (imageURL, bitmapDrawable) => 
       getCurrentEditor.insertDrawable(s" ${imageURL} ", bitmapDrawable) 

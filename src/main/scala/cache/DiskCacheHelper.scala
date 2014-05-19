@@ -11,8 +11,11 @@ import java.io.File
 import java.io.FileOutputStream
 import java.math.BigInteger
 import java.security.MessageDigest
+import java.io.InputStream
 
 object DiskCacheHelper {
+
+  private val noop: Long => Any = (x: Long) => {}
 
   private def getCacheFolder(context: Context): File = {
     val cacheDir = Environment.getExternalStorageState match {
@@ -34,6 +37,37 @@ object DiskCacheHelper {
     val md = MessageDigest.getInstance("MD5")
     val messageDigest = md.digest(content.getBytes())
     (new BigInteger(1, messageDigest)).toString
+  }
+
+  def writeUriToCache(context: Context, uri: android.net.Uri, 
+                      callback: Long => Any = noop): Option[File] = {
+    try {
+      val resolver = context.getContentResolver
+      val filename = java.util.UUID.randomUUID.toString + ".tmp"
+      val cacheFile = new File(getCacheFolder(context), filename)
+      val fileOutputStream = new FileOutputStream(cacheFile)
+      val stream = context.getContentResolver.openInputStream(uri)
+
+      val buffer = new Array[Byte](1024 * 200)
+      var length = stream.read(buffer)
+      var totalBytes: Long = 0
+
+      while (length != -1) {
+        //DebugLog("====> writing length:" + length)
+        fileOutputStream.write(buffer, 0, length)
+        totalBytes += length
+        callback(totalBytes)
+        length = stream.read(buffer)
+      }
+
+      fileOutputStream.flush()
+      fileOutputStream.close()
+      Some(cacheFile)
+    } catch {
+      case e: Exception => 
+        DebugLog(s"====> 無法將 $uri 寫入檔案", e)
+        None
+    }
   }
 
   def writeBitmapToCache(context: Context, url: String, bitmap: Bitmap): Option[File] = {
