@@ -71,7 +71,9 @@ class LoginFragment extends Fragment {
     authorizationURL.onFailureInUI { 
       case error: Exception => {
         DebugLog("====> authorizationURL.onFailureInUI:" + error.getMessage, error) 
-        activity.onGetAuthURLFailure(error)
+        if (activity != null) {
+          activity.onGetAuthURLFailure(error)
+        }
         showErrorNotice(getString(R.string.fragmentLoginGetAuthURLFail))
       }
     }
@@ -136,12 +138,16 @@ class LoginFragment extends Fragment {
 
       authStatusFuture.onSuccessInUI{ _ => 
         PlurkAPIHelper.saveAccessToken(activity)
-        activity.onLoginSuccess()
+        if (activity != null) {
+          activity.onLoginSuccess()
+        }
       }
 
       authStatusFuture.onFailureInUI{ case e: Exception => 
         showErrorNotice(getString(R.string.fragmentLoginFailedGeneric))
-        activity.onLoginFailure(e)
+        if (activity != null) {
+          activity.onLoginFailure(e)
+        }
       }
     }
   }

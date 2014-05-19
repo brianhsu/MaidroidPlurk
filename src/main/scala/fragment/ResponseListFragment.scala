@@ -80,11 +80,17 @@ class ResponseListFragment extends Fragment {
       adapter.clearErrorCallback()
       adapter.update(response.responses, response.friends)
       PlurkView.updatePlurkCommentInfo(plurk.plurkID, response.responses.size, true)
-      activity.onGetResponseSuccess(response)
+
+      if (activity != null) {
+        activity.onGetResponseSuccess(response)
+      }
     }
 
     responses.onFailureInUI { case e: Exception =>
-      activity.onGetResponseFailure(e)
+      if (activity != null) {
+        activity.onGetResponseFailure(e)
+      }
+
       val message = getString(R.string.cannotGetResponse)
       adapter.setupErrorCallback(message, () => { 
         adapter.clearErrorCallback()

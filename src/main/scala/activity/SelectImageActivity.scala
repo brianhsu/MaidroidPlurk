@@ -190,7 +190,9 @@ trait SelectImageActivity {
     def updateRemoteFile(uri: Uri) = {
       DiskCacheHelper.writeUriToCache(this, uri, updateWhenDownloading) match {
         case Some(file) => 
-          dialog.setTitle(getString(R.string.activitySelectImagePreparing))
+          this.runOnUIThread {
+            dialog.setTitle(getString(R.string.activitySelectImagePreparing))
+          }
           uploadToPlurk(file, updateWhenUploading)
         case None => 
           throw new Exception(getString(R.string.activitySelectImageFetchFileException))

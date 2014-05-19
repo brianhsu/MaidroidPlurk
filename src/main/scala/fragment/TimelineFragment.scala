@@ -385,21 +385,27 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
 
     markFuture.onSuccessInUI { case plurk =>
 
-      progressDialogFragment.dismiss()
-      activity.setRequestedOrientation(oldRequestedOrientation)
+      if (activity != null) {
 
-      Toast.makeText(
-        activity, 
-        getString(R.string.fragmentTimelineMarkedToast), 
-        Toast.LENGTH_LONG
-      ).show()
+        progressDialogFragment.dismiss()
+        activity.setRequestedOrientation(oldRequestedOrientation)
 
-      switchToFilter(filter, isUnreadOnly)
+        Toast.makeText(
+          activity, 
+          getString(R.string.fragmentTimelineMarkedToast), 
+          Toast.LENGTH_LONG
+        ).show()
+
+        switchToFilter(filter, isUnreadOnly)
+      }
     }
 
     markFuture.onFailureInUI { case e =>
       progressDialogFragment.dismiss()
-      activity.setRequestedOrientation(oldRequestedOrientation)
+
+      if (activity != null) {
+        activity.setRequestedOrientation(oldRequestedOrientation)
+      }
     }
   }
 
@@ -431,7 +437,7 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
 
     plurksFuture.onSuccessInUI { case (timeline, unreadCount, adapterVersion) => 
 
-      if (adapterVersion >= this.adapterVersion) {
+      if (adapterVersion >= this.adapterVersion && activity != null) {
 
         if (isNewFilter) { 
           updateListAdapter() 
@@ -446,7 +452,9 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
     }
 
     plurksFuture.onFailureInUI { case e: Exception =>
-      activity.onShowTimelinePlurksFailure(e)
+      if (activity != null) {
+        activity.onShowTimelinePlurksFailure(e)
+      }
       showErrorNotice(getString(R.string.fragmentTimelineGetTimelineFailure))
       updateToggleButtonTitle(false)
       pullToRefreshHolder.foreach(_.setRefreshComplete())

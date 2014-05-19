@@ -23,11 +23,18 @@ import java.net.URL
 class PlurkImageGetter(activity: Activity, adapter: BaseAdapter) extends Html.ImageGetter {
 
   private implicit val implicitActivity = activity
-  private val metrics = new DisplayMetrics
-  private var mPlaceHolder: Option[Bitmap] = Option(BitmapFactory.decodeResource(activity.getResources, R.drawable.placeholder))
   private lazy val thumbnailSize = (metrics.widthPixels * 0.2).toInt
 
-  activity.getWindowManager.getDefaultDisplay.getMetrics(metrics)
+  private val metrics = new DisplayMetrics
+  private var mPlaceHolder: Option[Bitmap] = {
+    for {
+      activity <- Option(this.activity)
+      bitmap <- Option(BitmapFactory.decodeResource(activity.getResources, 
+                                                    R.drawable.placeholder))
+    } yield bitmap
+  }
+
+  Option(activity).foreach(_.getWindowManager.getDefaultDisplay.getMetrics(metrics))
 
   private def placeHolder = {
     mPlaceHolder.filterNot(_.isRecycled) match {
