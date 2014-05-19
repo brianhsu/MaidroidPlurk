@@ -107,7 +107,6 @@ trait SelectImageActivity {
       uriList.zipWithIndex.foreach { case(uri, index) =>
 
         val (imageURL, bitmapDrawable) = readAndUploadFile(progressDialogFragment, uri, Some(index))
-
         this.runOnUIThread {
           getCurrentEditor.insertDrawable(s" ${imageURL} ", bitmapDrawable) 
           progressDialogFragment.setProgress(index + 1)
@@ -191,6 +190,7 @@ trait SelectImageActivity {
     def updateRemoteFile(uri: Uri) = {
       DiskCacheHelper.writeUriToCache(this, uri, updateWhenDownloading) match {
         case Some(file) => 
+          dialog.setTitle(getString(R.string.activitySelectImagePreparing))
           uploadToPlurk(file, updateWhenUploading)
         case None => 
           throw new Exception(getString(R.string.activitySelectImageFetchFileException))
