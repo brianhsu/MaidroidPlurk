@@ -81,13 +81,13 @@ class ResponseListFragment extends Fragment {
       adapter.update(response.responses, response.friends)
       PlurkView.updatePlurkCommentInfo(plurk.plurkID, response.responses.size, true)
 
-      if (activity != null) {
+      if (isAdded) {
         activity.onGetResponseSuccess(response)
       }
     }
 
     responses.onFailureInUI { case e: Exception =>
-      if (activity != null) {
+      if (isAdded) {
         activity.onGetResponseFailure(e)
       }
 

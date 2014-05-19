@@ -227,7 +227,11 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
   private def setMuteInfo(plurk: Plurk) {
 
     var isMuted: Boolean = false
-    val isMinePlurk = plurk.ownerID == plurk.userID
+    val isAnonymous = {
+      plurk.plurkType == PlurkType.Anonymous || 
+      plurk.plurkType == PlurkType.AnonymousResponded
+    }
+    val isMinePlurk = !isAnonymous && plurk.ownerID == plurk.userID
     def currentMuteState = PlurkView.getPlurkMutedStatus(plurk.plurkID).
                                    getOrElse(plurk.readStatus == Some(Muted))
 
@@ -375,7 +379,13 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
   }
 
   private def setDropdownMenu(plurk: Plurk) {
-    if (!isInResponseList && plurk.userID == plurk.ownerID) {
+
+    val isAnonymous = {
+      plurk.plurkType == PlurkType.Anonymous || 
+      plurk.plurkType == PlurkType.AnonymousResponded
+    }
+
+    if (!isInResponseList && !isAnonymous && plurk.userID == plurk.ownerID) {
       dropdownMenu.setOnClickListener { button: View =>
         val popupMenu = new test.MyPopupMenu(activity, button) {
           override def onMenuItemSelected(menu: MenuBuilder, item: MenuItem): Boolean = {

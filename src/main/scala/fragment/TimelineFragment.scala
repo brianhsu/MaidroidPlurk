@@ -385,7 +385,7 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
 
     markFuture.onSuccessInUI { case plurk =>
 
-      if (activity != null) {
+      if (isAdded) {
 
         progressDialogFragment.dismiss()
         activity.setRequestedOrientation(oldRequestedOrientation)
@@ -401,9 +401,8 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
     }
 
     markFuture.onFailureInUI { case e =>
-      progressDialogFragment.dismiss()
-
-      if (activity != null) {
+      if (isAdded) {
+        progressDialogFragment.dismiss()
         activity.setRequestedOrientation(oldRequestedOrientation)
       }
     }
@@ -437,7 +436,7 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
 
     plurksFuture.onSuccessInUI { case (timeline, unreadCount, adapterVersion) => 
 
-      if (adapterVersion >= this.adapterVersion && activity != null) {
+      if (isAdded && adapterVersion >= this.adapterVersion) {
 
         if (isNewFilter) { 
           updateListAdapter() 
@@ -452,12 +451,12 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
     }
 
     plurksFuture.onFailureInUI { case e: Exception =>
-      if (activity != null) {
+      if (isAdded) {
         activity.onShowTimelinePlurksFailure(e)
+        showErrorNotice(getString(R.string.fragmentTimelineGetTimelineFailure))
+        updateToggleButtonTitle(false)
+        pullToRefreshHolder.foreach(_.setRefreshComplete())
       }
-      showErrorNotice(getString(R.string.fragmentTimelineGetTimelineFailure))
-      updateToggleButtonTitle(false)
-      pullToRefreshHolder.foreach(_.setRefreshComplete())
     }
   }
 
