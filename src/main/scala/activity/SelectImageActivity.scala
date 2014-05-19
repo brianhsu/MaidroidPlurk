@@ -17,6 +17,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.provider.MediaStore
 import android.content.pm.ActivityInfo
+import android.widget.Toast
 
 import android.support.v7.app.ActionBarActivity
 
@@ -26,14 +27,16 @@ import java.util.UUID
 import scala.concurrent._
 import scala.util.{Try, Success, Failure}
 
-object NoSuchFileException extends Exception("找不到這個檔案")
-
 object SelectImageActivity {
   val RequestPhotoPicker = 1
 }
 
 trait SelectImageActivity {
   this: ActionBarActivity =>
+
+  object NoSuchFileException extends Exception(
+    getString(R.string.activitySelectImageFileNotFound)
+  )
 
   protected implicit def activity = this
 
@@ -68,25 +71,26 @@ trait SelectImageActivity {
     val cursor = getContentResolver().query(uri, column, null, null, null)
 
     try {
+
+      cursor.moveToFirst()
+
       val file = new File(cursor.getString(0))
+
       if (!file.exists) {
         throw NoSuchFileException
       }
+
       file
     } catch {
       case NoSuchFileException => throw NoSuchFileException
-      case e: Exception => throw new Exception("無法取得本地端檔案")
+      case e: Exception => throw e
     }
-  }
-
-  protected def getFileFromUri(uri: Uri) = {
-    getLocalFile(uri).get
   }
 
   protected def uploadFiles(uriList: List[Uri]) {
 
     val progressDialogFragment = new ProgressDialogFragment(
-      getString(R.string.activitySelectImageUploading), 
+      getString(R.string.activitySelectImagePreparing), 
       getString(R.string.pleaseWait),
       Some(uriList.size)
     )
@@ -102,7 +106,7 @@ trait SelectImageActivity {
     val imageListFuture = future {
       uriList.zipWithIndex.foreach { case(uri, index) =>
 
-        val (imageURL, bitmapDrawable) = readAndUploadFile(progressDialogFragment, uri)
+        val (imageURL, bitmapDrawable) = readAndUploadFile(progressDialogFragment, uri, Some(index))
 
         this.runOnUIThread {
           getCurrentEditor.insertDrawable(s" ${imageURL} ", bitmapDrawable) 
@@ -134,7 +138,7 @@ trait SelectImageActivity {
 
   }
 
-  protected def uploadToPlurk(file: File) = {
+  protected def uploadToPlurk(file: File, uploadingCallback: (Long, Long) => Any) = {
     val resizedBitmap = ImageSampleFactor.resizeImageFile(file, 800, true)
     val thumbnailBitmap = ImageSampleFactor.resizeImageFile(file, 100, true)
 
@@ -142,12 +146,13 @@ trait SelectImageActivity {
     val newFile = DiskCacheHelper.writeBitmapToCache(this, randomUUID, resizedBitmap).get
       
     val bitmapDrawable = new BitmapDrawable(getResources, thumbnailBitmap)
-    val imageURL = plurkAPI.Timeline.uploadPicture(newFile).get._1
+    val imageURL = plurkAPI.Timeline.uploadPicture(newFile, uploadingCallback).get._1
     (imageURL, bitmapDrawable)
   }
 
 
-  private def readAndUploadFile(dialog: ProgressDialogFragment, uri: Uri) = {
+  private def readAndUploadFile(dialog: ProgressDialogFragment, uri: Uri, 
+                                photoCount: Option[Int] = None) = {
 
     def formatedByteCount(bytes: Long) = {
       val unit = 1024
@@ -160,33 +165,52 @@ trait SelectImageActivity {
       }
     }
 
-    def updateProgressBar(bytes: Long) {
+    def updateWhenDownloading(bytes: Long) {
       activity.runOnUIThread {
         val title = getString(R.string.activitySelectImageDownloading)
         dialog.setTitle(title + formatedByteCount(bytes))
       }
     }
 
-    getLocalFile(uri) match {
-      case Success(file) => uploadToPlurk(file)
-      case _ => 
-        DiskCacheHelper.writeUriToCache(this, uri, updateProgressBar) match {
-          case Some(file) => 
-            activity.runOnUIThread {
-              dialog.setTitle(getString(R.string.activitySelectImageUploading))
-            }
-            uploadToPlurk(file)
-          case None => 
-            throw new Exception("無法取得遠端檔案")
+    def updateWhenUploading(totalSize: Long, bytes: Long) {
+      activity.runOnUIThread {
+
+        val title = getString(R.string.activitySelectImageUploading)
+
+        photoCount match {
+          case Some(count) =>
+            dialog.setTitle(title + formatedByteCount(bytes))
+            dialog.setProgress(count)
+          case None =>
+            val title = getString(R.string.activitySelectImageUploading)
+            dialog.setTitle(title + formatedByteCount(bytes), bytes.toInt, totalSize.toInt)
         }
+      }
+    }
+
+    def updateRemoteFile(uri: Uri) = {
+      DiskCacheHelper.writeUriToCache(this, uri, updateWhenDownloading) match {
+        case Some(file) => 
+          uploadToPlurk(file, updateWhenUploading)
+        case None => 
+          throw new Exception(getString(R.string.activitySelectImageFetchFileException))
+      }
+    }
+
+    getLocalFile(uri) match {
+      case Success(file) => 
+        uploadToPlurk(file, updateWhenUploading)
+      case _ => 
+        updateRemoteFile(uri)
     }
   }
 
   protected def uploadFile(uri: Uri) {
 
     val progressDialogFragment = new ProgressDialogFragment(
-      getString(R.string.activitySelectImageUploading),
-      getString(R.string.pleaseWait)
+      getString(R.string.activitySelectImagePreparing),
+      getString(R.string.pleaseWait),
+      Some(0)
     )
 
     progressDialogFragment.show(

@@ -65,7 +65,7 @@ object DiskCacheHelper {
       Some(cacheFile)
     } catch {
       case e: Exception => 
-        DebugLog(s"====> 無法將 $uri 寫入檔案", e)
+        DebugLog(s"====> cannot write $uri to file", e)
         None
     }
   }

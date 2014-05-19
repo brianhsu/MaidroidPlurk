@@ -2,7 +2,11 @@
 <resources>
   <string name="activitySelectImageTitle">選擇一張圖片</string>
 
-  <string name="activitySelectImageUploading">上傳圖檔中</string>
+  <string name="activitySelectImageFileNotFound">找不到這個檔案</string>
+  <string name="activitySelectImageFetchFileException">無法讀取這張圖片</string>
+
+  <string name="activitySelectImagePreparing">準備中</string>
+  <string name="activitySelectImageUploading">上傳圖檔中：</string>
   <string name="activitySelectImageDownloading">下載圖檔中：</string>
 
   <string name="activitySelectImageUploadMultipleOK">小鈴已經幫主人把這些照片上傳了喲，主人的照片好多喲，難道說主人是照片松鼠嗎？</string>

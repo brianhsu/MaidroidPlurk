@@ -20,6 +20,7 @@ class ProgressDialogFragment(title: String, message: String,
         dialog.setMessage(message)
       case Some(maxValue) =>
         dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
+        dialog.setProgressNumberFormat("%1d / %2d")
         dialog.setMax(maxValue)
         dialog.setProgress(0)
     }
@@ -31,7 +32,16 @@ class ProgressDialogFragment(title: String, message: String,
   }
 
   def setTitle(title: String) {
-    getDialog.setTitle(title)
+    val dialog = getDialog.asInstanceOf[ProgressDialog]
+    dialog.setTitle(title)
+  }
+
+  def setTitle(title: String, progress: Int, max: Int) {
+    val dialog = getDialog.asInstanceOf[ProgressDialog]
+    dialog.setTitle(title)
+    dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
+    dialog.setMax(max)
+    dialog.setProgress(progress)
   }
 
   setCancelable(isCancelable)
