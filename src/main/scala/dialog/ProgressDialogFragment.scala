@@ -7,14 +7,33 @@ import android.support.v4.app.DialogFragment
 import android.app.ProgressDialog
 import android.app.Dialog
 
-class ProgressDialogFragment(title: String, message: String, 
-                             maxValueHolder: Option[Int] = None,
-                             isCancelable: Boolean = false) extends DialogFragment {
+object ProgressDialogFragment {
+  def createDialog(title: String, message: String, 
+                   maxValueHolder: Option[Int] = None, 
+                   isCancelable: Boolean = false) = {
+
+    val args = new Bundle
+    args.putString("title", title)
+    args.putString("message", message)
+    maxValueHolder.foreach { maxValue => args.putInt("maxValue", maxValue) }
+    args.putBoolean("isCancelable", isCancelable)
+    val fragment = new ProgressDialogFragment
+    fragment.setArguments(args)
+    fragment
+  }
+}
+
+class ProgressDialogFragment extends DialogFragment {
 
 
   override def onCreateDialog(savedInstanceState: Bundle) = {
     val dialog = new ProgressDialog(getActivity)
+    val title = getArguments.getString("title")
+    val message = getArguments.getString("message")
+    val isCancelable = getArguments.getBoolean("isCancelable")
+    val maxValueHolder = Option(getArguments.getInt("maxValue", Int.MinValue)).filter(_ == Int.MinValue)
     dialog.setTitle(title)
+    dialog.setCancelable(isCancelable)
     maxValueHolder match { 
       case None => 
         dialog.setMessage(message)
@@ -43,7 +62,5 @@ class ProgressDialogFragment(title: String, message: String,
     dialog.setMax(max)
     dialog.setProgress(progress)
   }
-
-  setCancelable(isCancelable)
 
 }

@@ -221,13 +221,14 @@ class PostPlurkActivity extends ActionBarActivity
 
     } else {
 
-      val progressDialogFragment = new ProgressDialogFragment(
+      val oldRequestedOrientation = getRequestedOrientation
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
+
+      val progressDialogFragment = ProgressDialogFragment.createDialog(
         getString(R.string.activityPostPlurkPosting),
         getString(R.string.pleaseWait)
       )
       progressDialogFragment.show(getSupportFragmentManager.beginTransaction, "postProgress")
-      val oldRequestedOrientation = getRequestedOrientation
-      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
       val postedPlurkFuture = getCurrentEditor.postPlurk()
 

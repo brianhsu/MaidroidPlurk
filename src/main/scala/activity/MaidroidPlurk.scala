@@ -220,15 +220,15 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
   }
 
   private def deletePlurk(plurkID: Long) {
-    val progressDialogFragment = new ProgressDialogFragment(
+    val oldRequestedOrientation = activity.getRequestedOrientation
+    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
+
+    val progressDialogFragment = ProgressDialogFragment.createDialog(
       getString(R.string.activityMaidroidPlurkDeleting),
       getString(R.string.pleaseWait)
     )
 
     progressDialogFragment.show(getSupportFragmentManager.beginTransaction, "deleteProgress")
-
-    val oldRequestedOrientation = activity.getRequestedOrientation
-    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
     val deleteFuture = future {
       val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)

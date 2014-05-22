@@ -89,7 +89,11 @@ trait SelectImageActivity {
 
   protected def uploadFiles(uriList: List[Uri]) {
 
-    val progressDialogFragment = new ProgressDialogFragment(
+    val oldRequestedOrientation = getRequestedOrientation
+    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
+
+
+    val progressDialogFragment = ProgressDialogFragment.createDialog(
       getString(R.string.activitySelectImagePreparing), 
       getString(R.string.pleaseWait),
       Some(uriList.size)
@@ -99,9 +103,6 @@ trait SelectImageActivity {
       getSupportFragmentManager.beginTransaction, 
       "uploadFileProgress"
     )
-
-    val oldRequestedOrientation = getRequestedOrientation
-    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
     val imageListFuture = future {
       uriList.zipWithIndex.foreach { case(uri, index) =>
@@ -209,7 +210,10 @@ trait SelectImageActivity {
 
   protected def uploadFile(uri: Uri) {
 
-    val progressDialogFragment = new ProgressDialogFragment(
+    val oldRequestedOrientation = getRequestedOrientation
+    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
+
+    val progressDialogFragment = ProgressDialogFragment.createDialog(
       getString(R.string.activitySelectImagePreparing),
       getString(R.string.pleaseWait),
       Some(0)
@@ -219,9 +223,6 @@ trait SelectImageActivity {
       getSupportFragmentManager.beginTransaction, 
       "uploadFileProgress"
     )
-
-    val oldRequestedOrientation = getRequestedOrientation
-    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
     val imageURLFuture = future { readAndUploadFile(progressDialogFragment, uri) }
 

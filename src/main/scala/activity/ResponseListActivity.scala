@@ -163,7 +163,10 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
 
   private def deleteResponse(plurkID: Long, responseID: Long) {
 
-    val progressDialogFragment = new ProgressDialogFragment(
+    val oldRequestedOrientation = getRequestedOrientation
+    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
+
+    val progressDialogFragment = ProgressDialogFragment.createDialog(
       getString(R.string.activityResponseListDeleteing), 
       getString(R.string.pleaseWait)
     )
@@ -172,9 +175,6 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
       getSupportFragmentManager.beginTransaction, 
       "deleteResponseProgress"
     )
-
-    val oldRequestedOrientation = getRequestedOrientation
-    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
     val deleteFuture = future {
       plurkAPI.Responses.responseDelete(plurkID, responseID).get
@@ -208,7 +208,10 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
 
   private def deletePlurk() {
 
-    val progressDialogFragment = new ProgressDialogFragment(
+    val oldRequestedOrientation = getRequestedOrientation
+    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
+
+    val progressDialogFragment = ProgressDialogFragment.createDialog(
       getString(R.string.activityResponseListDeleteing),
       getString(R.string.pleaseWait)
     )
@@ -217,10 +220,6 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
       getSupportFragmentManager.beginTransaction, 
       "deletePlurkProgress"
     )
-
-    val oldRequestedOrientation = getRequestedOrientation
-    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
-
 
     val deleteFuture = future {
       plurkAPI.Timeline.plurkDelete(ResponseListActivity.plurk.plurkID).get

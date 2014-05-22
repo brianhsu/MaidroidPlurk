@@ -151,13 +151,14 @@ class PostResponseActivity extends ActionBarActivity
         Nil
       )
     } else if (plurkID != -1) {
-      val progressDialogFragment = new ProgressDialogFragment(
+      val oldRequestedOrientation = getRequestedOrientation
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
+
+      val progressDialogFragment = ProgressDialogFragment.createDialog(
         getString(R.string.activitPostResponsePosting),
         getString(R.string.pleaseWait)
       )
       progressDialogFragment.show(getSupportFragmentManager.beginTransaction, "respondProgress")
-      val oldRequestedOrientation = getRequestedOrientation
-      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
       val responseFuture = editorFragment.postResponse(plurkID)
       responseFuture.onSuccessInUI { _ =>

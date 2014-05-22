@@ -359,7 +359,10 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
 
   def markAllAsRead(filter: Option[Filter]) {
 
-    val progressDialogFragment = new ProgressDialogFragment(
+    val oldRequestedOrientation = activity.getRequestedOrientation
+    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
+
+    val progressDialogFragment = ProgressDialogFragment.createDialog(
       getString(R.string.fragmentTimelineMarking), 
       getString(R.string.pleaseWait)
     )
@@ -368,9 +371,6 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
       activity.getSupportFragmentManager.beginTransaction, 
       "markProgress"
     )
-
-    val oldRequestedOrientation = activity.getRequestedOrientation
-    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
     val markFuture = future {
       var plurkIDs: List[Long] = Nil

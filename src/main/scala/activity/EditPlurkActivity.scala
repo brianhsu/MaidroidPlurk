@@ -161,7 +161,10 @@ class EditPlurkActivity extends ActionBarActivity
 
     } else {
 
-      val progressDialogFragment = new ProgressDialogFragment(
+      val oldRequestedOrientation = getRequestedOrientation
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
+
+      val progressDialogFragment = ProgressDialogFragment.createDialog(
         getString(R.string.activityEditPlurkEditing), 
         getString(R.string.pleaseWait)
       )
@@ -170,9 +173,6 @@ class EditPlurkActivity extends ActionBarActivity
         getSupportFragmentManager.beginTransaction, 
         "editPlurkProgress"
       )
-
-      val oldRequestedOrientation = getRequestedOrientation
-      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
       val editedPlurkFuture = future {
         val newContent = editorFragment.getEditorContent.map(_._1.toString).
