@@ -1,6 +1,10 @@
 package idv.brianhsu.maidroid.plurk.util
 
 import org.bone.soplurk.api.PlurkAPI
+import org.bone.soplurk.model._
+import org.bone.soplurk.constant.PlurkType
+
+
 import android.content.Context
 import org.scribe.model.Token
 
@@ -70,5 +74,15 @@ object PlurkAPIHelper {
       preferenceEditor.commit()
     }
     
+  }
+
+  def isMinePlurk(plurk: Plurk): Boolean = {
+
+    val isAnonymous = {
+      plurk.plurkType == PlurkType.Anonymous ||
+      plurk.plurkType == PlurkType.AnonymousResponded
+    }
+
+    !isAnonymous && plurk.ownerID == plurk.userID && plurk.ownerID != 99999
   }
 }
