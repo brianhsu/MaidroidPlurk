@@ -6,6 +6,7 @@ import idv.brianhsu.maidroid.plurk.dialog._
 import idv.brianhsu.maidroid.plurk.view._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.fragment._
+import idv.brianhsu.maidroid.plurk.view._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
 import org.bone.soplurk.api.PlurkAPI._
@@ -37,6 +38,7 @@ object ResponseListActivity {
 
 
 class ResponseListActivity extends ActionBarActivity with TypedViewHolder 
+                           with ToggleView
                            with ResponseListFragment.Listener
                            with ConfirmDialog.Listener
                            with PlurkView.Listener
@@ -123,7 +125,8 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
     case R.id.activityResponseListActionEdit => startEditActivity() ; false
     case R.id.activityResponseListActionDelete => showConfirmDeleteDialog() ; false
     case R.id.activityResponseListActionLogout => logout(); false
-    case R.id.activityPostPlurkActionAbout => AboutActivity.startActivity(this); false
+    case R.id.activityResponseListActionAbout => AboutActivity.startActivity(this); false
+    case R.id.activityResponseListActionToggleMaid => toggleView(dialogFrame); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 

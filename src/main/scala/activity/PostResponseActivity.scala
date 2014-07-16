@@ -5,6 +5,7 @@ import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.dialog._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.fragment._
+import idv.brianhsu.maidroid.plurk.view._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
 import org.bone.soplurk.api.PlurkAPI._
@@ -27,6 +28,7 @@ object PostResponseActivity {
 }
 
 class PostResponseActivity extends ActionBarActivity 
+                           with ToggleView
                            with SelectImageActivity 
                            with SelectEmoticonActivity
                            with EmoticonFragment.Listener
@@ -81,7 +83,8 @@ class PostResponseActivity extends ActionBarActivity
     case R.id.activityPostResponseActionEmoticon => toggleEmoticonSelector(); false
     case R.id.activityPostResponseActionSend => postResponse(); false
     case R.id.activityPostResponseActionLogout => Logout.logout(this); false
-    case R.id.activityPostPlurkActionAbout => AboutActivity.startActivity(this); false
+    case R.id.activityPostResponseActionAbout => AboutActivity.startActivity(this); false
+    case R.id.activityPostResponseActionToggleMaid => toggleView(dialogFrame); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 

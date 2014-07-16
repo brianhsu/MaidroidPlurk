@@ -6,6 +6,8 @@ import idv.brianhsu.maidroid.plurk.adapter._
 import idv.brianhsu.maidroid.plurk.dialog._
 import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.util._
+import idv.brianhsu.maidroid.plurk.view._
+
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 import idv.brianhsu.maidroid.ui.model._
 
@@ -31,6 +33,7 @@ import android.support.v4.view.ViewPager.OnPageChangeListener
 import scala.concurrent._
 
 class PostPlurkActivity extends ActionBarActivity 
+                        with ToggleView
                         with TabListener with OnPageChangeListener
                         with TypedViewHolder 
                         with SelectEmoticonActivity
@@ -107,6 +110,7 @@ class PostPlurkActivity extends ActionBarActivity
     case R.id.activityPostPlurkActionSend => postPlurk(); false
     case R.id.activityPostPlurkActionLogout => Logout.logout(this); false
     case R.id.activityPostPlurkActionAbout => AboutActivity.startActivity(this); false
+    case R.id.activityPostPlurkActionToggleMaid => toggleView(dialogFrame); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 
