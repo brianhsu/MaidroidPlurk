@@ -38,7 +38,7 @@ import scala.util.Try
 import org.bone.soplurk.constant.Filter
 
 
-class MaidroidPlurk extends ActionBarActivity with TypedViewHolder with ToggleView
+class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
                     with LoginFragment.Listener 
                     with TimelineFragment.Listener
                     with PlurkView.Listener
@@ -46,7 +46,7 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder with ToggleVi
 {
   implicit val activity = this
 
-  private lazy val dialogFrame = findView(TR.dialogFrame)
+  private lazy val dialogFrame = ToggleView.setupAngryBehavior(this, findView(TR.dialogFrame))
   private lazy val fragmentContainer = findView(TR.activityMaidroidPlurkFragmentContainer)
   private var timelineFragmentHolder: Option[TimelineFragment] = None
 
@@ -265,8 +265,9 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder with ToggleVi
 
   override def onOptionsItemSelected(menuItem: MenuItem): Boolean = menuItem.getItemId match {
     case R.id.activityMaidroidPlurkActionAbout => AboutActivity.startActivity(this); false
-    case R.id.activityMaidroidPlurkActionToggleMaid => toggleView(dialogFrame) ; false
+    case R.id.activityMaidroidPlurkActionToggleMaid => ToggleView(dialogFrame) ; false
     case _ => super.onOptionsItemSelected(menuItem)
   }
+
 
 }

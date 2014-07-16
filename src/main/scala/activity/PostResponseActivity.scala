@@ -28,7 +28,6 @@ object PostResponseActivity {
 }
 
 class PostResponseActivity extends ActionBarActivity 
-                           with ToggleView
                            with SelectImageActivity 
                            with SelectEmoticonActivity
                            with EmoticonFragment.Listener
@@ -37,7 +36,7 @@ class PostResponseActivity extends ActionBarActivity
 {
   protected val emoticonFragmentHolderResID = R.id.activityPostResponseEmtoicon
   protected lazy val editorFragment = new PostResponseFragment
-  protected lazy val dialogFrame = findView(TR.activityPostResponseDialogFrame)
+  protected lazy val dialogFrame = ToggleView.setupAngryBehavior(this, findView(TR.activityPostResponseDialogFrame))
   protected lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
   private lazy val plurkID = getIntent.getLongExtra(PostResponseActivity.PlurkIDBundle, -1)
 
@@ -84,7 +83,7 @@ class PostResponseActivity extends ActionBarActivity
     case R.id.activityPostResponseActionSend => postResponse(); false
     case R.id.activityPostResponseActionLogout => Logout.logout(this); false
     case R.id.activityPostResponseActionAbout => AboutActivity.startActivity(this); false
-    case R.id.activityPostResponseActionToggleMaid => toggleView(dialogFrame); false
+    case R.id.activityPostResponseActionToggleMaid => ToggleView(dialogFrame); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 

@@ -38,7 +38,6 @@ object ResponseListActivity {
 
 
 class ResponseListActivity extends ActionBarActivity with TypedViewHolder 
-                           with ToggleView
                            with ResponseListFragment.Listener
                            with ConfirmDialog.Listener
                            with PlurkView.Listener
@@ -46,7 +45,7 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
 
   private implicit def activity = this
   private var showWelcomeMessage = true
-  private lazy val dialogFrame = findView(TR.activityResponseListDialogFrame)
+  private lazy val dialogFrame = ToggleView.setupAngryBehavior(this, findView(TR.activityResponseListDialogFrame))
   private lazy val fragmentContainer = findView(TR.activityResponseListFragmentContainer)
   private lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
 
@@ -126,7 +125,7 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
     case R.id.activityResponseListActionDelete => showConfirmDeleteDialog() ; false
     case R.id.activityResponseListActionLogout => logout(); false
     case R.id.activityResponseListActionAbout => AboutActivity.startActivity(this); false
-    case R.id.activityResponseListActionToggleMaid => toggleView(dialogFrame); false
+    case R.id.activityResponseListActionToggleMaid => ToggleView(dialogFrame); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 

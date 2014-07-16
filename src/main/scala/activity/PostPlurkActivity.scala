@@ -33,7 +33,6 @@ import android.support.v4.view.ViewPager.OnPageChangeListener
 import scala.concurrent._
 
 class PostPlurkActivity extends ActionBarActivity 
-                        with ToggleView
                         with TabListener with OnPageChangeListener
                         with TypedViewHolder 
                         with SelectEmoticonActivity
@@ -46,7 +45,7 @@ class PostPlurkActivity extends ActionBarActivity
 {
 
   protected lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
-  protected lazy val dialogFrame = findView(TR.activityPostPlurkDialogFrame)
+  protected lazy val dialogFrame = ToggleView.setupAngryBehavior(this, findView(TR.activityPostPlurkDialogFrame))
   protected val emoticonFragmentHolderResID = R.id.activityPostPlurkEmtoicon
 
   private lazy val viewPager = findView(TR.activityPostPlurkViewPager)
@@ -110,7 +109,7 @@ class PostPlurkActivity extends ActionBarActivity
     case R.id.activityPostPlurkActionSend => postPlurk(); false
     case R.id.activityPostPlurkActionLogout => Logout.logout(this); false
     case R.id.activityPostPlurkActionAbout => AboutActivity.startActivity(this); false
-    case R.id.activityPostPlurkActionToggleMaid => toggleView(dialogFrame); false
+    case R.id.activityPostPlurkActionToggleMaid => ToggleView(dialogFrame); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 

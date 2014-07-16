@@ -61,6 +61,11 @@
   <string name="filterOnlyResponded">回過的噗</string>
   <string name="filterOnlyFavorite">喜歡的噗</string>
 
+  <string name="maidTouched0">是的，請問主人有什麼吩附呢？</string>
+  <string name="maidTouched1">主人發生了什麼事了嗎……</string>
+  <string name="maidTouched2">啊，請主人不要一直偷偷摸我好嗎？</string>
+  <string name="maidTouched3">主人再繼續這樣下去的話，小鈴要生氣囉！</string>
+  <string name="maidTouched4">請主人以後不要再這樣囉……不然小鈴會傷心的。</string>
 
 
 </resources>
