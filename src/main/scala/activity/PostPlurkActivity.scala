@@ -6,6 +6,8 @@ import idv.brianhsu.maidroid.plurk.adapter._
 import idv.brianhsu.maidroid.plurk.dialog._
 import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.util._
+import idv.brianhsu.maidroid.plurk.view._
+
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 import idv.brianhsu.maidroid.ui.model._
 
@@ -43,7 +45,7 @@ class PostPlurkActivity extends ActionBarActivity
 {
 
   protected lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
-  protected lazy val dialogFrame = findView(TR.activityPostPlurkDialogFrame)
+  protected lazy val dialogFrame = ToggleView.setupAngryBehavior(this, findView(TR.activityPostPlurkDialogFrame))
   protected val emoticonFragmentHolderResID = R.id.activityPostPlurkEmtoicon
 
   private lazy val viewPager = findView(TR.activityPostPlurkViewPager)
@@ -107,6 +109,7 @@ class PostPlurkActivity extends ActionBarActivity
     case R.id.activityPostPlurkActionSend => postPlurk(); false
     case R.id.activityPostPlurkActionLogout => Logout.logout(this); false
     case R.id.activityPostPlurkActionAbout => AboutActivity.startActivity(this); false
+    case R.id.activityPostPlurkActionToggleMaid => ToggleView(dialogFrame); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 

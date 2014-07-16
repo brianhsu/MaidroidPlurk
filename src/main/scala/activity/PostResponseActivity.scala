@@ -5,6 +5,7 @@ import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.dialog._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.fragment._
+import idv.brianhsu.maidroid.plurk.view._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
 import org.bone.soplurk.api.PlurkAPI._
@@ -35,7 +36,7 @@ class PostResponseActivity extends ActionBarActivity
 {
   protected val emoticonFragmentHolderResID = R.id.activityPostResponseEmtoicon
   protected lazy val editorFragment = new PostResponseFragment
-  protected lazy val dialogFrame = findView(TR.activityPostResponseDialogFrame)
+  protected lazy val dialogFrame = ToggleView.setupAngryBehavior(this, findView(TR.activityPostResponseDialogFrame))
   protected lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
   private lazy val plurkID = getIntent.getLongExtra(PostResponseActivity.PlurkIDBundle, -1)
 
@@ -81,7 +82,8 @@ class PostResponseActivity extends ActionBarActivity
     case R.id.activityPostResponseActionEmoticon => toggleEmoticonSelector(); false
     case R.id.activityPostResponseActionSend => postResponse(); false
     case R.id.activityPostResponseActionLogout => Logout.logout(this); false
-    case R.id.activityPostPlurkActionAbout => AboutActivity.startActivity(this); false
+    case R.id.activityPostResponseActionAbout => AboutActivity.startActivity(this); false
+    case R.id.activityPostResponseActionToggleMaid => ToggleView(dialogFrame); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 

@@ -11,6 +11,8 @@
   <string name="menuLogout">登出</string>
   <string name="menuAbout">關於</string>
 
+  <string name="menuToggleMaid">切換女僕是否顯示</string>
+
   <string name="menuDelete">刪除</string>
   <string name="menuEdit">編輯</string>
   <string name="menuRespond">回噗</string>

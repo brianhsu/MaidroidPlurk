@@ -5,6 +5,7 @@ import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.dialog._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.fragment._
+import idv.brianhsu.maidroid.plurk.view._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
 import org.bone.soplurk.api.PlurkAPI._
@@ -44,7 +45,7 @@ class EditPlurkActivity extends ActionBarActivity
 
   protected val emoticonFragmentHolderResID = R.id.activityEditPlurkEmtoicon
   protected lazy val editorFragment = new EditPlurkFragment(rawContent)
-  protected lazy val dialogFrame = findView(TR.activityEditPlurkDialogFrame)
+  protected lazy val dialogFrame = ToggleView.setupAngryBehavior(this, findView(TR.activityEditPlurkDialogFrame))
   protected lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
 
   def getCurrentEditor = editorFragment
@@ -90,6 +91,7 @@ class EditPlurkActivity extends ActionBarActivity
     case R.id.activityEditPlurkActionSend => editPlurk(); false
     case R.id.activityEditPlurkActionLogout => Logout.logout(this); false
     case R.id.activityEditPlurkActionAbout => AboutActivity.startActivity(this); false
+    case R.id.activityEditPlurkActionToggleMaid => ToggleView(dialogFrame); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 

@@ -6,6 +6,7 @@ import idv.brianhsu.maidroid.plurk.dialog._
 import idv.brianhsu.maidroid.plurk.view._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.fragment._
+import idv.brianhsu.maidroid.plurk.view._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
 import org.bone.soplurk.api.PlurkAPI._
@@ -44,7 +45,7 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
 
   private implicit def activity = this
   private var showWelcomeMessage = true
-  private lazy val dialogFrame = findView(TR.activityResponseListDialogFrame)
+  private lazy val dialogFrame = ToggleView.setupAngryBehavior(this, findView(TR.activityResponseListDialogFrame))
   private lazy val fragmentContainer = findView(TR.activityResponseListFragmentContainer)
   private lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
 
@@ -123,7 +124,8 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
     case R.id.activityResponseListActionEdit => startEditActivity() ; false
     case R.id.activityResponseListActionDelete => showConfirmDeleteDialog() ; false
     case R.id.activityResponseListActionLogout => logout(); false
-    case R.id.activityPostPlurkActionAbout => AboutActivity.startActivity(this); false
+    case R.id.activityResponseListActionAbout => AboutActivity.startActivity(this); false
+    case R.id.activityResponseListActionToggleMaid => ToggleView(dialogFrame); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 

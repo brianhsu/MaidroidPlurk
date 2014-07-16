@@ -38,6 +38,11 @@
     maidroid:showAsAction="never" />
 
   <item
+    android:id="@+id/activityPostPlurkActionToggleMaid"
+    android:title="@string/menuToggleMaid"
+    maidroid:showAsAction="never" />
+
+  <item
     android:id="@+id/activityPostPlurkActionAbout"
     android:title="@string/menuAbout"
     maidroid:showAsAction="never" />

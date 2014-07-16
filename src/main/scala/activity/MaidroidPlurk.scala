@@ -19,6 +19,7 @@ import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.adapter._
 import idv.brianhsu.maidroid.plurk.dialog._
+import idv.brianhsu.maidroid.plurk.view._
 import idv.brianhsu.maidroid.ui.model._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 
@@ -36,6 +37,7 @@ import scala.util.Try
 
 import org.bone.soplurk.constant.Filter
 
+
 class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
                     with LoginFragment.Listener 
                     with TimelineFragment.Listener
@@ -44,7 +46,7 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
 {
   implicit val activity = this
 
-  private lazy val dialogFrame = findView(TR.dialogFrame)
+  private lazy val dialogFrame = ToggleView.setupAngryBehavior(this, findView(TR.dialogFrame))
   private lazy val fragmentContainer = findView(TR.activityMaidroidPlurkFragmentContainer)
   private var timelineFragmentHolder: Option[TimelineFragment] = None
 
@@ -263,7 +265,9 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
 
   override def onOptionsItemSelected(menuItem: MenuItem): Boolean = menuItem.getItemId match {
     case R.id.activityMaidroidPlurkActionAbout => AboutActivity.startActivity(this); false
+    case R.id.activityMaidroidPlurkActionToggleMaid => ToggleView(dialogFrame) ; false
     case _ => super.onOptionsItemSelected(menuItem)
   }
+
 
 }
