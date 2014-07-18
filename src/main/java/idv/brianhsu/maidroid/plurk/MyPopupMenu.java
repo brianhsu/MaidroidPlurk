@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package test;
+package idv.brianhsu.maidroid.plurk;
 
 
 import android.content.Context;

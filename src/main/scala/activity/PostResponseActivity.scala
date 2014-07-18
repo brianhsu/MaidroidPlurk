@@ -25,6 +25,7 @@ import android.widget.Toast
 
 object PostResponseActivity {
   val PlurkIDBundle = "idv.brianhsu.maidroid.plurk.PostResponseActivity.plurkID"
+  val NicknameBundle = "idv.brianhsu.maidroid.plurk.PostResponseActivity.nickname"
 }
 
 class PostResponseActivity extends ActionBarActivity 

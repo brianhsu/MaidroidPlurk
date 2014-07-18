@@ -1,6 +1,7 @@
 package idv.brianhsu.maidroid.plurk.fragment
 
 import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.activity._
 import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.plurk.adapter._
 import idv.brianhsu.maidroid.plurk.util._
@@ -41,6 +42,14 @@ class PostResponseFragment extends Fragment with PlurkEditor {
   }
 
   override def onViewCreated(view: View, savedInstanceState: Bundle) {
+    val nicknameHolder = Option(getActivity.getIntent.getStringExtra(PostResponseActivity.NicknameBundle))
+    for {
+      nickname <- nicknameHolder
+      editor <- contentEditorHolder
+    } {
+      editor.setText(s"@${nickname}: ")
+      editor.setSelection(editor.getText.length)
+    }
     setupCharCounter()
   }
 

@@ -2,6 +2,7 @@ package idv.brianhsu.maidroid.plurk.view
 
 import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.adapter._
+import idv.brianhsu.maidroid.plurk.activity._
 import idv.brianhsu.maidroid.plurk.dialog._
 import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.TypedResource._
@@ -34,7 +35,7 @@ import java.text.SimpleDateFormat
 import java.net.URL
 
 class ResponseView(adapter: ResponseAdapter)
-                  (implicit val activity: FragmentActivity with ConfirmDialog.Listener) 
+                  (implicit val activity: FragmentActivity with ConfirmDialog.Listener with ResponseListFragment.Listener)  
                   extends LinearLayout(activity) {
 
   private val inflater = LayoutInflater.from(activity)
@@ -77,25 +78,26 @@ class ResponseView(adapter: ResponseAdapter)
   }
 
   private def setDropdownMenu(response: Response, isDeletable: Boolean) {
-    if (isDeletable) {
-      dropdownMenu.setOnClickListener { button: View =>
-        val popupMenu = new test.MyPopupMenu(activity, button) {
-          override def onMenuItemSelected(menu: MenuBuilder, item: MenuItem): Boolean = {
-            item.getItemId match {
-              case R.id.popup_comment_delete => showDeleteConfirmDialog(response); true
-              case _ => true
-            }
+
+    dropdownMenu.setOnClickListener { button: View =>
+      val popupMenu = new MyPopupMenu(activity, button) {
+        override def onMenuItemSelected(menu: MenuBuilder, item: MenuItem): Boolean = {
+          item.getItemId match {
+            case R.id.popup_comment_delete => showDeleteConfirmDialog(response); true
+            case R.id.popup_comment_reply => activity.onReplyTo(owner.nickname); true
+            case _ => true
           }
         }
-        popupMenu.getMenuInflater.inflate(R.menu.popup_comment, popupMenu.getMenu)
-        popupMenu.show()
       }
-      dropdownMenu.setEnabled(true)
-      dropdownMenu.setVisibility(View.VISIBLE)
 
-    } else {
-      dropdownMenu.setEnabled(false)
-      dropdownMenu.setVisibility(View.GONE)
+      popupMenu.getMenuInflater.inflate(R.menu.popup_comment, popupMenu.getMenu)
+
+      if (!isDeletable) {
+        val deleteMenuItem = popupMenu.getMenu.findItem(R.id.popup_comment_delete)
+        deleteMenuItem.setVisible(false)
+      }
+
+      popupMenu.show()
     }
   }
 

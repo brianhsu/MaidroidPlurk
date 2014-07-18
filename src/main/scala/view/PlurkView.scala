@@ -383,7 +383,7 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
 
     if (!isInResponseList && PlurkAPIHelper.isMinePlurk(plurk)) {
       dropdownMenu.setOnClickListener { button: View =>
-        val popupMenu = new test.MyPopupMenu(activity, button) {
+        val popupMenu = new MyPopupMenu(activity, button) {
           override def onMenuItemSelected(menu: MenuBuilder, item: MenuItem): Boolean = {
             item.getItemId match {
               case R.id.popup_plurk_delete => showDeleteConfirmDialog(plurk); true

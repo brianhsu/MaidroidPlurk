@@ -1,6 +1,7 @@
 package idv.brianhsu.maidroid.plurk.adapter
 
 import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.activity._
 import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.dialog._
@@ -30,7 +31,8 @@ import org.bone.soplurk.model._
 import java.net.URL
 
 class ResponseAdapter(activity: FragmentActivity with PlurkView.Listener 
-                                                 with ConfirmDialog.Listener, 
+                                                 with ResponseListFragment.Listener
+                                                 with ConfirmDialog.Listener,
                       plurk: Plurk, owner: User) extends BaseAdapter {
 
   private implicit val mActivity = activity
