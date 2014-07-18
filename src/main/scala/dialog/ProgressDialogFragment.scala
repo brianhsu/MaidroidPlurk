@@ -1,6 +1,7 @@
 package idv.brianhsu.maidroid.plurk.dialog
 
 import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.util._
 
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
@@ -15,6 +16,7 @@ object ProgressDialogFragment {
     val args = new Bundle
     args.putString("title", title)
     args.putString("message", message)
+
     maxValueHolder.foreach { maxValue => args.putInt("maxValue", maxValue) }
     args.putBoolean("isCancelable", isCancelable)
     val fragment = new ProgressDialogFragment
@@ -31,7 +33,7 @@ class ProgressDialogFragment extends DialogFragment {
     val title = getArguments.getString("title")
     val message = getArguments.getString("message")
     val isCancelable = getArguments.getBoolean("isCancelable")
-    val maxValueHolder = Option(getArguments.getInt("maxValue", Int.MinValue)).filter(_ == Int.MinValue)
+    val maxValueHolder = Option(getArguments.getInt("maxValue", Int.MinValue)).filterNot(_ == Int.MinValue)
     dialog.setTitle(title)
     dialog.setCancelable(isCancelable)
     maxValueHolder match { 
