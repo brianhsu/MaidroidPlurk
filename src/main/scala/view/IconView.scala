@@ -33,7 +33,8 @@ class IconView(activity: Activity) extends LinearLayout(activity) {
   def update(icon: Icon) {
     this.iconName = icon.name
     textView.setText(icon.name)
-    ImageCache.getBitmapFromCache(activity, icon.url) match {
+    val t = if (icon.url.startsWith("http")) icon.url else "http:" + icon.url
+    ImageCache.getBitmapFromCache(activity, t) match {
       case Some(bitmap) => setIconFromCacheBitmap(bitmap)
       case None => setIconFromNetwork(icon)
     }

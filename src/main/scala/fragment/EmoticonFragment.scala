@@ -69,6 +69,7 @@ class EmoticonFragment extends Fragment {
     val hiddenPage = basicAndHidden.filter(icon => EmoticonFragment.hiddenName.contains(icon.name))
     val basicPage = basicAndHidden.filterNot(hiddenPage contains _)
 
+    customPage.foreach(println)
     EmoticonTabs(basicPage, morePage, hiddenPage, customPage)
   }
 

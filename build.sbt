@@ -5,7 +5,7 @@ android.Plugin.androidBuild
  
 name := "MaidroidPlurk"
 
-version := "0.0.10"
+version := "0.0.11"
  
 scalaVersion := "2.10.4"
 
@@ -30,7 +30,7 @@ libraryDependencies ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.bone" %% "soplurk" % "0.3.1",
+  "org.bone" %% "soplurk" % "0.3.2",
   "com.typesafe.akka" %% "akka-actor" % "2.3.2"
 )
 
