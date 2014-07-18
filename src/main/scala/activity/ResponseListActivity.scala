@@ -50,8 +50,8 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
 
   private var responseListFragment: Option[ResponseListFragment] = None
 
-  override def onReplyTo(username: String) {
-    startReplyActivity(Some(username))
+  override def onReplyTo(username: String, originContent: String) {
+    startReplyActivity(Some(username, originContent))
   }
 
   override def onCreate(savedInstanceState: Bundle) {
@@ -249,11 +249,12 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
     }
   }
 
-  private def startReplyActivity(nicknameHolder: Option[String] = None) {
+  private def startReplyActivity(replyToInfo: Option[(String, String)] = None) {
     val intent = new Intent(this, classOf[PostResponseActivity])
     intent.putExtra(PostResponseActivity.PlurkIDBundle, ResponseListActivity.plurk.plurkID)
-    nicknameHolder.foreach { nickname =>
+    replyToInfo.foreach { case (nickname, originContent) =>
       intent.putExtra(PostResponseActivity.NicknameBundle, nickname)
+      intent.putExtra(PostResponseActivity.OriginContentBundle, originContent)
     }
     startActivityForResult(intent, ResponseListActivity.RequestPostResponse)
   }

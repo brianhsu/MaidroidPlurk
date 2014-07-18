@@ -32,7 +32,7 @@ object ResponseListFragment {
   trait Listener {
     def onGetResponseSuccess(responses: PlurkResponses): Unit
     def onGetResponseFailure(e: Exception): Unit
-    def onReplyTo(username: String): Unit
+    def onReplyTo(username: String, originContent: String): Unit
   }
 }
 

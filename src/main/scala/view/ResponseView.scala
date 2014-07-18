@@ -84,7 +84,7 @@ class ResponseView(adapter: ResponseAdapter)
         override def onMenuItemSelected(menu: MenuBuilder, item: MenuItem): Boolean = {
           item.getItemId match {
             case R.id.popup_comment_delete => showDeleteConfirmDialog(response); true
-            case R.id.popup_comment_reply => activity.onReplyTo(owner.nickname); true
+            case R.id.popup_comment_reply => activity.onReplyTo(owner.nickname, response.contentRaw); true
             case _ => true
           }
         }
