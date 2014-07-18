@@ -23,7 +23,7 @@ object AboutActivity {
     context.startActivity(intent)
   }
 
-  val AboutMeURL = "http://about.me/brianhsu"
+  val AboutMeURL = "http://bone.twbbs.org.tw/"
   val GitHubURL  = "http://github.com/brianhsu/MaidroidPlurk"
 }
 
