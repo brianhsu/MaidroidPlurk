@@ -3,4 +3,10 @@
     android:id="@+id/popup_comment_delete"
     android:icon="@drawable/ic_action_discard"
     android:title="@string/delete"/>
+
+  <item
+    android:id="@+id/popup_comment_reply"
+    android:icon="@drawable/ic_action_reply"
+    android:title="@string/reply"/>
+
 </menu>

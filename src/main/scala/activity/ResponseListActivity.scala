@@ -33,7 +33,6 @@ object ResponseListActivity {
 
   val RequestPostResponse = 1
   val RequestEditPlurk = 2
-
 }
 
 
@@ -50,6 +49,10 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
   private lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
 
   private var responseListFragment: Option[ResponseListFragment] = None
+
+  override def onReplyTo(username: String, originContent: String) {
+    startReplyActivity(Some(username, originContent))
+  }
 
   override def onCreate(savedInstanceState: Bundle) {
 
@@ -246,9 +249,13 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
     }
   }
 
-  private def startReplyActivity() {
+  private def startReplyActivity(replyToInfo: Option[(String, String)] = None) {
     val intent = new Intent(this, classOf[PostResponseActivity])
     intent.putExtra(PostResponseActivity.PlurkIDBundle, ResponseListActivity.plurk.plurkID)
+    replyToInfo.foreach { case (nickname, originContent) =>
+      intent.putExtra(PostResponseActivity.NicknameBundle, nickname)
+      intent.putExtra(PostResponseActivity.OriginContentBundle, originContent)
+    }
     startActivityForResult(intent, ResponseListActivity.RequestPostResponse)
   }
 

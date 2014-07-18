@@ -25,6 +25,9 @@ import android.widget.Toast
 
 object PostResponseActivity {
   val PlurkIDBundle = "idv.brianhsu.maidroid.plurk.PostResponseActivity.plurkID"
+  val NicknameBundle = "idv.brianhsu.maidroid.plurk.PostResponseActivity.nickname"
+  val OriginContentBundle = "idv.brianhsu.maidroid.plurk.PostResponseActivity.originContent"
+
 }
 
 class PostResponseActivity extends ActionBarActivity 
@@ -64,10 +67,18 @@ class PostResponseActivity extends ActionBarActivity
       setSelectorVisibility(isEmoticonSelectorShown)
     }
 
-    dialogFrame.setMessages(
-      Message(MaidMaro.Half.Smile, getString(R.string.activitPostResponseWelcome01)) ::
-      Nil
-    )
+    val originContentHolder = Option(getIntent.getStringExtra(PostResponseActivity.OriginContentBundle))
+    val messages = originContentHolder match {
+      case None => 
+        Message(MaidMaro.Half.Smile, getString(R.string.activityPostResponseWelcome01)) :: 
+        Nil
+      case Some(originContent) =>
+        Message(MaidMaro.Half.Smile, getString(R.string.activityPostResponseWelcome01)) :: 
+        Message(MaidMaro.Half.Normal, getString(R.string.activityPostResponseWelcome02).format(originContent)):: 
+        Nil
+    }
+
+    dialogFrame.setMessages(messages)
   }
 
   override def onCreateOptionsMenu(menu: Menu): Boolean = {
@@ -103,7 +114,7 @@ class PostResponseActivity extends ActionBarActivity
     val alertDialog = ConfirmDialog.createDialog(
       this, 'ExitConfirm, 
       getString(R.string.cancel),
-      getString(R.string.activitPostResponseAbortConfirm),
+      getString(R.string.activityPostResponseAbortConfirm),
       getString(R.string.yes), getString(R.string.no)
     ) 
     
@@ -157,7 +168,7 @@ class PostResponseActivity extends ActionBarActivity
       setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
 
       val progressDialogFragment = ProgressDialogFragment.createDialog(
-        getString(R.string.activitPostResponsePosting),
+        getString(R.string.activityPostResponsePosting),
         getString(R.string.pleaseWait)
       )
       progressDialogFragment.show(getSupportFragmentManager.beginTransaction, "respondProgress")
@@ -169,7 +180,7 @@ class PostResponseActivity extends ActionBarActivity
         setRequestedOrientation(oldRequestedOrientation)
         Toast.makeText(
           this, 
-          getString(R.string.activitPostResponsePosted), 
+          getString(R.string.activityPostResponsePosted), 
           Toast.LENGTH_LONG
         ).show()
         this.finish()
@@ -180,14 +191,14 @@ class PostResponseActivity extends ActionBarActivity
         setRequestedOrientation(oldRequestedOrientation)
         if (e.getMessage.contains("No permissions")) {
           dialogFrame.setMessages(
-            Message(MaidMaro.Half.Normal, getString(R.string.activitPostResponseOnlyFriends01)) ::
-            Message(MaidMaro.Half.Normal, getString(R.string.activitPostResponseOnlyFriends02)) :: 
+            Message(MaidMaro.Half.Normal, getString(R.string.activityPostResponseOnlyFriends01)) ::
+            Message(MaidMaro.Half.Normal, getString(R.string.activityPostResponseOnlyFriends02)) :: 
             Nil
           )
         } else {
           dialogFrame.setMessages(
-            Message(MaidMaro.Half.Panic, getString(R.string.activitPostResponseFailure01)) :: 
-            Message(MaidMaro.Half.Normal, getString(R.string.activitPostResponseFailure02).format(e.getMessage)) ::
+            Message(MaidMaro.Half.Panic, getString(R.string.activityPostResponseFailure01)) :: 
+            Message(MaidMaro.Half.Normal, getString(R.string.activityPostResponseFailure02).format(e.getMessage)) ::
             Nil
           )
         }
