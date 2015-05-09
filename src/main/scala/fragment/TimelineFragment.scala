@@ -242,7 +242,7 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
 
     this.isLoadingMore = true
 
-    val olderTimelineFuture = future { getPlurks(offset = adapterHolder.flatMap(_.lastPlurkDate)) }
+    val olderTimelineFuture = Future { getPlurks(offset = adapterHolder.flatMap(_.lastPlurkDate)) }
 
     olderTimelineFuture.onSuccessInUI { timeline => 
       adapterHolder.foreach(_.appendTimeline(timeline))
@@ -372,7 +372,7 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
       "markProgress"
     )
 
-    val markFuture = future {
+    val markFuture = Future {
       var plurkIDs: List[Long] = Nil
       var plurks = getUnreadPlurks(None, filter)
       while (!plurks.isEmpty) {
@@ -424,7 +424,7 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
       adapterVersion += 1
     }
 
-    val plurksFuture = future { 
+    val plurksFuture = Future { 
       val plurks = getPlurks(isRecreate = isRecreate)
       val unreadCount = isRecreate match {
         case true  => this.unreadCount

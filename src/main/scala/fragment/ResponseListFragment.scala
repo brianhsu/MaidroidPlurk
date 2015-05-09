@@ -75,7 +75,7 @@ class ResponseListFragment extends Fragment {
 
   def loadResponses() {
 
-    val responses = future { plurkAPI.Responses.get(plurk.plurkID).get }
+    val responses = Future { plurkAPI.Responses.get(plurk.plurkID).get }
 
     responses.onSuccessInUI { response =>
       adapter.clearErrorCallback()

@@ -54,9 +54,9 @@ class EmoticonFragment extends Fragment {
   private def viewPagerIndicatorHolder = Option(getView).map(_.findView(TR.fragmentEmoticonViewPagerIndicator))
 
   private def plurkAPI = PlurkAPIHelper.getPlurkAPI(getActivity)
-  private def getCurrentUserInfo = future { plurkAPI.Users.currUser.get._1 }
+  private def getCurrentUserInfo = Future { plurkAPI.Users.currUser.get._1 }
   private def getVerifiedEmoticons(userKarma: Double, 
-                                   userRecruited: Int): Future[EmoticonTabs] = future {
+                                   userRecruited: Int): Future[EmoticonTabs] = Future {
 
     val EmoticonsList(custom, recruited, karma) = plurkAPI.Emoticons.get.get
     val verifiedRecruited = recruited.filterKeys(_ <= userRecruited)

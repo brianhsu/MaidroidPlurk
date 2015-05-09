@@ -232,7 +232,7 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
 
     progressDialogFragment.show(getSupportFragmentManager.beginTransaction, "deleteProgress")
 
-    val deleteFuture = future {
+    val deleteFuture = Future {
       val plurkAPI = PlurkAPIHelper.getPlurkAPI(this)
       plurkAPI.Timeline.plurkDelete(plurkID).get
     }
@@ -265,8 +265,13 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
 
   override def onOptionsItemSelected(menuItem: MenuItem): Boolean = menuItem.getItemId match {
     case R.id.activityMaidroidPlurkActionAbout => AboutActivity.startActivity(this); false
-    case R.id.activityMaidroidPlurkActionToggleMaid => ToggleView(dialogFrame) ; false
+    case R.id.activityMaidroidPlurkActionToggleMaid => ToggleView(this, dialogFrame) ; false
     case _ => super.onOptionsItemSelected(menuItem)
+  }
+
+  override def onResume() {
+    super.onResume()
+    ToggleView.syncDialogVisibility(this, dialogFrame)
   }
 
 

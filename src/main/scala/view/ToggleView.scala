@@ -15,6 +15,27 @@ object ToggleView {
 
   private var haveTouched = 0
 
+  private val PreferenceIsHidden = "isHidden"
+  private val PreferenceName = "DialogVisibility"
+
+  private def getDialogVisibility(context: Context): Int = {
+    val preference = 
+      context.getSharedPreferences(PreferenceName, Context.MODE_PRIVATE)
+
+    preference.getBoolean(PreferenceIsHidden, false) match {
+      case false => View.VISIBLE
+      case true  => View.GONE
+    }
+  }
+
+  private def saveDialogVisibility(context: Context, isHidden: Boolean) {
+    val preferenceEditor = 
+      context.getSharedPreferences(PreferenceName, Context.MODE_PRIVATE).edit
+
+    preferenceEditor.putBoolean(PreferenceIsHidden, isHidden)
+    preferenceEditor.commit()
+  }
+
   private def fadeOut(view: View) {
 
     val anim = new AlphaAnimation(1.0f, 0.0f)
@@ -50,15 +71,24 @@ object ToggleView {
     view.startAnimation(anim)
   }
 
-  def apply(view: View) {
+  def apply(context: Context, view: View) {
 
     view.getVisibility match {
-      case View.VISIBLE => fadeOut(view)
-      case _ => fadeIn(view)
+      case View.VISIBLE => 
+        fadeOut(view)
+        saveDialogVisibility(context, true)
+      case _ => 
+        fadeIn(view)
+        saveDialogVisibility(context, false)
     }
   }
 
+  def syncDialogVisibility(context: Context, dialogFrame: DialogFrame) {
+    dialogFrame.setVisibility(getDialogVisibility(context))
+  }
+
   def setupAngryBehavior(context: Context, dialogFrame: DialogFrame): DialogFrame = {
+    dialogFrame.setVisibility(getDialogVisibility(context))
     dialogFrame.setOnImageClick { image =>
       haveTouched match {
         case 0 => 
@@ -74,7 +104,7 @@ object ToggleView {
           dialogFrame.setMessages(Message(MaidMaro.Half.Angry, context.getResources.getString(R.string.maidTouched3)):: Nil)
           haveTouched += 1
         case 4 =>
-          apply(dialogFrame)
+          apply(context, dialogFrame)
           haveTouched = 0
           dialogFrame.setMessages(Message(MaidMaro.Half.Normal, context.getResources.getString(R.string.maidTouched4)):: Nil)
 

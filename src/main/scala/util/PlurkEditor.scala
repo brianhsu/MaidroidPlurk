@@ -106,7 +106,7 @@ trait PlurkEditor {
   }
 
 
-  def postPlurk() = future {
+  def postPlurk() = Future {
 
     val isEmpty = contentEditorHolder.map(_.getText.toString.trim.isEmpty).getOrElse(true)
 
@@ -125,7 +125,7 @@ trait PlurkEditor {
     ).get
   }
 
-  def postResponse (plurkID: Long) = future {
+  def postResponse (plurkID: Long) = Future {
 
     val isEmpty = contentEditorHolder.map(_.getText.toString.trim.isEmpty).getOrElse(true)
 

@@ -30,7 +30,7 @@ object AvatarCache {
   def getAvatarBitmapFromNetwork(context: Context, user: User): Future[(Long, Bitmap)] = {
 
     val avatarURL = user.bigAvatar
-    val avatarBitmapFuture = future {
+    val avatarBitmapFuture = Future {
       val avatarURLStream = new URL(avatarURL).openStream()
       val avatarBitmap = BitmapFactory.decodeStream(avatarURLStream)
       avatarURLStream.close()
@@ -44,7 +44,7 @@ object AvatarCache {
     avatarBitmapFuture.foreach { 
       case (userID, bitmap) => 
         avatarCache += (user.id -> bitmap) 
-        future {
+        Future {
           DiskCacheHelper.writeBitmapToCache(context, avatarURL, bitmap)
         }
     }

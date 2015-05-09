@@ -31,7 +31,7 @@ object ImageCache {
   }
 
 
-  def getBitmapFromNetwork(context: Context, url: String, thumbnailSize: Int): Future[Bitmap] = future {
+  def getBitmapFromNetwork(context: Context, url: String, thumbnailSize: Int): Future[Bitmap] = Future {
 
     val fixedURL = fixPlurkURL(url)
     val ResizeFactor(originWidth, originHeight, factor) = ImageSampleFactor(fixedURL, thumbnailSize, thumbnailSize)
@@ -50,7 +50,7 @@ object ImageCache {
 
     if (imgBitmap != null) {
       imageCache += (fixedURL -> imgBitmap)
-      future {
+      Future {
         DiskCacheHelper.writeBitmapToCache(context, fixedURL, imgBitmap)
       }
     }

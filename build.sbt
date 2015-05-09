@@ -5,9 +5,9 @@ android.Plugin.androidBuild
  
 name := "MaidroidPlurk"
 
-version := "0.0.12"
+version := "0.0.13"
  
-scalaVersion := "2.10.4"
+scalaVersion := "2.11.6"
 
 organization := "idv.brianhsu.maidroid.plurk"
 
@@ -20,14 +20,19 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  aar("idv.brianhsu.maidroid.ui" % "maidroidui_2.10" % "0.0.5"),
+  aar("idv.brianhsu.maidroid.ui" % "maidroidui_2.11" % "0.0.6"),
   aar("com.viewpagerindicator" % "library" % "2.4.1"),
   aar("com.github.chrisbanes.actionbarpulltorefresh" % "library" % "0.9.3"),
   aar("com.github.chrisbanes.actionbarpulltorefresh" % "extra-abc" % "0.9.3"),
   aar("com.github.castorflex.smoothprogressbar" % "library" % "0.2.0"),
-  "com.android.support" % "support-v4" % "19.1.0",
-  "com.android.support" % "appcompat-v7" % "19.1.0"
+  "com.android.support" % "support-v4" % "19.1.+",
+  "com.android.support" % "appcompat-v7" % "19.1.+"
 )
+
+dependencyOverrides += "com.android.support" % "support-v4" % "19.1.+"
+
+dependencyOverrides += "com.android.support" % "appcompat-v7" % "19.1.+"
+
 
 libraryDependencies ++= Seq(
   "org.bone" %% "soplurk" % "0.3.2",

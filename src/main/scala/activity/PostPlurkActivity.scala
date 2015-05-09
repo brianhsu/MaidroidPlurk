@@ -109,7 +109,7 @@ class PostPlurkActivity extends ActionBarActivity
     case R.id.activityPostPlurkActionSend => postPlurk(); false
     case R.id.activityPostPlurkActionLogout => Logout.logout(this); false
     case R.id.activityPostPlurkActionAbout => AboutActivity.startActivity(this); false
-    case R.id.activityPostPlurkActionToggleMaid => ToggleView(dialogFrame); false
+    case R.id.activityPostPlurkActionToggleMaid => ToggleView(this, dialogFrame); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 
@@ -297,5 +297,11 @@ class PostPlurkActivity extends ActionBarActivity
     super.onSaveInstanceState(outState)
     outState.putBoolean(SelectEmoticonActivity.IsEmoticonSelectorShown, isSelectorShown)
   }
+
+  override def onResume() {
+    super.onResume()
+    ToggleView.syncDialogVisibility(this, dialogFrame)
+  }
+
 
 }

@@ -10,10 +10,11 @@ import org.scribe.model.Token
 
 object PlurkAPIHelper {
 
+  private var plurkUserID: Long = -1
   private var plurkAPIHolder: Option[PlurkAPI] = None
   private val apiKey = "6T7KUTeSbwha"
   private val apiSecret = "AZIpUPdkTARzbDmdKBsu4kpxhHUJ3eWX"
-  
+ 
   private def savedAccessToken(context: Context) = {
     val preference = context.getSharedPreferences("AccessToken", Context.MODE_PRIVATE)
     for {
@@ -61,7 +62,7 @@ object PlurkAPIHelper {
 
   }
 
-  def saveAccessToken(context: Context) {
+  def saveAccessToken(context: Context, userID: Long) {
     val preferenceEditor = 
       context.getSharedPreferences("AccessToken", Context.MODE_PRIVATE).edit
     
@@ -72,17 +73,21 @@ object PlurkAPIHelper {
       preferenceEditor.putString("token", accessToken.getToken)
       preferenceEditor.putString("secret", accessToken.getSecret)
       preferenceEditor.commit()
+      this.plurkUserID = userID
     }
     
   }
 
   def isMinePlurk(plurk: Plurk): Boolean = {
 
+    import android.util.Log
+
     val isAnonymous = {
       plurk.plurkType == PlurkType.Anonymous ||
       plurk.plurkType == PlurkType.AnonymousResponded
     }
+    val isMine = !isAnonymous && plurk.ownerID == plurk.userID && plurk.ownerID != 99999
 
-    !isAnonymous && plurk.ownerID == plurk.userID && plurk.ownerID != 99999
+    !isAnonymous && plurk.ownerID == plurkUserID && plurk.ownerID != 99999
   }
 }

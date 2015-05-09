@@ -36,7 +36,7 @@ abstract class SelectPeopleDialog(title: Int,
   private implicit def activity = getActivity
   protected def onDialogConfirmed(adapter: PeopleListAdapter)
 
-  private lazy val adapterFuture = future {
+  private lazy val adapterFuture = Future {
 
     val cliques = plurkAPI.Cliques.getCliques.get
     val completion = plurkAPI.FriendsFans.getCompletion.get

@@ -94,7 +94,7 @@ class PostResponseActivity extends ActionBarActivity
     case R.id.activityPostResponseActionSend => postResponse(); false
     case R.id.activityPostResponseActionLogout => Logout.logout(this); false
     case R.id.activityPostResponseActionAbout => AboutActivity.startActivity(this); false
-    case R.id.activityPostResponseActionToggleMaid => ToggleView(dialogFrame); false
+    case R.id.activityPostResponseActionToggleMaid => ToggleView(this, dialogFrame); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 
@@ -204,6 +204,12 @@ class PostResponseActivity extends ActionBarActivity
         }
       }
     }
+  }
+
+
+  override def onResume() {
+    super.onResume()
+    ToggleView.syncDialogVisibility(this, dialogFrame)
   }
 
 }

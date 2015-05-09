@@ -128,7 +128,7 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
     case R.id.activityResponseListActionDelete => showConfirmDeleteDialog() ; false
     case R.id.activityResponseListActionLogout => logout(); false
     case R.id.activityResponseListActionAbout => AboutActivity.startActivity(this); false
-    case R.id.activityResponseListActionToggleMaid => ToggleView(dialogFrame); false
+    case R.id.activityResponseListActionToggleMaid => ToggleView(this, dialogFrame); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 
@@ -181,7 +181,7 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
       "deleteResponseProgress"
     )
 
-    val deleteFuture = future {
+    val deleteFuture = Future {
       plurkAPI.Responses.responseDelete(plurkID, responseID).get
     }
 
@@ -226,7 +226,7 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
       "deletePlurkProgress"
     )
 
-    val deleteFuture = future {
+    val deleteFuture = Future {
       plurkAPI.Timeline.plurkDelete(ResponseListActivity.plurk.plurkID).get
     }
 
@@ -337,4 +337,8 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
     }
   }
 
+  override def onResume() {
+    super.onResume()
+    ToggleView.syncDialogVisibility(this, dialogFrame)
+  }
 }

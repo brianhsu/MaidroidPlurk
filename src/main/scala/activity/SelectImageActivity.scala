@@ -104,7 +104,7 @@ trait SelectImageActivity {
       "uploadFileProgress"
     )
 
-    val imageListFuture = future {
+    val imageListFuture = Future {
       uriList.zipWithIndex.foreach { case(uri, index) =>
 
         val (imageURL, bitmapDrawable) = readAndUploadFile(progressDialogFragment, uri, Some(index))
@@ -224,7 +224,7 @@ trait SelectImageActivity {
       "uploadFileProgress"
     )
 
-    val imageURLFuture = future { readAndUploadFile(progressDialogFragment, uri) }
+    val imageURLFuture = Future { readAndUploadFile(progressDialogFragment, uri) }
 
     imageURLFuture.onSuccessInUI { case (imageURL, bitmapDrawable) => 
       getCurrentEditor.insertDrawable(s" ${imageURL} ", bitmapDrawable) 

@@ -64,7 +64,7 @@ class LoginFragment extends Fragment {
 
     webViewHolder.foreach(_.setWebViewClient(plurkAuthWebViewClient))
 
-    val authorizationURL: Future[String] = future {
+    val authorizationURL: Future[String] = Future {
       plurkAPI.getAuthorizationURL.get.replace("OAuth", "m")
     }
 
@@ -132,18 +132,22 @@ class LoginFragment extends Fragment {
 
       val uri = Uri.parse(url)
       val code = uri.getQueryParameter("oauth_verifier")
-      val authStatusFuture = future { plurkAPI.authorize(code).get }
+      val loggedInUserIDFuture = Future { 
+        plurkAPI.authorize(code).get 
+        val (currentUser, pageTitle, about) = plurkAPI.Users.currUser.get
+        currentUser.basicInfo.id
+      }
 
       loadingIndicatorHolder.foreach(_.show())
 
-      authStatusFuture.onSuccessInUI{ _ => 
-        PlurkAPIHelper.saveAccessToken(activity)
+      loggedInUserIDFuture.onSuccessInUI{ userID => 
+        PlurkAPIHelper.saveAccessToken(activity, userID)
         if (isAdded) {
           activity.onLoginSuccess()
         }
       }
 
-      authStatusFuture.onFailureInUI{ case e: Exception => 
+      loggedInUserIDFuture.onFailureInUI{ case e: Exception => 
         if (isAdded) {
           activity.onLoginFailure(e)
           showErrorNotice(getString(R.string.fragmentLoginFailedGeneric))

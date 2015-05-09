@@ -91,7 +91,7 @@ class EditPlurkActivity extends ActionBarActivity
     case R.id.activityEditPlurkActionSend => editPlurk(); false
     case R.id.activityEditPlurkActionLogout => Logout.logout(this); false
     case R.id.activityEditPlurkActionAbout => AboutActivity.startActivity(this); false
-    case R.id.activityEditPlurkActionToggleMaid => ToggleView(dialogFrame); false
+    case R.id.activityEditPlurkActionToggleMaid => ToggleView(this, dialogFrame); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 
@@ -176,7 +176,7 @@ class EditPlurkActivity extends ActionBarActivity
         "editPlurkProgress"
       )
 
-      val editedPlurkFuture = future {
+      val editedPlurkFuture = Future {
         val newContent = editorFragment.getEditorContent.map(_._1.toString).
                                         getOrElse(this.rawContent)
 
@@ -221,4 +221,8 @@ class EditPlurkActivity extends ActionBarActivity
 
   }
 
+  override def onResume() {
+    super.onResume()
+    ToggleView.syncDialogVisibility(this, dialogFrame)
+  }
 }

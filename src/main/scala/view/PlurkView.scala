@@ -144,11 +144,11 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
       replurk.setEnabled(false)
 
       val isReplurkedFuture = replurkInfo.isReplurked match {
-        case false => future {
+        case false => Future {
           plurkAPI.Timeline.replurk(List(plurk.plurkID)).get
           true
         }
-        case true => future {
+        case true => Future {
           plurkAPI.Timeline.unreplurk(List(plurk.plurkID)).get
           false
         }
@@ -195,11 +195,11 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
       favorite.setEnabled(false)
 
       val isFavoriteFuture = favoriteInfo.isFavorite match {
-        case false => future {
+        case false => Future {
           plurkAPI.Timeline.favoritePlurks(List(plurk.plurkID)).get
           true
         }
-        case true => future {
+        case true => Future {
           plurkAPI.Timeline.unfavoritePlurks(List(plurk.plurkID)).get
           false
         }
@@ -255,12 +255,12 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
 
       val newMutedStatusFuture = isMuted match {
 
-        case true => future { 
+        case true => Future { 
           plurkAPI.Timeline.unmutePlurks(List(plurk.plurkID)).get
           'Unmuted  
         }
 
-        case false => future { 
+        case false => Future { 
           plurkAPI.Timeline.mutePlurks(List(plurk.plurkID)).get
           'Muted 
         }

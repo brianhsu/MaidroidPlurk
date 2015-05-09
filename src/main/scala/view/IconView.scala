@@ -45,8 +45,8 @@ class IconView(activity: Activity) extends LinearLayout(activity) {
   }
 
   def setIconFromNetwork(icon: Icon) {
-    val futureIconBitmap = ImageCache.getBitmapFromNetwork(activity, icon.url, 1000)
-    futureIconBitmap.onSuccessInUI { bitmap =>
+    val FutureIconBitmap = ImageCache.getBitmapFromNetwork(activity, icon.url, 1000)
+    FutureIconBitmap.onSuccessInUI { bitmap =>
       if (icon.name == iconName) {
         imageView.setImageBitmap(bitmap)
       }
