@@ -20,7 +20,11 @@ object PlurkAPIHelper {
     for {
       token <- Option(preference.getString("token", null))
       secret <- Option(preference.getString("secret", null))
-    } yield { new Token(token, secret) }
+      userID <- Option(preference.getLong("plurkUserID", -1)).filter(_ != -1)
+    } yield { 
+      plurkUserID = userID
+      new Token(token, secret) 
+    }
   }
 
 
@@ -72,6 +76,7 @@ object PlurkAPIHelper {
     } {
       preferenceEditor.putString("token", accessToken.getToken)
       preferenceEditor.putString("secret", accessToken.getSecret)
+      preferenceEditor.putLong("plurkUserID", userID)
       preferenceEditor.commit()
       this.plurkUserID = userID
     }
@@ -80,13 +85,10 @@ object PlurkAPIHelper {
 
   def isMinePlurk(plurk: Plurk): Boolean = {
 
-    import android.util.Log
-
     val isAnonymous = {
       plurk.plurkType == PlurkType.Anonymous ||
       plurk.plurkType == PlurkType.AnonymousResponded
     }
-    val isMine = !isAnonymous && plurk.ownerID == plurk.userID && plurk.ownerID != 99999
 
     !isAnonymous && plurk.ownerID == plurkUserID && plurk.ownerID != 99999
   }

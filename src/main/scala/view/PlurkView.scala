@@ -334,7 +334,11 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
         qualifier.setVisibility(View.VISIBLE)
     }
 
+
     avatar.setImageResource(R.drawable.default_avatar)
+    avatar.setOnClickListener { view: View => UserTimelineActivity.startActivity(activity, owner) }
+    displayName.setOnClickListener { view: View => UserTimelineActivity.startActivity(activity, owner) }
+
     AvatarCache.getAvatarBitmapFromCache(activity, owner) match {
       case Some(avatarBitmap) => setAvatarFromCache(avatarBitmap)
       case None => setAvatarFromNetwork(activity, owner)
