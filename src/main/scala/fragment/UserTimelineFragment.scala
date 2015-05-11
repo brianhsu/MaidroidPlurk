@@ -48,6 +48,7 @@ object UserTimelineFragment {
   trait Listener {
     def onShowTimelinePlurksFailure(e: Exception): Unit
     def onShowTimelinePlurksSuccess(timeline: Timeline): Unit
+    def onShowTimelinePlurksPrivate(displayName: String): Unit
   }
 }
 
@@ -224,14 +225,17 @@ class UserTimelineFragment extends Fragment {
       val profile = plurkAPI.Profile.getPublicProfile(userIDHolder.getOrElse(-1L)).get
       val plurks = getPlurks(isRecreate = isRecreate)
       val isPrivateTimeline = profile.privacy == TimelinePrivacy.OnlyFriends && !profile.areFriends.getOrElse(false)
-      (plurks, isPrivateTimeline) 
+      (plurks, isPrivateTimeline, profile) 
     }
 
-    plurksFuture.onSuccessInUI { case (timeline, isPrivateTimeline) => 
+    plurksFuture.onSuccessInUI { case (timeline, isPrivateTimeline, profile) => 
 
       if (isPrivateTimeline) {
+        val basicInfo = profile.userInfo.basicInfo
+        val displayName = basicInfo.displayName.getOrElse(basicInfo.nickname)
         loadingIndicatorHolder.foreach(_.hide())
         privateTimelineHolder.foreach(_.setVisibility(View.VISIBLE))
+        activity.onShowTimelinePlurksPrivate(displayName)
       } else if (isAdded) {
         if (isPullRefresh) {
           updateListAdapter()

@@ -38,7 +38,6 @@ object UserTimelineActivity {
 
   trait Listener {
     def setTimelineWelecomeMessage(): Unit
-    def setProfileError(error: Exception): Unit
   }
 }
 
@@ -62,29 +61,6 @@ class UserTimelineActivity extends ActionBarActivity
     val displayName = Option(intent.getStringExtra(ExtraUserDisplayName)).filterNot(_.trim.isEmpty)
     val titleName = (displayName orElse nickname).getOrElse(userID)
     titleName
-  }
-
-  def setTimelineWelecomeMessage() = {
-    dialogFrame.setMessages(
-      Message(MaidMaro.Half.Smile,  getString(R.string.activityUserTimelineWelcome01).format(titleName)) ::
-      Message(MaidMaro.Half.Normal, getString(R.string.activityUserTimelineWelcome02)) ::
-      Nil
-    )
-  }
-
-  def setProfileWelecomeMessage() = {
-    dialogFrame.setMessages(
-      Message(MaidMaro.Half.Smile,  getString(R.string.activityUserTimelineProfile01).format(titleName)) ::
-      Nil
-    )
-  }
-
-  def setProfileError(error: Exception) = {
-    dialogFrame.setMessages(
-      Message(MaidMaro.Half.Normal, getString(R.string.activityUserTimelineProfileFailure01).format(titleName)) :: 
-      Message(MaidMaro.Half.Normal, getString(R.string.activityUserTimelineProfileFailure02)) :: 
-      Message(MaidMaro.Half.Normal, getString(R.string.activityUserTimelineProfileFailure03).format(error.getMessage)) :: Nil
-    )
   }
 
   override def onCreate(savedInstanceState: Bundle) {
@@ -129,10 +105,38 @@ class UserTimelineActivity extends ActionBarActivity
 
   override def startEditActivity(plurk: Plurk) {}
 
+  def setTimelineWelecomeMessage() = {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Smile, getString(R.string.activityUserTimelineWelcome01).format(titleName)) ::
+      Message(MaidMaro.Half.Normal, getString(R.string.activityUserTimelineWelcome02)) ::
+      Nil
+    )
+  }
+
   def onShowTimelinePlurksFailure(e: Exception): Unit = {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Normal, getString(R.string.activityUserTimelineFailure01).format(titleName)) ::
+      Message(MaidMaro.Half.Panic, getString(R.string.activityUserTimelineFailure02)) ::
+      Message(MaidMaro.Half.Normal, getString(R.string.activityUserTimelineFailure03).format(e.getMessage)) ::
+      Nil
+    )
   }
 
   def onShowTimelinePlurksSuccess(timeline: Timeline): Unit = {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Smile, getString(R.string.activityUserTimelineFetchOK01).format(titleName)) ::
+      Message(MaidMaro.Half.Smile, getString(R.string.activityUserTimelineFetchOK02).format(titleName)) ::
+      Nil
+    )
+  }
+
+  def onShowTimelinePlurksPrivate(displayName: String): Unit = {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Panic, getString(R.string.activityUserTimelineFetchPrivate01).format(titleName)) ::
+      Message(MaidMaro.Half.Smile, getString(R.string.activityUserTimelineFetchPrivate02)) ::
+      Nil
+    )
+
   }
 
 
