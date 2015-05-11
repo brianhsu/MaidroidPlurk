@@ -6,7 +6,13 @@
   <string name="fragmentErrorMessageRetryButtonTitle">重試一次</string>
 
   <string name="fragmentTimelinePlurksEmptyNoticeText">目前河道上沒東西呢……</string>
-    <string name="pull_to_refresh_pull_label">下拉重新整理…</string>
-    <string name="pull_to_refresh_release_label">放開重新整理…</string>
-    <string name="pull_to_refresh_refreshing_label">正在載入…</string>
+  <string name="pull_to_refresh_pull_label">下拉重新整理…</string>
+  <string name="pull_to_refresh_release_label">放開重新整理…</string>
+  <string name="pull_to_refresh_refreshing_label">正在載入…</string>
+
+  <!-- UserTimeline -->
+  <string name="titleUserTimeline">【%s】的河道</string>
+  <string name="adapterUserTimelineTimeline">河道</string>
+  <string name="adapterUserTimelineProfile">個人資料</string>
+
 </resources>

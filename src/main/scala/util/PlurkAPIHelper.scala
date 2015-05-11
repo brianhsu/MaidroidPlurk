@@ -10,7 +10,7 @@ import org.scribe.model.Token
 
 object PlurkAPIHelper {
 
-  private var plurkUserID: Long = -1
+  var plurkUserID: Long = -1
   private var plurkAPIHolder: Option[PlurkAPI] = None
   private val apiKey = "6T7KUTeSbwha"
   private val apiSecret = "AZIpUPdkTARzbDmdKBsu4kpxhHUJ3eWX"

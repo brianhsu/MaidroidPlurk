@@ -47,7 +47,10 @@ import idv.brianhsu.maidroid.plurk.util._
 import android.graphics.Bitmap
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.cache._
-
+import android.text.method.LinkMovementMethod
+import org.bone.soplurk.api.PlurkAPI.PublicProfile
+import org.bone.soplurk.constant.TimelinePrivacy
+import android.widget.Button
 
 object UserProfileFragment {
   def newInstance(userID: Long) = {
@@ -69,6 +72,14 @@ class UserProfileFragment extends Fragment {
   private def displayNameHolder = Option(getView).map(_.findView(TR.userProfileDisplayName))
   private def nickNameHolder = Option(getView).map(_.findView(TR.userProfileNickName))
   private def avatarHolder = Option(getView).map(_.findView(TR.userProfileAvatar))
+  private def karmaHolder = Option(getView).map(_.findView(TR.userProfileKarma))
+  private def postsHolder = Option(getView).map(_.findView(TR.userProfilePosts))
+  private def friendsHolder = Option(getView).map(_.findView(TR.userProfileFriends))
+  private def fansHolder = Option(getView).map(_.findView(TR.userProfileFans))
+  private def plurkCountsHolder = Option(getView).map(_.findView(TR.userProfilePosts))
+  private def aboutHolder = Option(getView).map(_.findView(TR.fragmentUserProfileAbout))
+  private def friendButtonHolder = Option(getView).map(_.findView(TR.fragmentUserProfileFriendButton))
+  private def fanButtonHolder = Option(getView).map(_.findView(TR.fragmentUserProfileFanButton))
 
   private lazy val userIDHolder = for {
     argument <- Option(getArguments)
@@ -104,17 +115,180 @@ class UserProfileFragment extends Fragment {
     }
   }
 
+  private def setupBasicInfo(profile: PublicProfile) = {
+    val basicInfo = profile.userInfo.basicInfo
+    val nickname = basicInfo.nickname
+    val displayName = basicInfo.displayName.getOrElse(nickname)
+
+    displayNameHolder.foreach { _.setText(displayName) }
+    nickNameHolder.foreach { _.setText(s"@$nickname") }
+    karmaHolder.foreach{ _.setText(f"${basicInfo.karma}%.2f") }
+    friendsHolder.foreach{ _.setText(profile.friendsCount.toString) }
+    fansHolder.foreach{ _.setText(profile.fansCount.toString) }
+
+    for {
+      plurksCount <- profile.userInfo.plurksCount
+      plurkCountsTextView <- plurkCountsHolder
+    } {
+      plurkCountsTextView.setText(plurksCount.toString)
+    }
+
+    for {
+      aboutContent <- profile.userInfo.about
+      aboutTextView <- aboutHolder
+    } {
+      aboutTextView.setText(aboutContent)
+      aboutTextView.setMovementMethod(new LinkMovementMethod)
+    }
+
+  }
+
+  private def setupFriendButton(button: Button, areAlreadyFriends: Boolean, userID: Long) {
+
+    def setButtonToAddFriend() {
+      button.setEnabled(true)
+      button.setText(R.string.fragmentUserProfileAddFreind)
+      button.setOnClickListener { view: View => 
+
+        button.setEnabled(false)
+        button.setText(R.string.fragmentUserProfileAddFreindRequesting)
+
+        val requestFuture = Future { plurkAPI.FriendsFans.becomeFriend(userID).get }.filter(_ == true)
+
+        requestFuture.onSuccessInUI { case _ =>
+          button.setText(R.string.fragmentUserProfileAddFreindSent)
+          button.setEnabled(false)
+        }
+
+        requestFuture.onFailureInUI { case e: Exception =>
+          //! 錯誤通知
+          import android.widget.Toast
+          val toast = Toast.makeText(activity, "無法送出好友請求", Toast.LENGTH_LONG)
+          toast.show()
+          setButtonToAddFriend()
+        }
+      }
+    }
+
+    def setButtonToRemoveFriend() {
+      button.setEnabled(true)
+      button.setText(R.string.fragmentUserProfileRemoveFreind)
+      button.setOnClickListener { view: View => 
+
+        button.setEnabled(false)
+        button.setText(R.string.fragmentUserProfileAddFreindRequesting)
+
+        val requestFuture = Future { plurkAPI.FriendsFans.removeAsFriend(userID).get }.filter(_ == true)
+
+        requestFuture.onSuccessInUI { case _ => setButtonToAddFriend() }
+        requestFuture.onFailureInUI { case e: Exception =>
+          //! 錯誤通知
+          import android.widget.Toast
+          val toast = Toast.makeText(activity, "無法送出取消好友請求", Toast.LENGTH_LONG)
+          toast.show()
+          setButtonToAddFriend()
+        }
+      }
+    }
+
+    areAlreadyFriends match {
+      case true  => setButtonToRemoveFriend()
+      case false => setButtonToAddFriend()
+    }
+  }
+
+  private def setupFollowingButton(button: Button, isPrivateTimeline: Boolean, areFriends: Boolean, 
+                                   isAlreadyFollowing: Boolean, userID: Long) {
+
+    def setButtonToUnfollow() {
+      button.setEnabled(true)
+      button.setText(R.string.fragmentUserProfileIsFollowing)
+      button.setOnClickListener { view: View => 
+
+        button.setEnabled(false)
+        button.setText(R.string.fragmentUserProfileAddFreindRequesting)
+
+        val requestFuture = Future { plurkAPI.FriendsFans.setFollowing(userID, false).get }.filter(_ == true)
+
+        requestFuture.onSuccessInUI { case _ =>
+          button.setText(R.string.fragmentUserProfileNotFollowing)
+          setButtonToFollow()
+        }
+
+        requestFuture.onFailureInUI { case e: Exception =>
+          //! 錯誤通知
+          import android.widget.Toast
+          val toast = Toast.makeText(activity, "無法追蹤對方河道", Toast.LENGTH_LONG)
+          toast.show()
+          setButtonToUnfollow()
+        }
+      }
+    }
+
+    def setButtonToFollow() {
+      button.setEnabled(true)
+      button.setText(R.string.fragmentUserProfileNotFollowing)
+      button.setOnClickListener { view: View => 
+
+        button.setEnabled(false)
+        button.setText(R.string.fragmentUserProfileAddFreindRequesting)
+
+        val requestFuture = Future { plurkAPI.FriendsFans.setFollowing(userID, true).get }.filter(_ == true)
+
+        requestFuture.onSuccessInUI { case _ =>
+          button.setText(R.string.fragmentUserProfileIsFollowing)
+          setButtonToUnfollow()
+        }
+
+        requestFuture.onFailureInUI { case e: Exception =>
+          //! 錯誤通知
+          import android.widget.Toast
+          val toast = Toast.makeText(activity, "無法追蹤對方河道", Toast.LENGTH_LONG)
+          toast.show()
+          setButtonToFollow()
+        }
+      }
+     
+    }
+
+    if (isPrivateTimeline && !areFriends) {
+      // 私密河道，無法擁有粉絲
+      button.setEnabled(false)
+      button.setText(R.string.fragmentUserProfilePrviate)
+    } else if (!isAlreadyFollowing) {
+      // 追蹤對方
+      setButtonToFollow()
+    } else if (isAlreadyFollowing) {
+      // 取消追蹤對方
+      setButtonToUnfollow()
+
+
+    }
+  }
+
   private def updateProfile(userID: Long) {
 
     val userProfile = Future { plurkAPI.Profile.getPublicProfile(userID).get }
 
     userProfile.onSuccessInUI { profile =>
-      val basicInfo = profile.userInfo.basicInfo
-      val nickname = basicInfo.nickname
-      val displayName = basicInfo.displayName.getOrElse(nickname)
 
-      displayNameHolder.foreach { _.setText(displayName) }
-      nickNameHolder.foreach { _.setText(s"@$nickname") }
+      val basicInfo = profile.userInfo.basicInfo
+
+      setupBasicInfo(profile)
+
+      if (userID == PlurkAPIHelper.plurkUserID) {
+        friendButtonHolder.foreach(_.setVisibility(View.GONE))
+        fanButtonHolder.foreach(_.setVisibility(View.GONE))
+      } else {
+        val areFriends = profile.areFriends.getOrElse(false)
+        val isFollowing = profile.isFollowing.getOrElse(false)
+        val isPrivateTimeline = profile.privacy == TimelinePrivacy.OnlyFriends
+
+        friendButtonHolder.foreach(button => setupFriendButton(button, areFriends, userID))
+        fanButtonHolder.foreach(button => setupFollowingButton(button, isPrivateTimeline, areFriends, isFollowing, userID) )
+
+      }
+
       AvatarCache.getAvatarBitmapFromCache(activity, basicInfo) match {
         case Some(avatarBitmap) => setAvatarFromCache(avatarBitmap)
         case None => setAvatarFromNetwork(activity, basicInfo)
@@ -126,8 +300,6 @@ class UserProfileFragment extends Fragment {
     userProfile.onFailureInUI { case e: Exception =>
       showErrorNotice("Error")
     }
-
-
   }
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle): View = {
@@ -154,12 +326,12 @@ class UserTimelineFragment extends Fragment {
 class MyAdapter(context: Context, fm: FragmentManager, userID: Long) extends FragmentPagerAdapter(fm) {
   override def getCount = 2
   override def getItem(position: Int) = position match {
-    case 0 => UserProfileFragment.newInstance(userID)
-    case 1 => new UserTimelineFragment
+    case 0 => new UserTimelineFragment
+    case 1 => UserProfileFragment.newInstance(userID)
   }
   override def getPageTitle(position: Int) = position match {
-    case 0 => context.getString(R.string.adapterUserTimelineProfile)
-    case 1 => context.getString(R.string.adapterUserTimelineTimeline)
+    case 0 => context.getString(R.string.adapterUserTimelineTimeline)
+    case 1 => context.getString(R.string.adapterUserTimelineProfile)
   }
 }
 

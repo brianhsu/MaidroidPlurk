@@ -108,6 +108,8 @@ class ResponseView(adapter: ResponseAdapter)
     content.setText(Html.fromHtml(response.content, imageGetter, StrikeTagHandler))
     postedDate.setText(dateTimeFormatter.format(response.posted))
     displayName.setText(owner.displayName getOrElse owner.nickname)
+    displayName.setOnClickListener { view: View => UserTimelineActivity.startActivity(activity, owner) }
+    avatar.setOnClickListener { view: View => UserTimelineActivity.startActivity(activity, owner) }
     setDropdownMenu(response, isDeletable)
 
     QualifierDisplay(response.qualifier, activity) match {
