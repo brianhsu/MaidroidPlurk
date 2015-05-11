@@ -1,6 +1,8 @@
 package idv.brianhsu.maidroid.plurk.fragment
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -36,7 +38,7 @@ object UserProfileFragment {
 
 class UserProfileFragment extends Fragment {
 
-  private implicit def activity = getActivity.asInstanceOf[ActionBarActivity]
+  private implicit def activity = getActivity.asInstanceOf[ActionBarActivity with UserTimelineActivity.Listener]
 
   private def plurkAPI = PlurkAPIHelper.getPlurkAPI(activity)
   private def loadingIndicatorHolder = Option(getView).map(_.findView(TR.fragmentUserProfileLoadingIndicator))
@@ -147,19 +149,35 @@ class UserProfileFragment extends Fragment {
       button.setText(R.string.fragmentUserProfileRemoveFreind)
       button.setOnClickListener { view: View => 
 
-        button.setEnabled(false)
-        button.setText(R.string.fragmentUserProfileAddFreindRequesting)
+        val alertDialog = new AlertDialog.Builder(activity)
+        val okListener = new DialogInterface.OnClickListener() {
+          override def onClick(dialog: DialogInterface, which: Int) {
+            button.setEnabled(false)
+            button.setText(R.string.fragmentUserProfileAddFreindRequesting)
 
-        val requestFuture = Future { plurkAPI.FriendsFans.removeAsFriend(userID).get }.filter(_ == true)
+            val requestFuture = Future { plurkAPI.FriendsFans.removeAsFriend(userID).get }.filter(_ == true)
 
-        requestFuture.onSuccessInUI { case _ => setButtonToAddFriend() }
-        requestFuture.onFailureInUI { case e: Exception =>
-          //! 錯誤通知
-          import android.widget.Toast
-          val toast = Toast.makeText(activity, "無法送出取消好友請求", Toast.LENGTH_LONG)
-          toast.show()
-          setButtonToAddFriend()
+            requestFuture.onSuccessInUI { case _ => setButtonToAddFriend() }
+            requestFuture.onFailureInUI { case e: Exception =>
+              //! 錯誤通知
+              import android.widget.Toast
+              val toast = Toast.makeText(activity, "無法送出取消好友請求", Toast.LENGTH_LONG)
+              toast.show()
+              setButtonToAddFriend()
+            }
+          }
         }
+
+        val cancelListener = new DialogInterface.OnClickListener() {
+          override def onClick(dialog: DialogInterface, which: Int) {}
+        }
+
+        alertDialog.setTitle(R.string.fragmentUserRemoveFriendTitle)
+                   .setMessage(R.string.fragmentUserRemoveFriendContent)
+                   .setPositiveButton(R.string.yes, okListener)
+                   .setNegativeButton(R.string.no, cancelListener)
+    
+        alertDialog.show();
       }
     }
 
@@ -233,8 +251,6 @@ class UserProfileFragment extends Fragment {
     } else if (isAlreadyFollowing) {
       // 取消追蹤對方
       setButtonToUnfollow()
-
-
     }
   }
 
@@ -267,10 +283,12 @@ class UserProfileFragment extends Fragment {
       }
 
       loadingIndicatorHolder.foreach(_.hide())
+      activity.setProfileWelecomeMessage()
     }
 
     userProfile.onFailureInUI { case e: Exception =>
-      showErrorNotice("Error")
+      showErrorNotice(activity.getString(R.string.fragmentUserProfileError))
+      activity.setProfileError(e)
     }
   }
 

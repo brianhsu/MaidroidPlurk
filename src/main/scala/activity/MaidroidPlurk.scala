@@ -3,39 +3,33 @@ package idv.brianhsu.maidroid.plurk.activity
 import idv.brianhsu.maidroid.plurk.view._
 
 import android.app.Activity
-import android.os.Bundle
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.content.DialogInterface
-import android.view.View
+import android.os.Bundle
+import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentActivity
+import android.support.v7.app.ActionBar
+import android.support.v7.app.ActionBarActivity
 import android.view.Menu
 import android.view.MenuItem
-
-import android.support.v7.app.ActionBarActivity
-import android.support.v7.app.ActionBar
-
+import android.view.View
 import idv.brianhsu.maidroid.plurk._
-import idv.brianhsu.maidroid.plurk.fragment._
-import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.adapter._
 import idv.brianhsu.maidroid.plurk.dialog._
+import idv.brianhsu.maidroid.plurk.fragment._
+import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.view._
 import idv.brianhsu.maidroid.ui.model._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
-
 import org.bone.soplurk.api.PlurkAPI.Timeline
-import org.bone.soplurk.model.Plurk
-import org.bone.soplurk.model.User
+import org.bone.soplurk.constant.Filter
 import org.bone.soplurk.constant.Filter
 import org.bone.soplurk.constant.Filter._
-
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentActivity
-
+import org.bone.soplurk.model.Plurk
+import org.bone.soplurk.model.User
 import scala.concurrent._
 import scala.util.Try
-
-import org.bone.soplurk.constant.Filter
 
 
 class MaidroidPlurk extends ActionBarActivity with TypedViewHolder

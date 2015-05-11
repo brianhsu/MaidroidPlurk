@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="activityUserTimelineWelcome01">這是 %s 的時間軸呢，主人對這位噗友有興趣嗎？</string>
+  <string name="activityUserTimelineWelcome02">小鈴正在幫主人取得這位噗友的發文，請稍待一下喔……</string>
+
+  <string name="activityUserTimelineProfile01">這是 %s 的個人資料，主人可以透過這個頁面請求對方將您加入好友，或是追蹤對方喔！</string>
+
+  <string name="activityUserTimelineProfileFailure01">好像怪怪的，沒辦法取得 %s 的個人資料耶……</string>
+  <string name="activityUserTimelineProfileFailure02">該不會是小鈴太沒用了，所以才一直出錯吧？</string>
+  <string name="activityUserTimelineProfileFailure03">對了，系統說這個錯誤是：「%s」造成的說。</string>
+
+</resources>

@@ -14,4 +14,10 @@
   <string name="fragmentUserProfileNotFollowing">關注</string>
   <string name="fragmentUserProfilePrviate">私密河道</string>
 
+  <string name="fragmentUserProfileError">無法取得個人資料</string>
+
+  <string name="fragmentUserRemoveFriendTitle">刪除好友</string>
+  <string name="fragmentUserRemoveFriendContent">確定要刪除好友關係嗎？</string>
+
+
 </resources>
