@@ -151,7 +151,6 @@ class UserTimelineFragment extends Fragment {
     val options = Options.create.refreshOnUp(true).scrollDistance(0.3f).noMinimize().build()
     val onRefresh = new OnRefreshListener() {
       override def onRefreshStarted(view: View) { 
-        println("========> startUpdateTimeline....")
         updateTimeline(false, true)
       }
     }
@@ -221,8 +220,6 @@ class UserTimelineFragment extends Fragment {
     this.hasMoreItem = true
     this.loadMoreFooter.setStatus(LoadMoreFooter.Status.Idle)
 
-    println("========> insideUpdateTimeline....")
-
     val plurksFuture = Future { 
       val profile = plurkAPI.Profile.getPublicProfile(userIDHolder.getOrElse(-1L)).get
       val plurks = getPlurks(isRecreate = isRecreate)
@@ -232,13 +229,10 @@ class UserTimelineFragment extends Fragment {
 
     plurksFuture.onSuccessInUI { case (timeline, isPrivateTimeline) => 
 
-      println("===========> insideUpdateTimeline....onSuccessInUI")
       if (isPrivateTimeline) {
         loadingIndicatorHolder.foreach(_.hide())
         privateTimelineHolder.foreach(_.setVisibility(View.VISIBLE))
       } else if (isAdded) {
-        println("===========> insideUpdateTimeline....onSuccessInUI.isAdded")
-        println("===========> timeline:" + timeline)
         if (isPullRefresh) {
           updateListAdapter()
         }
@@ -251,11 +245,7 @@ class UserTimelineFragment extends Fragment {
     }
 
     plurksFuture.onFailureInUI { case e: Exception =>
-      println("===========> insideUpdateTimeline....onFailreInUI")
-
       if (isAdded) {
-        println("===========> insideUpdateTimeline....onFailreInUI.isAdded")
-
         activity.onShowTimelinePlurksFailure(e)
         showErrorNotice(getString(R.string.fragmentTimelineGetTimelineFailure))
         pullToRefreshHolder.foreach(_.setRefreshComplete())

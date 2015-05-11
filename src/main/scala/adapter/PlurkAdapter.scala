@@ -75,8 +75,6 @@ class PlurkAdapter(activity: FragmentActivity with PlurkView.Listener
       oldTimelineFirst <- this.plurks.headOption.map(_.plurkID)
     } yield newTimelineFirst == oldTimelineFirst).getOrElse(false)
 
-    println("===========> should skip:" + shouldSkip)
-
     if (!shouldSkip) {
       plurks ++= timeline.plurks
       users ++= newUsers
