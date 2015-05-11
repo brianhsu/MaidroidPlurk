@@ -135,32 +135,6 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
     }
   }
 
-  override def onRefreshTimelineFailure(e: Exception) {
-    dialogFrame.setMessages(
-      Message(MaidMaro.Half.Normal, getString(R.string.activityMaidroidPlurkRefreshFailure01)) :: 
-      Message(MaidMaro.Half.Panic, getString(R.string.activityMaidroidPlurkRefreshFailure02).format(e.getMessage)) :: 
-      Message(MaidMaro.Half.Normal, getString(R.string.activityMaidroidPlurkRefreshFailure03)) :: Nil
-    )
-  }
-
-  override def onRefreshTimelineSuccess(newTimeline: Timeline) {
-
-    val count = newTimeline.plurks.size
-    if (count > 0) {
-      dialogFrame.setMessages(
-        Message(MaidMaro.Half.Happy, getString(R.string.activityMaidroidPlurkTimelineOK01).format(count)) :: 
-        Message(MaidMaro.Half.Smile, getString(R.string.activityMaidroidPlurkTimelineOK02)) :: 
-        Nil
-      )
-    } else {
-      dialogFrame.setMessages(
-        Message(MaidMaro.Half.Normal, getString(R.string.activityMaidroidPlurkTimelineEmpty01)) :: 
-        Message(MaidMaro.Half.Smile, getString(R.string.activityMaidroidPlurkTimelineEmpty02)) :: 
-        Nil
-      )
-    }
-  }
-
   override def onDeletePlurkSuccess() {
     dialogFrame.setMessages(
       Message(MaidMaro.Half.Happy, getString(R.string.activityMaidroidPlurkDeleteOK)) :: Nil

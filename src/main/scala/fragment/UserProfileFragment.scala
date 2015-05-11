@@ -38,7 +38,7 @@ object UserProfileFragment {
 
 class UserProfileFragment extends Fragment {
 
-  private implicit def activity = getActivity.asInstanceOf[ActionBarActivity with UserTimelineActivity.Listener]
+  private implicit def activity = getActivity.asInstanceOf[ActionBarActivity]
 
   private def plurkAPI = PlurkAPIHelper.getPlurkAPI(activity)
   private def loadingIndicatorHolder = Option(getView).map(_.findView(TR.fragmentUserProfileLoadingIndicator))
@@ -283,12 +283,10 @@ class UserProfileFragment extends Fragment {
       }
 
       loadingIndicatorHolder.foreach(_.hide())
-      activity.setProfileWelecomeMessage()
     }
 
     userProfile.onFailureInUI { case e: Exception =>
       showErrorNotice(activity.getString(R.string.fragmentUserProfileError))
-      activity.setProfileError(e)
     }
   }
 

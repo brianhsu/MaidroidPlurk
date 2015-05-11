@@ -28,7 +28,8 @@ import java.net.URL
 
 class PlurkAdapter(activity: FragmentActivity with PlurkView.Listener 
                                               with ConfirmDialog.Listener, 
-                   isInResponseList: Boolean = false) extends BaseAdapter {
+                   isInResponseList: Boolean = false,
+                   isInUserProfile: Boolean = false) extends BaseAdapter {
   private implicit val mActivity = activity
   private var plurks: Vector[Plurk] = Vector.empty
   private var users: Map[Long, User] = Map.empty
@@ -46,7 +47,7 @@ class PlurkAdapter(activity: FragmentActivity with PlurkView.Listener
 
     val itemView = convertView match {
       case view: PlurkView => view
-      case _ => new PlurkView(Some(this), isInResponseList)
+      case _ => new PlurkView(Some(this), isInResponseList, isInUserProfile)
     }
 
     val plurk = plurks(position)
@@ -73,6 +74,8 @@ class PlurkAdapter(activity: FragmentActivity with PlurkView.Listener
       newTimelineFirst <- timeline.plurks.headOption.map(_.plurkID)
       oldTimelineFirst <- this.plurks.headOption.map(_.plurkID)
     } yield newTimelineFirst == oldTimelineFirst).getOrElse(false)
+
+    println("===========> should skip:" + shouldSkip)
 
     if (!shouldSkip) {
       plurks ++= timeline.plurks

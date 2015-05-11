@@ -82,7 +82,8 @@ object PlurkView {
 }
 
 class PlurkView(adapterHolder: Option[PlurkAdapter] = None, 
-                isInResponseList: Boolean = false)
+                isInResponseList: Boolean = false,
+                isInUserProfile: Boolean = false)
                (implicit val activity: FragmentActivity with PlurkView.Listener with ConfirmDialog.Listener)
                 extends LinearLayout(activity) {
 
@@ -403,6 +404,11 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
       dropdownMenu.setVisibility(View.VISIBLE)
 
     } else {
+      dropdownMenu.setEnabled(false)
+      dropdownMenu.setVisibility(View.GONE)
+    }
+
+    if (isInUserProfile) {
       dropdownMenu.setEnabled(false)
       dropdownMenu.setVisibility(View.GONE)
     }

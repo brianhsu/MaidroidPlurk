@@ -14,9 +14,12 @@ import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.plurk.util.Logout
 import idv.brianhsu.maidroid.plurk.view.ToggleView
+import idv.brianhsu.maidroid.plurk.view.PlurkView
 import idv.brianhsu.maidroid.ui.model._
 import idv.brianhsu.maidroid.ui.util.CallbackConversions._
 import org.bone.soplurk.model.User
+import org.bone.soplurk.model.Plurk
+import org.bone.soplurk.api.PlurkAPI.Timeline
 
 
 object UserTimelineActivity {
@@ -35,7 +38,6 @@ object UserTimelineActivity {
 
   trait Listener {
     def setTimelineWelecomeMessage(): Unit
-    def setProfileWelecomeMessage(): Unit
     def setProfileError(error: Exception): Unit
   }
 }
@@ -44,6 +46,8 @@ class UserTimelineActivity extends ActionBarActivity
                            with TypedViewHolder 
                            with ConfirmDialog.Listener 
                            with UserTimelineActivity.Listener
+                           with PlurkView.Listener
+                           with UserTimelineFragment.Listener
 {
   import UserTimelineActivity._
 
@@ -122,5 +126,14 @@ class UserTimelineActivity extends ActionBarActivity
         Logout.doLogout(this)
     }
   }
+
+  override def startEditActivity(plurk: Plurk) {}
+
+  def onShowTimelinePlurksFailure(e: Exception): Unit = {
+  }
+
+  def onShowTimelinePlurksSuccess(timeline: Timeline): Unit = {
+  }
+
 
 }
