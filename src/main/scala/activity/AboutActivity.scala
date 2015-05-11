@@ -4,7 +4,6 @@ import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.plurk.adapter._
 import idv.brianhsu.maidroid.ui.util.CallbackConversions._
-
 import android.os.Bundle
 import android.content.Intent
 import android.content.Context
@@ -12,10 +11,9 @@ import android.net.Uri
 import android.view.View
 import android.text.Html
 import android.text.method.LinkMovementMethod
-
 import android.support.v7.app.ActionBarActivity
-
 import scala.util.Try
+import com.google.android.gms.ads._
 
 object AboutActivity {
   def startActivity(context: Context) {
@@ -32,6 +30,7 @@ class AboutActivity extends ActionBarActivity with TypedViewHolder
 
   private lazy val viewPager = findView(TR.activityAboutViewPager)
   private lazy val pagerIndicator = findView(TR.activityAboutPagerIndicator)
+  private lazy val adView = findView(TR.adView)
 
   private def startBrowser(url: String) {
     val intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url))
@@ -216,5 +215,24 @@ class AboutActivity extends ActionBarActivity with TypedViewHolder
 
     viewPager.setAdapter(pageAdapter)
     pagerIndicator.setViewPager(viewPager)
+    val adRequest = new AdRequest.Builder().addTestDevice("6A4C0B7C2BA5CCDB7258476B0F49F059").build()
+    adView.loadAd(adRequest)
   }
+
+  override def onPause() {
+    adView.pause()
+    super.onPause()
+  }
+
+  override def onResume() {
+    adView.resume()
+    super.onResume()
+  }
+
+  override def onDestroy() {
+    adView.destroy()
+    super.onDestroy()
+  }
+
+
 }
