@@ -82,7 +82,8 @@ object PlurkView {
 }
 
 class PlurkView(adapterHolder: Option[PlurkAdapter] = None, 
-                isInResponseList: Boolean = false)
+                isInResponseList: Boolean = false,
+                isInUserProfile: Boolean = false)
                (implicit val activity: FragmentActivity with PlurkView.Listener with ConfirmDialog.Listener)
                 extends LinearLayout(activity) {
 
@@ -334,7 +335,11 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
         qualifier.setVisibility(View.VISIBLE)
     }
 
+
     avatar.setImageResource(R.drawable.default_avatar)
+    avatar.setOnClickListener { view: View => UserTimelineActivity.startActivity(activity, owner) }
+    displayName.setOnClickListener { view: View => UserTimelineActivity.startActivity(activity, owner) }
+
     AvatarCache.getAvatarBitmapFromCache(activity, owner) match {
       case Some(avatarBitmap) => setAvatarFromCache(avatarBitmap)
       case None => setAvatarFromNetwork(activity, owner)
@@ -399,6 +404,11 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
       dropdownMenu.setVisibility(View.VISIBLE)
 
     } else {
+      dropdownMenu.setEnabled(false)
+      dropdownMenu.setVisibility(View.GONE)
+    }
+
+    if (isInUserProfile) {
       dropdownMenu.setEnabled(false)
       dropdownMenu.setVisibility(View.GONE)
     }
