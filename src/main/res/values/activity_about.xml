@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="appName">MaidroidPlurk v</string>
+  <string name="activityAboutFreeSoftware">自由開源的女僕噗浪</string>
 </resources>
