@@ -72,6 +72,31 @@ class AboutActivity extends ActionBarActivity with TypedViewHolder
     aboutVersion
   }
 
+  private def createAboutAppLicensePage = {
+    val aboutLicense = getLayoutInflater.inflate(R.layout.about_library_licenses, null)
+    val licenseTextView = aboutLicense.findView(TR.aboutLibraryLicenseTextView)
+    val htmlContent = """
+      | <h2>Copyright (C) 2014-2015 BrianHsu</h2>
+      | <p>
+      | This program is free software; you can redistribute it and/or
+      | modify it under the terms of the GNU General Public License
+      | as published by the Free Software Foundation; either version 2
+      | of the License, or (at your option) any later version.
+      | </p>
+      | <p>
+      | This program is distributed in the hope that it will be useful,
+      | but WITHOUT ANY WARRANTY; without even the implied warranty of
+      | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+      | </p>
+      | <p>
+      | See the <a href="http://www.gnu.org/licenses/gpl.html">GNU General Public License</a> for more details.
+      | </p>
+    """.stripMargin
+    licenseTextView.setText(Html.fromHtml(htmlContent))
+    licenseTextView.setMovementMethod(new LinkMovementMethod()) 
+    aboutLicense
+  }
+
   private def createAboutLibraryLicensePage = {
     val aboutLicense = getLayoutInflater.inflate(R.layout.about_library_licenses, null)
     val licenseTextView = aboutLicense.findView(TR.aboutLibraryLicenseTextView)
@@ -188,6 +213,8 @@ class AboutActivity extends ActionBarActivity with TypedViewHolder
     aboutIconLicense
   }
 
+
+
   private def createIconLicense(drawableID: Int, licenseText: String) = {
     val licenseRow = getLayoutInflater.inflate(R.layout.item_icon_license, null)
     val iconView = licenseRow.findView(TR.itemIconLicenseIcon)
@@ -202,6 +229,7 @@ class AboutActivity extends ActionBarActivity with TypedViewHolder
 
     val pages = Vector(
       createAboutVersionPage, 
+      createAboutAppLicensePage, 
       createAboutLibraryLicensePage, 
       createAboutIconLicensePage
     )
