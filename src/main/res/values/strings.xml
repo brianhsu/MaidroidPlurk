@@ -69,5 +69,10 @@
 
   <string name="reply">回應訊息</string>
 
+  <!-- UserTimeline -->
+  <string name="titleUserTimeline">【%s】的河道</string>
+  <string name="adapterUserTimelineTimeline">河道</string>
+  <string name="adapterUserTimelineProfile">個人資料</string>
+
 
 </resources>

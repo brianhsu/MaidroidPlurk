@@ -114,12 +114,8 @@ class PostPlurkActivity extends ActionBarActivity
   }
 
   override def onTabReselected(tab: Tab, ft: FragmentTransaction) {}
-  override def onTabUnselected(tab: Tab, ft: FragmentTransaction) {
-  }
-
-  override def onPageScrolled(
-    position: Int, positionOffset: Float, 
-    positionOffsetPixels: Int) {}
+  override def onTabUnselected(tab: Tab, ft: FragmentTransaction) {}
+  override def onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
 
   override def onTabSelected(tab: Tab, ft: FragmentTransaction) {
 

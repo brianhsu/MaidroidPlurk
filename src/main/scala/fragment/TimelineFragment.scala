@@ -63,8 +63,6 @@ object TimelineFragment {
   trait Listener {
     def onShowTimelinePlurksFailure(e: Exception): Unit
     def onShowTimelinePlurksSuccess(timeline: Timeline, isNewFilter: Boolean, filter: Option[Filter], isOnlyUnread: Boolean): Unit
-    def onRefreshTimelineSuccess(newTimeline: Timeline): Unit
-    def onRefreshTimelineFailure(e: Exception): Unit
     def onDeletePlurkSuccess(): Unit
   }
 

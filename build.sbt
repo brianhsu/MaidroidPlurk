@@ -25,6 +25,7 @@ libraryDependencies ++= Seq(
   aar("com.github.chrisbanes.actionbarpulltorefresh" % "library" % "0.9.3"),
   aar("com.github.chrisbanes.actionbarpulltorefresh" % "extra-abc" % "0.9.3"),
   aar("com.github.castorflex.smoothprogressbar" % "library" % "0.2.0"),
+  aar("com.google.android.gms" % "play-services" % "5.0.89"),
   "com.android.support" % "support-v4" % "19.1.+",
   "com.android.support" % "appcompat-v7" % "19.1.+"
 )
@@ -35,7 +36,7 @@ dependencyOverrides += "com.android.support" % "appcompat-v7" % "19.1.+"
 
 
 libraryDependencies ++= Seq(
-  "org.bone" %% "soplurk" % "0.3.2",
+  "org.bone" %% "soplurk" % "0.3.3",
   "com.typesafe.akka" %% "akka-actor" % "2.3.2"
 )
 
