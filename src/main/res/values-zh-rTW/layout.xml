@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="layoutAboutVersionAboutMe">作者：BrianHsu</string>
+  <string name="layoutAboutVersionGitHub">程式碼 @ GitHub</string>
+  <string name="layoutAboutVersionMarket">到 Play 商店給個分吧！</string>
+
+  <string name="itemHeaderResponseResponseTitle">回應</string>
+  <string name="itemHeaderResponseEmpty">還沒有人回應哦，趕快來搶頭香囉！:)</string>
+
+  <string name="itemPlurkPrivate">私密</string>
+  <string name="itemPlurkReplurk">轉噗</string>
+
+  <string name="loadMoreFooterRetry">重試一次</string>
+
+</resources>
