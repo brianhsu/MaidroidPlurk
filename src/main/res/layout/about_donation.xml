@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+  <LinearLayout
+    android:orientation="vertical"
+    android:layout_margin="10dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView 
+      android:id="@+id/aboutDonationText"
+      android:text="@string/aboutDonationText"
+      android:textSize="20sp"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content" />
+
+    <Button
+      android:id="@+id/aboutDonation30"
+      android:text="@string/aboutDonation30"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content" />
+
+    <Button
+      android:id="@+id/aboutDonation50"
+      android:text="@string/aboutDonation50"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content" />
+
+    <Button
+      android:id="@+id/aboutDonation100"
+      android:text="@string/aboutDonation100"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content" />
+
+  </LinearLayout>
+</ScrollView>
+

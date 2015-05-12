@@ -1,19 +1,23 @@
 package idv.brianhsu.maidroid.plurk.activity
 
-import idv.brianhsu.maidroid.plurk._
-import idv.brianhsu.maidroid.plurk.TypedResource._
-import idv.brianhsu.maidroid.plurk.adapter._
-import idv.brianhsu.maidroid.ui.util.CallbackConversions._
-import android.os.Bundle
-import android.content.Intent
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
 import android.net.Uri
-import android.view.View
+import android.os.Bundle
+import android.support.v7.app.ActionBarActivity
 import android.text.Html
 import android.text.method.LinkMovementMethod
-import android.support.v7.app.ActionBarActivity
-import scala.util.Try
+import android.util.Log
+import android.view.View
+import android.widget.Button
 import com.google.android.gms.ads._
+import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.adapter._
+import idv.brianhsu.maidroid.plurk.TypedResource._
+import idv.brianhsu.maidroid.ui.util.CallbackConversions._
+import scala.util.Try
 
 object AboutActivity {
   def startActivity(context: Context) {
@@ -28,9 +32,15 @@ object AboutActivity {
 class AboutActivity extends ActionBarActivity with TypedViewHolder
 {
 
+  import idv.brianhsu.maidroid.billing._
+
+  private val TAG = "AboutActivity"
+  private val RC_REQUEST = 10001
+
   private lazy val viewPager = findView(TR.activityAboutViewPager)
   private lazy val pagerIndicator = findView(TR.activityAboutPagerIndicator)
   private lazy val adView = findView(TR.adView)
+  private lazy val mHelper = new IabHelper(this, "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAln/knFGoApRevyKwhU0It4xS+/cRogPnHJavJKaHrFvbAI0RD4dkrWXq7N+QieEGJf2oEPbXtC2nq8Z4aWlyRFIsI/GgqedLTyG4j6XsE/lN0F5pZN6q38dtg/5U7fa8gdd9Sy3FcU88KDgaNTLJQLnPDQwQeGG947XPlsls61gRQXJf7de298uqqggOvlbOILg2HL7+e2FgVNpAp2jveeeJ2+8pX6p/+/Xqe9lp1ShAMtjw684DpcObHDrXeQDtVGT7aviP6eRtWIm4neSm9d5sJWlFi7DWWR5YbIZxCBSYTkcEmT14UYXLBewv8/g63FgV9+cCTEjBARjZg8ymXwIDAQAB")
 
   private def startBrowser(url: String) {
     val intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url))
@@ -70,6 +80,81 @@ class AboutActivity extends ActionBarActivity with TypedViewHolder
     }
 
     aboutVersion
+  }
+
+  private def createAboutDonationPage = {
+    val donationPage = getLayoutInflater.inflate(R.layout.about_donation, null)
+    val donateText = donationPage.findView(TR.aboutDonationText)
+    val donate30Button = donationPage.findView(TR.aboutDonation30)
+    val donate50Button = donationPage.findView(TR.aboutDonation50)
+    val donate100Button = donationPage.findView(TR.aboutDonation100)
+
+    donateText.setText(Html.fromHtml(getString(R.string.aboutDonationText)))
+
+    def setButtonState(isEnable: Boolean) {
+      donate30Button.setEnabled(isEnable)
+      donate50Button.setEnabled(isEnable)
+      donate100Button.setEnabled(isEnable)
+    }
+
+    val mPurchaseFinishedListener = new IabHelper.OnIabPurchaseFinishedListener() {
+      override def onIabPurchaseFinished(result:IabResult, purchase: Purchase) = {
+        if (result.isFailure) {
+          Log.e(TAG, "====> Error purchasing: " + result)
+          if (result.getResponse != -1005) {
+            showMessageDialog(
+              getString(R.string.aboutDonationCancelTitle),
+              getString(R.string.aboutDonationCancelContent).format(result.getMessage)
+            )    
+          }
+          setButtonState(true)
+        } else {
+          Option(purchase).foreach { purchase => 
+            showMessageDialog(
+              getString(R.string.aboutDonationThankTitle),
+              getString(R.string.aboutDonationThankContent).format(result)
+            )    
+            consumeDonation(purchase) 
+            setButtonState(true)
+          }
+        }
+      }
+    }
+
+    def setupDonationButton(button: Button, sku: String) = {
+      button.setOnClickListener { view: View =>
+        setButtonState(false)
+        mHelper.launchPurchaseFlow(this, sku, RC_REQUEST, mPurchaseFinishedListener, "")
+      }
+    }
+
+    setupDonationButton(donate30Button, "donate_30")
+    setupDonationButton(donate50Button, "donate_50")
+    setupDonationButton(donate100Button, "donate_100")
+
+    donationPage
+  }
+
+  private def showMessageDialog(title: String, message: String): Unit = {
+
+    val okListener = new DialogInterface.OnClickListener() {
+      override def onClick(dialog: DialogInterface, which: Int) {}
+    } 
+
+    val alertDialog = new AlertDialog.Builder(this)
+
+    alertDialog.setTitle(title)
+               .setMessage(message)
+               .setPositiveButton(R.string.ok, okListener)
+
+    alertDialog.show();
+  }
+
+  override def onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    // Pass on the activity result to the helper for handling
+    if (!mHelper.handleActivityResult(requestCode, resultCode, data)) {
+      super.onActivityResult(requestCode, resultCode, data);
+    }
   }
 
   private def createAboutAppLicensePage = {
@@ -229,6 +314,7 @@ class AboutActivity extends ActionBarActivity with TypedViewHolder
 
     val pages = Vector(
       createAboutVersionPage, 
+      createAboutDonationPage, 
       createAboutAppLicensePage, 
       createAboutLibraryLicensePage, 
       createAboutIconLicensePage
@@ -236,15 +322,53 @@ class AboutActivity extends ActionBarActivity with TypedViewHolder
     new AboutPageAdapter(getApplicationContext, pages)
   }
 
+  private val noAction: () => Any = () => {}
+
+  private def consumeDonation(donationPurchase: Purchase, callback: () => Any = noAction) {
+    mHelper.consumeAsync(donationPurchase, new IabHelper.OnConsumeFinishedListener() {
+      override def onConsumeFinished(purchase: Purchase, result: IabResult) {
+        Log.d(TAG, "====> Consumption finished. Purchase: " + purchase + ", result: " + result)
+      }
+    })
+  }
+
   override def onCreate(savedInstanceState: Bundle) {
     super.onCreate(savedInstanceState)
 
     setContentView(R.layout.activity_about)
-
     viewPager.setAdapter(pageAdapter)
     pagerIndicator.setViewPager(viewPager)
+
     val adRequest = new AdRequest.Builder().addTestDevice("6A4C0B7C2BA5CCDB7258476B0F49F059").build()
     adView.loadAd(adRequest)
+
+    mHelper.enableDebugLogging(true)
+    mHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
+      override def onIabSetupFinished(result: IabResult) {
+        Log.d(TAG, "====> Setup finished.");
+
+        if (!result.isSuccess()) {
+          // Oh noes, there was a problem.
+          Log.e(TAG, "====> Problem setting up in-app billing: " + result);
+          return;
+        }
+
+        // Hooray, IAB is fully set up. Now, let's get an inventory of stuff we own.
+        Log.d(TAG, "====> Setup successful. Querying inventory.");
+        mHelper.queryInventoryAsync(new IabHelper.QueryInventoryFinishedListener(){
+          override def onQueryInventoryFinished(result: IabResult, inventory:Inventory) {
+            if (result.isFailure()) {
+              Log.e(TAG, "=====> Failed to query inventory: " + result);
+            } else {
+              Option(inventory.getPurchase("donate_30")).foreach(purchase => consumeDonation(purchase))
+              Option(inventory.getPurchase("donate_50")).foreach(purchase => consumeDonation(purchase))
+              Option(inventory.getPurchase("donate_100")).foreach(purchase => consumeDonation(purchase))
+            }
+          }
+        })
+
+      }
+    })
   }
 
   override def onPause() {

@@ -27,9 +27,10 @@ class AboutPageAdapter(context: Context, views: Vector[View])  extends PagerAdap
  
   override def getPageTitle(position: Int) = position match {
     case 0 => context.getString(R.string.adapterAboutPagerVersion)
-    case 1 => context.getString(R.string.adapterAboutPagerAppLicense)
-    case 2 => context.getString(R.string.adapterAboutPagerLibraryLicense)
-    case 3 => context.getString(R.string.adapterAboutPagerIconLicenes)
+    case 1 => context.getString(R.string.adapterAboutPagerDonation)
+    case 2 => context.getString(R.string.adapterAboutPagerAppLicense)
+    case 3 => context.getString(R.string.adapterAboutPagerLibraryLicense)
+    case 4 => context.getString(R.string.adapterAboutPagerIconLicenes)
   }
 }
 
