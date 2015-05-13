@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="menuEmoticon">表情符號</string>
+  <string name="menuEmoticon">Emoticon</string>
 
-  <string name="menuUploadPhoto">上傳圖片</string>
-  <string name="menuUploadPhotoSelect">自相簿選取</string>
-  <string name="menuUploadPhotoCamera">拍攝新照片</string>
+  <string name="menuUploadPhoto">Upload Photo</string>
+  <string name="menuUploadPhotoSelect">Select From Gallery</string>
+  <string name="menuUploadPhotoCamera">Take a Photo</string>
 
-  <string name="menuSendNow">立刻發送</string>
-  <string name="menuDone">完成</string>
-  <string name="menuLogout">登出</string>
-  <string name="menuAbout">關於</string>
+  <string name="menuSendNow">Send Now</string>
+  <string name="menuDone">Done</string>
+  <string name="menuLogout">Logout</string>
+  <string name="menuAbout">About</string>
 
-  <string name="menuToggleMaid">切換女僕是否顯示</string>
+  <string name="menuToggleMaid">Toogle Maid Dialog</string>
 
-  <string name="menuDelete">刪除</string>
-  <string name="menuEdit">編輯</string>
-  <string name="menuRespond">回噗</string>
-  <string name="menuNewPlurk">發新噗</string>
-  <string name="menuMarkAllAsRead">將此分類全部標為已讀</string>
+  <string name="menuDelete">Delete</string>
+  <string name="menuEdit">Edit</string>
+  <string name="menuRespond">Respond</string>
+  <string name="menuNewPlurk">New Plurk</string>
+  <string name="menuMarkAllAsRead">Mark All as Read</string>
 
 </resources>

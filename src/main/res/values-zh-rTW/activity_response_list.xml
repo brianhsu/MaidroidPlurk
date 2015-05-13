@@ -31,6 +31,4 @@
 
   <string name="activityResponseListPosted01">已經幫主人把回應發到噗浪上去囉！</string>
   <string name="activityResponseListPosted02">有了主人的參與，這個討論一定會更有趣的。</string>
-
-  <string name="activityResponseList"></string>
 </resources>

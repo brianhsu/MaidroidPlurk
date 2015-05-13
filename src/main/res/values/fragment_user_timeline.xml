@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="fragmentUserTimelinePrivate">此為私密河道</string>
+  <string name="fragmentUserTimelinePrivate">This is private timeline.</string>
 </resources>

@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="dialogSelectPeople"></string>
-
   <string name="dialogSelectPeopleBlockTitle">誰看不到這則發文？</string>
   <string name="dialogSelectPeopleViewableTitle">誰可以看到這則發文？</string>
   <string name="dialogSelectPeopleFetchCliqueFailure">無法取得小圈圈與朋友列表，請檢查網路後重試一次</string>

@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="activityEditPlurkWelecomeMessage">主人不滿意這則噗嗎？小鈴知道了，請主人編輯完成後再通知我一聲喲！</string>
-  <string name="activityEditPlurkConfirmAbort">確定要退出嗎？這會造成目前的內容永遠消失喲！</string>
+  <string name="activityEditPlurkWelecomeMessage">Don\'t like this post, master? I got it, please call me again when you are ready.</string>
+  <string name="activityEditPlurkConfirmAbort">Are your sure to quit? All content will be lost.</string>
 
-  <string name="activityEditPlurkEditing">編輯中</string>
-  <string name="activityEditPlurkEditSuccess">已成功編輯此噗</string>
+  <string name="activityEditPlurkEditing">Editing...</string>
+  <string name="activityEditPlurkEditSuccess">Pst edited.</string>
 
-  <string name="activityEditPlurkFailureMessage1">對不起！小鈴太沒用了，沒辦法順利幫主更新這則噗浪……</string>
-  <string name="activityEditPlurkFailureMessage2">系統說錯誤的原因是：%s，可不可以請主人檢查一次之後再重新按發送鍵一次呢？</string>
-
+  <string name="activityEditPlurkFailureMessage1">Sorry, I\'m so useless. I can\'t update this post for you.</string>
+  <string name="activityEditPlurkFailureMessage2">System says it\'s caused by the following reason: %s. Would you mind check about it and send it again?</string>
 </resources>

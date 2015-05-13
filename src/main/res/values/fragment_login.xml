@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="fragmentLoginGetAuthURLFail">無法取得噗浪登入網址</string>
-  <string name="fragmentLoginAuthRefused">登入失敗，使用者拒絕授權</string>
+  <string name="fragmentLoginGetAuthURLFail">Cannot get login URL of Plurk.</string>
+  <string name="fragmentLoginAuthRefused">Login failed. User denied authorization request.</string>
 
-  <string name="fragmentLoginFailed">登入失敗，%s</string>
-  <string name="fragmentLoginFailedGeneric">無法正確登入噗浪</string>
-
-  <string name="fragmentLogin"></string>
+  <string name="fragmentLoginFailed">Login failed. %s</string>
+  <string name="fragmentLoginFailedGeneric">Cannot log into Plurk.</string>
 </resources>

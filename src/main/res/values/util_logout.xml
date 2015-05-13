@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-  <string name="utilLogoutConfirmTitle">要登出嗎？</string>
-  <string name="utilLogoutConfirm">真的要登出嗎？</string>
-  <string name="utilLogoutLogout">登出</string>
+  <string name="utilLogoutConfirmTitle">Logout?</string>
+  <string name="utilLogoutConfirm">Do you really want to logout?</string>
+  <string name="utilLogoutLogout">Logout</string>
 
 </resources>

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-  <string name="utilPlurkEditorEmptyNoticeMessage">主人還沒有填寫內容呢，這樣小鈴沒辦法幫主人發到噗浪上喲……</string>
+  <string name="utilPlurkEditorEmptyNoticeMessage">You haven\'t enter any text, I can\'t send it if content is empty...</string>
 
-  <string name="utilPlurkEditorEmptyNoticeMessage01">主人沒有寫任何東西呢，主人是不是不小心按到發送鍵了啊？</string>
-  <string name="utilPlurkEditorEmptyNoticeMessage02">不過沒關係的，等主人準備好了之後歡迎隨時告訴小鈴喲！</string>
+  <string name="utilPlurkEditorEmptyNoticeMessage01">You have not write anything, are you pressed send button accidentally?</string>
+  <string name="utilPlurkEditorEmptyNoticeMessage02">Don\'t mind. Just tell me when you are ready.</string>
 
-  <string name="utilPlurkEditorOver210Message1">對不起，字數超過噗浪的 210 個字元的上限了呢……</string>
-  <string name="utilPlurkEditorOver210Message2">主人要不要先刪除一些贅字，或試著寫得精鍊一些呢？</string>
+  <string name="utilPlurkEditorOver210Message1">Sorry, the content is exceed 210 words limitation.</string>
+  <string name="utilPlurkEditorOver210Message2">Please delete some sentence or refine it.</string>
 
 </resources>

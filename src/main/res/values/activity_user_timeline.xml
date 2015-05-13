@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="activityUserTimelineWelcome01">這是 %s 的時間軸呢，主人對這位噗友有興趣嗎？</string>
-  <string name="activityUserTimelineWelcome02">小鈴正在幫主人取得這位噗友的發文，請稍待一下喔……</string>
+  <string name="activityUserTimelineWelcome01">This is time line of %s. Are you interested in this user?</string>
+  <string name="activityUserTimelineWelcome02">Lin chan is fetching posts of this user, please wait a moment.</string>
 
-  <string name="activityUserTimelineFetchOK01">這是裡列出的，是 %s 所發的噗文喔！</string>
-  <string name="activityUserTimelineFetchOK02">若是主人想認識 %s 的話，可以切換到個人資料頁來送出朋友請求或是追蹤對方喔。</string>
+  <string name="activityUserTimelineFetchOK01">Here are all posts posted by %s.</string>
+  <string name="activityUserTimelineFetchOK02">If you want follow this user, you could switch to Profile tab to send friend or fan request.</string>
 
-  <string name="activityUserTimelineFetchPrivate01">%s 把河道設成只有好友看得到呢……</string>
-  <string name="activityUserTimelineFetchPrivate02">如果主人想要看這位噗友發的噗的話，需要先到個人資料頁來送出好友請求喔！</string>
+  <string name="activityUserTimelineFetchPrivate01">%s has set this timeline to friend only.</string>
+  <string name="activityUserTimelineFetchPrivate02">If you want to view posts posted by this user, you must send friend reqeust in Profile tab first.</string>
 
-  <string name="activityUserTimelineFailure01">好像怪怪的，沒辦法取得 %s 的河道耶……</string>
-  <string name="activityUserTimelineFailure02">該不會是小鈴太沒用了，所以才一直出錯吧？</string>
-  <string name="activityUserTimelineFailure03">對了，系統說這個錯誤是：「%s」造成的說。</string>
+  <string name="activityUserTimelineFailure01">Oooops, I can\'t read %s\'s timeline from Plurk server.</string>
+  <string name="activityUserTimelineFailure02">Is it because I\'m so useless?</string>
+  <string name="activityUserTimelineFailure03">BTW, there is error message from system: %s.</string>
 
 </resources>

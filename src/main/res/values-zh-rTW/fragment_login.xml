@@ -5,6 +5,4 @@
 
   <string name="fragmentLoginFailed">登入失敗，%s</string>
   <string name="fragmentLoginFailedGeneric">無法正確登入噗浪</string>
-
-  <string name="fragmentLogin"></string>
 </resources>

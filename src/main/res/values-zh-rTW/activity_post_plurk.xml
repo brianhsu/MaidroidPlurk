@@ -21,7 +21,4 @@
   <string name="activityPostPlurkFailure02">系統說錯誤的原因是：「%s」，可不可以請主人檢查一次之後再重新按發送鍵一次呢？</string>
 
   <string name="activityPostPlurkAbortConfirm">確定要取消發噗嗎？這會造成目前的內容永遠消失喲！</string>
-
-
-  <string name="activityPostPlurk"></string>
 </resources>
