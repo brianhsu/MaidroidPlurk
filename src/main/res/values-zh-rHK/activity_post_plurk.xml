@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+  <string name="activityPostPlurkPublic">一般</string>
+  <string name="activityPostPlurkPrivate">私噗</string>
+  <string name="activityPostPlurkBackstab">背刺</string>
+
+  <string name="activityPostPlurkWelcome01">主人有有趣的事情想要和大家分享嗎？請告訴小鈴，小鈴會幫主人發到噗浪上喔！</string>
+  <string name="activityPostPlurkWelcome02">如果主人只想和某些特定的好友分享的話，也可以切換到「私噗」標籤，選擇要和誰分享喲。</string>
+
+  <string name="activityPostPlurkBackstabIntro01">主人是不是很好奇「背刺」是什麼呢？其實這是小鈴為主人提供的特別發文服務喲！</string>
+  <string name="activityPostPlurkBackstabIntro02">不知道主人有沒有過想要說一些不能被家人或同事知道的話，但因為家人是噗浪上的好友，所以沒辦法暢所欲言的情況呢？</string>
+  <string name="activityPostPlurkBackstabIntro03">小鈴幫主人想了一個辦法，就是這個「背刺」的功能喲。主人除了可以選擇誰可以看到這則發文外，也可以選擇誰不能看喲！</string>
+  <string name="activityPostPlurkBackstabIntro04">舉例來講，主人可以設定 A 看不到這則發文，而「同學」的小圈圈可以看到，這樣就算 A 在「同學」這個小圈圈裡，他也還是看不到的喔。</string>
+
+  <string name="activityPostPlurkPosting">發噗中</string>
+  <string name="activityPostPlurkPosted">已成功發送至噗浪</string>
+
+  <string name="activityPostPlurkFailure01">對不起！小鈴太沒用了，沒辦法順利幫主人把這則噗放到噗浪上……</string>
+  <string name="activityPostPlurkFailure02">系統說錯誤的原因是：「%s」，可不可以請主人檢查一次之後再重新按發送鍵一次呢？</string>
+
+  <string name="activityPostPlurkAbortConfirm">確定要取消發噗嗎？這會造成目前的內容永遠消失喲！</string>
+</resources>

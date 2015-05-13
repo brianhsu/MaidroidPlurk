@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="viewResponseViewDeleteConfirmTitle">确定要删除吗？</string>
+  <string name="viewResponseViewDeleteConfirm">请问确定要删除这则噗浪吗？此动作无法回复哟！</string>
+
+</resources>

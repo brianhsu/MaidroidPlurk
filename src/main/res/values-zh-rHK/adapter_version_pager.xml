@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="layoutAboutVersionAboutMe">作者：BrianHsu</string>
+  <string name="layoutAboutVersionGitHub">程式碼 @ GitHub</string>
+  <string name="layoutAboutVersionMarket">到 Play 商店給個分吧！</string>
+</resources>

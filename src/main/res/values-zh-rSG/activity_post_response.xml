@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="activityPostResponseWelcome01">小铃已经准备好帮主人回应讯息了，如果主人准备好要发送的话，请再告诉我一声哟！</string>
+  <string name="activityPostResponseWelcome02">顺道一提，主要要回复的讯息是：「%s」哟！</string>
+
+  <string name="activityPostResponseAbortConfirm">确定要取消回应吗？这会造成目前的内容永远消失哟！</string>
+
+  <string name="activityPostResponsePosting">发表回应中</string>
+  <string name="activityPostResponsePosted">已成功发送回应至噗浪</string>
+
+  <string name="activityPostResponseFailure01">对不起！小铃太没用了，没办法顺利帮主人把这则回应发到噗浪上……</string>
+  <string name="activityPostResponseFailure02">系统说错误的原因是：「%s」，可不可以请主人检查一次之后再重新按发送键一次呢？</string>
+
+  <string name="activityPostResponseOnlyFriends01">主人真是对不起，对方好像把这则噗设成只有朋友能够发文呢……</string>
+  <string name="activityPostResponseOnlyFriends02">都怪小铃没事先提醒主人，真是抱歉。</string>
+
+</resources>

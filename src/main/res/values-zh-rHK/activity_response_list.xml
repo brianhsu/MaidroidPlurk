@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="activityResponseListWelcome01">小鈴正在幫主人讀取噗浪上的回應，請主人稍候一下喲……</string>
+
+  <string name="activityResponseListConfirmDeleteTitle">確定要刪除嗎？</string>
+  <string name="activityResponseListConfirmDelete">確定要刪除這則噗浪？這個動作無法回復喲！</string>
+
+  <string name="activityResponseListDeleteing">刪除中</string>
+  <string name="activityResponseListDeleteResponseOK">小鈴已經順利幫主把這則回應刪除了喲！</string>
+  <string name="activityResponseListDeleteResponseFailure01">真是對不起，小鈴沒辦刪除這則回應耶……</string>
+  <string name="activityResponseListDeleteResponseFailure02">系統說錯誤是：「%s」造成的說。</string>
+  <string name="activityResponseListDeleteResponseFailure03">主人要不要檢查網路狀態後重新讀取一次試試看呢？</string>
+
+  <string name="activityResponseListDeletePlurkFailure01">真是對不起，小鈴沒辦刪除這則噗浪耶……</string>
+  <string name="activityResponseListDeletePlurkFailure02">系統說錯誤是：「%s」造成的說。</string>
+  <string name="activityResponseListDeletePlurkFailure03">主人要不要檢查網路狀態後重新讀取一次試試看呢？</string>
+
+  <string name="activityResponseListLow01">咦？這則噗浪好像沒有什麼人留言耶……</string>
+  <string name="activityResponseListLow02">主人要不要參與討論，讓這則噗浪熱鬧一些呢？</string>
+
+  <string name="activityResponseListMid01">已經幫主人把大家的回應整理好囉！主人也對這個話題有興趣嗎？</string>
+  <string name="activityResponseListMid02">如果主人想要回應，請告訴小鈴，小鈴會幫忙主人發佈回應喲！</string>
+
+  <string name="activityResponseListHigh01">哇，這則噗浪好熱鬧，總共有 %d 個回應耶，有這麼多回應，發噗的人一定很高興吧？</string>
+  <string name="activityResponseListHigh02">請主人也加油，讓自己的河道和這個噗浪一樣熱鬧喲！</string>
+
+  <string name="activityResponseListGetResponseFailure01">好像怪怪的，沒辦法讀噗浪上的回應耶……</string>
+  <string name="activityResponseListGetResponseFailure02">系統說錯誤是：「%s」造成的說。</string>
+  <string name="activityResponseListGetResponseFailure03">主人要不要檢查網路狀態後重新讀取一次試試看呢？</string>
+
+  <string name="activityResponseListPosted01">已經幫主人把回應發到噗浪上去囉！</string>
+  <string name="activityResponseListPosted02">有了主人的參與，這個討論一定會更有趣的。</string>
+</resources>

@@ -128,9 +128,9 @@ class AboutActivity extends ActionBarActivity with TypedViewHolder
       }
     }
 
-    setupDonationButton(donate30Button, "donate_30")
-    setupDonationButton(donate50Button, "donate_50")
-    setupDonationButton(donate100Button, "donate_100")
+    setupDonationButton(donate30Button, "donation_30")
+    setupDonationButton(donate50Button, "donation_50")
+    setupDonationButton(donate100Button, "donation_100")
 
     donationPage
   }

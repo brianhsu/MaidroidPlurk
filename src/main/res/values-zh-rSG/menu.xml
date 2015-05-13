@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="menuEmoticon">表情符号</string>
+
+  <string name="menuUploadPhoto">上传图片</string>
+  <string name="menuUploadPhotoSelect">自相簿选取</string>
+  <string name="menuUploadPhotoCamera">拍摄新照片</string>
+
+  <string name="menuSendNow">立刻发送</string>
+  <string name="menuDone">完成</string>
+  <string name="menuLogout">登出</string>
+  <string name="menuAbout">关于</string>
+
+  <string name="menuToggleMaid">切换女仆是否显示</string>
+
+  <string name="menuDelete">删除</string>
+  <string name="menuEdit">编辑</string>
+  <string name="menuRespond">回噗</string>
+  <string name="menuNewPlurk">发新噗</string>
+  <string name="menuMarkAllAsRead">将此分类全部标为已读</string>
+
+</resources>

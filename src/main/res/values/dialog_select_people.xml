@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="dialogSelectPeopleBlockTitle">誰看不到這則發文？</string>
-  <string name="dialogSelectPeopleViewableTitle">誰可以看到這則發文？</string>
-  <string name="dialogSelectPeopleFetchCliqueFailure">無法取得小圈圈與朋友列表，請檢查網路後重試一次</string>
+  <string name="dialogSelectPeopleBlockTitle">Who can read this post?</string>
+  <string name="dialogSelectPeopleViewableTitle">Who cannot read this post?</string>
+  <string name="dialogSelectPeopleFetchCliqueFailure">Cannot fetch clique and friend list, please check your Internet connectivity and try again.</string>
 
-  <string name="dialogSelectPeopleAllFriends">[所有好友]</string>
-  <string name="dialogSelectPeopleCliquePrefix">[小圈圈]</string>
-
+  <string name="dialogSelectPeopleAllFriends">[AllFriends]</string>
+  <string name="dialogSelectPeopleCliquePrefix">[Clique]</string>
 </resources>

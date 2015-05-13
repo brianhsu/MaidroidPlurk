@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="activitySelectImageTitle">选择一张图片</string>
+
+  <string name="activitySelectImageFileNotFound">找不到这个档案</string>
+  <string name="activitySelectImageFetchFileException">无法读取这张图片</string>
+
+  <string name="activitySelectImagePreparing">准备中</string>
+  <string name="activitySelectImageUploading">上传图档中：</string>
+  <string name="activitySelectImageDownloading">下载图档中：</string>
+
+  <string name="activitySelectImageUploadMultipleOK">小铃已经帮主人把这些照片上传了哟，主人的照片好多哟，难道说主人是照片松鼠吗？</string>
+
+  <string name="activitySelectImageUploadMultipleFailure01">咦？为什么照片没办法顺利传到噗浪上面呢……</string>
+  <string name="activitySelectImageUploadMultipleFailure02">系统说错误的原因是 %s 的说。</string>
+  <string name="activitySelectImageUploadMultipleFailure03">主人要不要检查一下之后再重试一次呢？</string>
+
+  <string name="activitySelectImageUploadOK">照片已经上传到噗浪上了，主人快点把它分享给大家吧！</string>
+
+  <string name="activitySelectImageUploadFailure01">咦？为什么照片没办法顺利传到噗浪上面呢……</string>
+  <string name="activitySelectImageUploadFailure02">系统说错误的原因是 %s 的说。</string>
+  <string name="activitySelectImageUploadFailure03">主人要不要检查一下之后再重试一次呢？</string>
+
+</resources>
