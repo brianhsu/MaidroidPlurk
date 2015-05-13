@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="activitySelectImageTitle">選擇一張圖片</string>
+  <string name="activitySelectImageTitle">Select Image</string>
 
-  <string name="activitySelectImageFileNotFound">找不到這個檔案</string>
-  <string name="activitySelectImageFetchFileException">無法讀取這張圖片</string>
+  <string name="activitySelectImageFileNotFound">File not found.</string>
+  <string name="activitySelectImageFetchFileException">Can\'t read this file.</string>
 
-  <string name="activitySelectImagePreparing">準備中</string>
-  <string name="activitySelectImageUploading">上傳圖檔中：</string>
-  <string name="activitySelectImageDownloading">下載圖檔中：</string>
+  <string name="activitySelectImagePreparing">Preparing...</string>
+  <string name="activitySelectImageUploading">Uploading...</string>
+  <string name="activitySelectImageDownloading">Downloading...</string>
 
-  <string name="activitySelectImageUploadMultipleOK">小鈴已經幫主人把這些照片上傳了喲，主人的照片好多喲，難道說主人是照片松鼠嗎？</string>
+  <string name="activitySelectImageUploadMultipleOK">I have uploaded these photos to Plurk. You have so many photos, are you collecting photos?</string>
 
-  <string name="activitySelectImageUploadMultipleFailure01">咦？為什麼照片沒辦法順利傳到噗浪上面呢……</string>
-  <string name="activitySelectImageUploadMultipleFailure02">系統說錯誤的原因是 %s 的說。</string>
-  <string name="activitySelectImageUploadMultipleFailure03">主人要不要檢查一下之後再重試一次呢？</string>
+  <string name="activitySelectImageUploadMultipleFailure01">Ooops, I can\'t upload these photos to Plurk server.</string>
+  <string name="activitySelectImageUploadMultipleFailure02">It seems caused by the following reason: %s</string>
+  <string name="activitySelectImageUploadMultipleFailure03">Would you mind double check it and try it again later, my master?</string>
 
-  <string name="activitySelectImageUploadOK">照片已經上傳到噗浪上了，主人快點把它分享給大家吧！</string>
+  <string name="activitySelectImageUploadOK">I\'ve uploaded this photo to Plurk server, would you want share it with others?</string>
 
-  <string name="activitySelectImageUploadFailure01">咦？為什麼照片沒辦法順利傳到噗浪上面呢……</string>
-  <string name="activitySelectImageUploadFailure02">系統說錯誤的原因是 %s 的說。</string>
-  <string name="activitySelectImageUploadFailure03">主人要不要檢查一下之後再重試一次呢？</string>
+  <string name="activitySelectImageUploadFailure01">Ooops, I can\'t upload this photo to Plurk server.</string>
+  <string name="activitySelectImageUploadFailure02">It seems caused by the following reason: %s</string>
+  <string name="activitySelectImageUploadFailure03">Would you mind double check it and try it again?</string>
 
 </resources>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="itemHeaderResponseResponseTitle">Response</string>
+  <string name="itemHeaderResponseEmpty">No response yet. Be the first one! :)</string>
+</resources>

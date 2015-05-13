@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="layoutAboutVersionAboutMe">Author: BrianHsu</string>
+  <string name="layoutAboutVersionGitHub">SourceCode @ GitHub</string>
+  <string name="layoutAboutVersionMarket">Sore it on Play Store!</string>
+</resources>

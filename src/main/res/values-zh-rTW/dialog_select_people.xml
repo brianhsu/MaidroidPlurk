@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="dialogSelectPeopleBlockTitle">Who can read this post?</string>
+  <string name="dialogSelectPeopleViewableTitle">Who cannot read this post?</string>
+  <string name="dialogSelectPeopleFetchCliqueFailure">Cannot fetch clique and friend list, please check your Internet connectivity and try again.</string>
+
+  <string name="dialogSelectPeopleAllFriends">[AllFriends]</string>
+  <string name="dialogSelectPeopleCliquePrefix">[Clique]</string>
+</resources>

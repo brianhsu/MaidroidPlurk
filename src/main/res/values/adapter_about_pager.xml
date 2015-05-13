@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="adapterAboutPagerVersion">版本資訊</string>
-  <string name="adapterAboutPagerDonation">捐款贊助</string>
-  <string name="adapterAboutPagerAppLicense">授權聲明</string>
-  <string name="adapterAboutPagerLibraryLicense">函式庫授權</string>
-  <string name="adapterAboutPagerIconLicenes">圖示授權</string>
+  <string name="adapterAboutPagerVersion">Version</string>
+  <string name="adapterAboutPagerDonation">Donation</string>
+  <string name="adapterAboutPagerAppLicense">APP License</string>
+  <string name="adapterAboutPagerLibraryLicense">Library License</string>
+  <string name="adapterAboutPagerIconLicenes">Icon License</string>
 </resources>

@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="activityPostResponseWelcome01">小鈴已經準備好幫主人回應訊息了，如果主人準備好要發送的話，請再告訴我一聲喲！</string>
-  <string name="activityPostResponseWelcome02">順道一提，主要要回覆的訊息是：「%s」喲！</string>
+  <string name="activityPostResponseWelcome01">Lin chan is ready for post response, if you are ready, please tell me. </string>
+  <string name="activityPostResponseWelcome02">BTW, here is original post: "%s".</string>
 
-  <string name="activityPostResponseAbortConfirm">確定要取消回應嗎？這會造成目前的內容永遠消失喲！</string>
+  <string name="activityPostResponseAbortConfirm">Are you sure to cancel? All data will be lost.</string>
 
-  <string name="activityPostResponsePosting">發表回應中</string>
-  <string name="activityPostResponsePosted">已成功發送回應至噗浪</string>
+  <string name="activityPostResponsePosting">Posting...</string>
+  <string name="activityPostResponsePosted">Posted successfully.</string>
 
-  <string name="activityPostResponseFailure01">對不起！小鈴太沒用了，沒辦法順利幫主人把這則回應發到噗浪上……</string>
-  <string name="activityPostResponseFailure02">系統說錯誤的原因是：「%s」，可不可以請主人檢查一次之後再重新按發送鍵一次呢？</string>
+  <string name="activityPostResponseFailure01">I\'m so sorry! I\'m so useless, I can\'t post this resonse to plurk.</string>
+  <string name="activityPostResponseFailure02">Here is error message from system: "%s". Would you mind check it and try again later?</string>
 
-  <string name="activityPostResponseOnlyFriends01">主人真是對不起，對方好像把這則噗設成只有朋友能夠發文呢……</string>
-  <string name="activityPostResponseOnlyFriends02">都怪小鈴沒事先提醒主人，真是抱歉。</string>
-
+  <string name="activityPostResponseOnlyFriends01">I\'m so sorry, this post could only be responsed by freidns with OP.</string>
+  <string name="activityPostResponseOnlyFriends02">It\'s my fault. I haven\'t tell master in advance.</string>
 </resources>

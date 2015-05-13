@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="app_name">MaidroidPlurk</string>
+  <string name="titleResponseList">回應</string>
+  <string name="titlePostResponse">新增回應</string>
+  <string name="titleEditPlurk">編輯</string>
+  <string name="titlePostPlurk">發新噗</string>
+  <string name="titleAbout">關於 MaidroidPlurk</string>
+
+  <string name="moduleErrorMesssageTextDefault">發生錯誤了 :-(</string>
+  <string name="moduleErrorMessageRetryButtonTitle">重試一次</string>
+
+  <string name="fragmentTimelineEmptyNoticeText">目前河道上沒東西呢……</string>
+  <string name="dialogSelectPeopleDialogEmptyNoticeText">沒有符合條件的人……</string>
+
+  <string name="fragmentResponseEmptyNoticeText">還沒有人回應哦，趕快來搶頭香囉！:)</string>
+
+  <!-- Qualifier -->
+  <string name="qAsks">問</string>
+  <string name="qFeels">覺得</string>
+  <string name="qGives">給</string>
+  <string name="qHas">已經</string>
+  <string name="qHates">討厭</string>
+  <string name="qHopes">希望</string>
+  <string name="qIs">正在</string>
+  <string name="qLikes">喜歡</string>
+  <string name="qLoves">愛</string>
+  <string name="qNeeds">需要</string>
+  <string name="qSays">說</string>
+  <string name="qShares">分享</string>
+  <string name="qThinks">想</string>
+  <string name="qWants">想要</string>
+  <string name="qWas">曾經</string>
+  <string name="qWhispers">偷偷說</string>
+  <string name="qWill">打算</string>
+  <string name="qWishes">期待</string>
+  <string name="qWonders">好奇</string>
+
+  <!-- Generic -->
+  <string name="delete">刪除</string>
+  <string name="edit">編輯</string>
+  <string name="cancel">取消</string>
+  <string name="yes">是</string>
+  <string name="no">否</string>
+  <string name="pleaseWait">請稍候……</string>
+  <string name="select">選取</string>
+  <string name="ok">確定</string>
+  <string name="cannotGetAvatar">無法從 %s 取得大頭貼</string>
+  <string name="cannotGetEmoticon">取得表情符號失敗</string>
+  <string name="cannotGetResponse">無法取得回應</string>
+  <string name="unreadWithCount">所有噗 (%d)</string>
+  <string name="unreadPlurk">未讀噗</string>
+  <string name="allPlurk">所有噗</string>
+  <string name="loading">讀取中……</string>
+
+  <!-- Filter -->
+  <string name="filterAll">所有的噗</string>
+  <string name="filterOnlyUser">我發的噗</string>
+  <string name="filterOnlyPrivate">私人的噗</string>
+  <string name="filterOnlyResponded">回過的噗</string>
+  <string name="filterOnlyFavorite">喜歡的噗</string>
+
+  <string name="maidTouched0">是的，請問主人有什麼吩附呢？</string>
+  <string name="maidTouched1">主人發生了什麼事了嗎……</string>
+  <string name="maidTouched2">啊，請主人不要一直偷偷摸我好嗎？</string>
+  <string name="maidTouched3">主人再繼續這樣下去的話，小鈴要生氣囉！</string>
+  <string name="maidTouched4">請主人以後不要再這樣囉……不然小鈴會傷心的。</string>
+
+  <string name="reply">回應訊息</string>
+
+  <string name="titleUserTimeline">【%s】的河道</string>
+  <string name="adapterUserTimelineTimeline">河道</string>
+  <string name="adapterUserTimelineProfile">個人資料</string>
+
+</resources>

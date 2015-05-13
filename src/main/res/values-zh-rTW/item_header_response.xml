@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="itemHeaderResponseResponseTitle">回應</string>
+  <string name="itemHeaderResponseEmpty">還沒有人回應哦，趕快來搶頭香囉！:)</string>
+</resources>
