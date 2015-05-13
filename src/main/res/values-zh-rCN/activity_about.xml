@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="appName">MaidroidPlurk v</string>
+  <string name="activityAboutFreeSoftware">自由开源的女仆噗浪</string>
+  <string name="aboutDonationText">&lt;p&gt;MaidroidPlurk 是开放源码的自由软体，您可以自由使用、散布、修改本软体。&lt;/p&gt;&lt;p&gt;但若您喜欢这个女仆噗浪 APP，也可以使用下面的按钮，透过 Play 商店捐款给作者赞助哟！&lt;/p&gt;</string>
+  <string name="aboutDonation30">捐款 NT$ 30 元</string>
+  <string name="aboutDonation50">捐款 NT$ 50 元</string>
+  <string name="aboutDonation100">捐款 NT$ 100 元</string>
+  <string name="aboutDonationThankTitle">感谢您的捐款！</string>
+  <string name="aboutDonationThankContent">非常感谢您的捐款，祝您有个愉快的一天喔！</string>
+
+  <string name="aboutDonationCancelTitle">取消捐款</string>
+  <string name="aboutDonationCancelContent">因为以下原因，无法捐款成功：%s</string>
+
+</resources>

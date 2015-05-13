@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="fragmentUserProfileKarmaTitle">卡玛</string>
+  <string name="fragmentUserProfilePostTitle">噗</string>
+  <string name="fragmentUserProfileFriendsTitle">朋友</string>
+  <string name="fragmentUserProfileFansTitle">粉丝</string>
+
+  <string name="fragmentUserProfileAddFreindRequesting">请求中……</string>
+  <string name="fragmentUserProfileAddFreind">加为朋友</string>
+  <string name="fragmentUserProfileRemoveFreind">移除朋友</string>
+  <string name="fragmentUserProfileAddFreindSent">已送好友出请求</string>
+
+  <string name="fragmentUserProfileIsFollowing">关注中</string>
+  <string name="fragmentUserProfileNotFollowing">关注</string>
+  <string name="fragmentUserProfilePrviate">私密河道</string>
+
+  <string name="fragmentUserProfileError">无法取得个人资料</string>
+
+  <string name="fragmentUserRemoveFriendTitle">删除好友</string>
+  <string name="fragmentUserRemoveFriendContent">确定要删除好友关系吗？</string>
+
+
+</resources>

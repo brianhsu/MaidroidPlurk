@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="fragmentTimelinePosted">发噗成功</string>
+
+  <string name="fragmentTimelineGetTimelineFailure">无法读取噗浪河道资料</string>
+
+
+  <string name="fragmentTimelineMarking">标示中</string>
+  <string name="fragmentTimelineMarkedToast">已全部标示为已读，自动重整理中……</string>
+
+  <string name="fragmentTimelineMarkAllAsReadConfirmTitle">全部标示为已读</string>
+  <string name="fragmentTimelineMarkAllAsReadConfirm">真的要把这个类别里的噗都标示为已读吗？</string>
+
+</resources>

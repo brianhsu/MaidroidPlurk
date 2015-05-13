@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="adapterIconPagerCustom">自订表情</string>
+  <string name="adapterIconPagerOften">常用表情</string>
+  <string name="adapterIconPagerMore">更多表情</string>
+  <string name="adapterIconPagerHidden">隐藏表情</string>
+
+</resources>

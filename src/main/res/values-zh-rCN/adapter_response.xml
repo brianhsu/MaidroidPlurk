@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="adapterResponseGetResponseError">无法取得回应</string>
+</resources>

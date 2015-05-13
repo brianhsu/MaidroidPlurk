@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="fragmentLoginGetAuthURLFail">无法取得噗浪登入网址</string>
+  <string name="fragmentLoginAuthRefused">登入失败，使用者拒绝授权</string>
+
+  <string name="fragmentLoginFailed">登入失败，%s</string>
+  <string name="fragmentLoginFailedGeneric">无法正确登入噗浪</string>
+</resources>

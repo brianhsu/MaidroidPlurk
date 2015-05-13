@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="activityUserTimelineWelcome01">这是 %s 的时间轴呢，主人对这位噗友有兴趣吗？</string>
+  <string name="activityUserTimelineWelcome02">小铃正在帮主人取得这位噗友的发文，请稍待一下喔……</string>
+
+  <string name="activityUserTimelineFetchOK01">这是里列出的，是 %s 所发的噗文喔！</string>
+  <string name="activityUserTimelineFetchOK02">若是主人想认识 %s 的话，可以切换到个人资料页来送出朋友请求或是追踪对方喔。</string>
+
+  <string name="activityUserTimelineFetchPrivate01">%s 把河道设成只有好友看得到呢……</string>
+  <string name="activityUserTimelineFetchPrivate02">如果主人想要看这位噗友发的噗的话，需要先到个人资料页来送出好友请求喔！</string>
+
+  <string name="activityUserTimelineFailure01">好像怪怪的，没办法取得 %s 的河道耶……</string>
+  <string name="activityUserTimelineFailure02">该不会是小铃太没用了，所以才一直出错吧？</string>
+  <string name="activityUserTimelineFailure03">对了，系统说这个错误是：「%s」造成的说。</string>
+
+</resources>
