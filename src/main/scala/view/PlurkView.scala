@@ -186,6 +186,7 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
         case true =>  favorite.setBackgroundResource(R.drawable.rounded_blue)
         case false => favorite.setBackgroundResource(R.drawable.rounded_gray)
       }
+      favorite.setEnabled(true)
     }
 
     updateFavoriteButtonState()
