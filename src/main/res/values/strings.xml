@@ -73,4 +73,9 @@
   <string name="adapterUserTimelineTimeline">Timeline</string>
   <string name="adapterUserTimelineProfile">Profile</string>
 
+
+  <string name="activityPostPlurkActionShare">同步更新至</string>
+  <string name="activityPostPlurkActionFB">Facebook</string>
+  <string name="activityPostPlurkActionTwitter">Twitter</string>
+
 </resources>

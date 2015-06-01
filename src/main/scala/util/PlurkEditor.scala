@@ -27,13 +27,31 @@ object PlurkEditor {
 
 trait PlurkEditor {
 
+  
   protected def plurkAPI: PlurkAPI
   protected def contentEditorHolder: Option[EditText]
   protected def qualifierSpinnerHolder: Option[QualifierSpinner]
   protected def responseTypeSpinnerHolder: Option[ResponseTypeSpinner]
   protected def charCounterHolder: Option[TextView]
-
   protected def limitedTo: List[Long] = Nil
+  protected def maxTextLength = 210
+  protected def shareSettingPostfix: String = ""
+
+  def updateCharCounter() {
+    for {
+      contentEditor <- contentEditorHolder
+      charCounter <- charCounterHolder
+    } {
+      val remainChars = maxTextLength - contentEditor.getText.length
+      charCounter.setText(remainChars.toString)
+
+      if (remainChars < 0) {
+        charCounter.setTextColor(Color.rgb(255, 0, 0))
+      } else {
+        charCounter.setTextColor(Color.rgb(255, 255, 255))
+      }
+    }
+  }
 
   protected def setupCharCounter() {
     for {
@@ -44,14 +62,7 @@ trait PlurkEditor {
         override def beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
         override def onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
         override def afterTextChanged (editable: Editable) {
-          val remainChars = 210 - editable.length
-          charCounter.setText(remainChars.toString)
-
-          if (remainChars < 0) {
-            charCounter.setTextColor(Color.rgb(255, 0, 0))
-          } else {
-            charCounter.setTextColor(Color.rgb(255, 255, 255))
-          }
+          updateCharCounter()
         }
       })
     }
@@ -114,7 +125,7 @@ trait PlurkEditor {
       throw PlurkEditor.NoContentException
     }
 
-    val content = contentEditorHolder.map(_.getText.toString).getOrElse("")
+    val content = contentEditorHolder.map(_.getText.toString + shareSettingPostfix).getOrElse("")
     val language = plurkAPI.Users.currUser.get._1.basicInfo.defaultLanguage
     val qualifier = qualifierSpinnerHolder.map(_.getSelectedQualifier).getOrElse(Qualifier.::)
     val commentSetting = responseTypeSpinnerHolder.map(_.getSelectedCommentSetting).getOrElse(None)
