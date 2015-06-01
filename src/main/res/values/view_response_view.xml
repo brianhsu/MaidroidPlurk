@@ -4,4 +4,7 @@
   <string name="viewResponseViewDeleteConfirmTitle">Are you sure to delete?</string>
   <string name="viewResponseViewDeleteConfirm">Are you sure to delete this post? This action cannot be undone.</string>
 
+  <string name="viewResponseViewBlockConfirmTitle">Are you sure to block and delete?</string>
+  <string name="viewResponseViewBlockConfirm">Are you sure to block this user and delete this post? This action cannot be undone.</string>
+
 </resources>

@@ -77,12 +77,33 @@ class ResponseView(adapter: ResponseAdapter)
     alertDialog.show(fm, "DeleteResponseConfirm")
   }
 
+  private def showBlockConfirmDialog(response: Response) {
+    val data = new Bundle
+    println("=======> put.ownerID:" + response.userID)
+    data.putLong("plurkID", response.plurkID)
+    data.putLong("responseID", response.id)
+    data.putLong("ownerID", response.userID)
+    val alertDialog = ConfirmDialog.createDialog(
+      activity, 'BlockUserResponseConfirm, 
+      activity.getString(R.string.viewResponseViewBlockConfirmTitle),
+      activity.getString(R.string.viewResponseViewBlockConfirm),
+      activity.getString(R.string.delete),
+      activity.getString(R.string.cancel),
+      Some(data)
+    )
+    
+    val fm = activity.getSupportFragmentManager
+    alertDialog.show(fm, "BlockUserResponseConfirm")
+  }
+
+
   private def setDropdownMenu(response: Response, isDeletable: Boolean) {
 
     dropdownMenu.setOnClickListener { button: View =>
       val popupMenu = new MyPopupMenu(activity, button) {
         override def onMenuItemSelected(menu: MenuBuilder, item: MenuItem): Boolean = {
           item.getItemId match {
+            case R.id.popup_comment_block => showBlockConfirmDialog(response); true
             case R.id.popup_comment_delete => showDeleteConfirmDialog(response); true
             case R.id.popup_comment_reply => activity.onReplyTo(owner.nickname, response.contentRaw); true
             case _ => true
@@ -92,9 +113,16 @@ class ResponseView(adapter: ResponseAdapter)
 
       popupMenu.getMenuInflater.inflate(R.menu.popup_comment, popupMenu.getMenu)
 
+      val isMineResponse = PlurkAPIHelper.plurkUserID == response.userID
+
       if (!isDeletable) {
         val deleteMenuItem = popupMenu.getMenu.findItem(R.id.popup_comment_delete)
         deleteMenuItem.setVisible(false)
+      }
+
+      if (!isDeletable || isMineResponse) {
+        val blockMenuItem = popupMenu.getMenu.findItem(R.id.popup_comment_block)
+        blockMenuItem.setVisible(false)
       }
 
       popupMenu.show()

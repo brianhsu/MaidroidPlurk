@@ -77,5 +77,6 @@
   <string name="activityPostPlurkActionShare">同步更新至</string>
   <string name="activityPostPlurkActionFB">Facebook</string>
   <string name="activityPostPlurkActionTwitter">Twitter</string>
+  <string name="blockAndDelete">封鎖並刪除</string>
 
 </resources>
