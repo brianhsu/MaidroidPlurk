@@ -187,6 +187,7 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
     )
 
     val deleteFuture = Future {
+      plurkAPI.Responses.responseDelete(plurkID, responseID).get
       plurkAPI.Blocks.block(ownerID).get
     }
 
