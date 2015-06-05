@@ -227,6 +227,18 @@
             android:layout_weight="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+          <Button
+            android:id="@+id/fragmentUserProfilePrivateMessage"
+            android:text="@string/fragmentUserProfileSendPrivateMessage"
+            android:textSize="16sp"
+            android:background="@drawable/rounded_blue"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
         </LinearLayout>
 

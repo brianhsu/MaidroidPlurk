@@ -32,6 +32,13 @@ import android.support.v4.view.ViewPager.OnPageChangeListener
 
 import scala.concurrent._
 
+object PostPlurkActivity {
+  val PrivatePlurkUserID = "PostPlurkActivity.PrivatePlurkUserID"
+  val PrivatePlurkFullName = "PostPlurkActivity.PrivatePlurkFullName"
+  val PrivatePlurkDisplayName = "PostPlurkActivity.PrivatePlurkDisplayName"
+
+}
+
 class PostPlurkActivity extends ActionBarActivity 
                         with TabListener with OnPageChangeListener
                         with TypedViewHolder 
@@ -97,6 +104,21 @@ class PostPlurkActivity extends ActionBarActivity
       Message(MaidMaro.Half.Smile, getString(R.string.activityPostPlurkWelcome02)) ::
       Nil
     )
+
+    val extraDataHolder = Option(getIntent.getExtras)
+
+    extraDataHolder.foreach { extraData =>
+
+      /*
+      println("===========> extraData:" + extraData)
+      val userID = extraData.getLong(PostPlurkActivity.PrivatePlurkUserID, -1)
+      val userFullName = extraData.getString(PostPlurkActivity.PrivatePlurkFullName)
+      val userDisplayName = extraData.getString(PostPlurkActivity.PrivatePlurkDisplayName)
+      val selectedPeople = Set((userID, s"$userFullName ($userDisplayName)"))
+      onPeopleSelected(Set.empty, selectedPeople)
+      */
+      viewPager.setCurrentItem(1)
+    }
 
     if (savedInstanceState != null) {
       val isEmoticonSelectorShown = 
