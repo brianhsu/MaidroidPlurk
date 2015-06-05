@@ -106,19 +106,7 @@ class PostPlurkActivity extends ActionBarActivity
     )
 
     val extraDataHolder = Option(getIntent.getExtras)
-
-    extraDataHolder.foreach { extraData =>
-
-      /*
-      println("===========> extraData:" + extraData)
-      val userID = extraData.getLong(PostPlurkActivity.PrivatePlurkUserID, -1)
-      val userFullName = extraData.getString(PostPlurkActivity.PrivatePlurkFullName)
-      val userDisplayName = extraData.getString(PostPlurkActivity.PrivatePlurkDisplayName)
-      val selectedPeople = Set((userID, s"$userFullName ($userDisplayName)"))
-      onPeopleSelected(Set.empty, selectedPeople)
-      */
-      viewPager.setCurrentItem(1)
-    }
+    extraDataHolder.foreach { extraData =>  viewPager.setCurrentItem(1) }
 
     if (savedInstanceState != null) {
       val isEmoticonSelectorShown = 
@@ -151,8 +139,8 @@ class PostPlurkActivity extends ActionBarActivity
   private def toggleShare(menuItem: MenuItem, serviceName: String) {
     val isChecked = !menuItem.isChecked
     val message = isChecked match {
-      case true  => "同步至 %s".format(serviceName)
-      case fasle => "不同步至 %s".format(serviceName)
+      case true  => getString(R.string.activityPostPlurkActionShare).format(serviceName)
+      case fasle => getString(R.string.activityPostPlurkActionNotShare).format(serviceName)
     }
 
     menuItem.setChecked(isChecked)

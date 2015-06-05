@@ -31,4 +31,10 @@
 
   <string name="activityResponseListPosted01">已经帮主人把回应发到噗浪上去啰！</string>
   <string name="activityResponseListPosted02">有了主人的参与，这个讨论一定会更有趣的。</string>
+
+  <string name="activityResponseListBlocking">封锁并删除中……</string>
+  <string name="activityResponseListBlockResponseOK">小铃已经替主人把这则噗文删除，并且把这个讨厌的人加入黑名单啰。这下应该可以比较清静了吧？</string>
+  <string name="activityResponseListBlockResponseFailure01">真是对不起，小铃没办法封锁这个讨厌的人耶……</string>
+  <string name="activityResponseListBlockResponseFailure02">系统说是因为下面这个原因造成的：%s</string>
+  <string name="activityResponseListBlockResponseFailure03">主人要不要检查网路状态后再重试一次呢？也许就可以修好哟！</string>
 </resources>

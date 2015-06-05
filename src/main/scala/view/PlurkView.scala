@@ -436,6 +436,9 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
   }
 
   def setOnCommentCountClickListener(callback: => Any) {
+    if (!isInResponseList) {
+      content.setOnClickListener { view: View => callback }
+    }
     commentCount.setOnClickListener { view: View => callback }
   }
 }

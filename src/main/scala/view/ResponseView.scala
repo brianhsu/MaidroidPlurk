@@ -79,7 +79,6 @@ class ResponseView(adapter: ResponseAdapter)
 
   private def showBlockConfirmDialog(response: Response) {
     val data = new Bundle
-    println("=======> put.ownerID:" + response.userID)
     data.putLong("plurkID", response.plurkID)
     data.putLong("responseID", response.id)
     data.putLong("ownerID", response.userID)
