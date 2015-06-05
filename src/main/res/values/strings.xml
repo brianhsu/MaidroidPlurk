@@ -73,4 +73,19 @@
   <string name="adapterUserTimelineTimeline">Timeline</string>
   <string name="adapterUserTimelineProfile">Profile</string>
 
+
+  <string name="activityPostPlurkActionShare">Sync to %s</string>
+  <string name="activityPostPlurkActionNotShare">Don\'t sync to %s</string>
+  <string name="activityPostPlurkActionFB">Facebook</string>
+  <string name="activityPostPlurkActionTwitter">Twitter</string>
+  <string name="blockAndDelete">Block and Delete</string>
+  <string name="fragmentUserProfileSendPrivateMessage">Send Private Message</string>
+  <string name="activityUserTimelineSendPrivateMessageOK01">I\'ve sent this private message for you. </string>
+  <string name="activityUserTimelineSendPrivateMessageOK02">Is this a love letter?</string>
+  <string name="activityUserTimelineSendPMToNotFriend">Plurk does not allow 3rd party application to send private plurks to non-friend users.</string>
+  <string name="fragmentUserPofileCanntSendFreindRequest">Can not send friendship request.</string>
+  <string name="fragmentUserPofileCanntCancelFreindRequest">Can not cancel friendship request.</string>
+  <string name="fragmentUserPofileCanntFollow">Can not set to follow.</string>
+  <string name="fragmentUserPofileCanntUnFollow">Can not set to unfollow.</string>
+
 </resources>

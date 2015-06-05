@@ -33,6 +33,7 @@ import android.view.View
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.widget.AdapterView
 import android.widget.AbsListView.OnScrollListener
 import android.widget.AbsListView
 import android.widget.Button
@@ -99,14 +100,15 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
 
   private var isInError: Boolean = false
   private var isRecreate: Boolean = false
+  private var currentFilter: Option[Filter] = None
 
   override def onNavigationItemSelected(itemPosition: Int, itemId: Long) = {
-    val filter = navigationAdapter.getItem(itemPosition).asInstanceOf[Option[Filter]]
+    currentFilter = navigationAdapter.getItem(itemPosition).asInstanceOf[Option[Filter]]
 
     if (isRecreate && !isInError) {
       updateToggleButtonTitle(true, Some(unreadCount).filter(_ != 0))
     } else {
-      switchToFilter(filter, isUnreadOnly)
+      switchToFilter(currentFilter, isUnreadOnly)
     }
 
     this.isInError = false
@@ -424,11 +426,17 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
 
     val plurksFuture = Future { 
       val plurks = getPlurks(isRecreate = isRecreate)
+      val rawUnreadCount = plurkAPI.Polling.getUnreadCount.get
       val unreadCount = isRecreate match {
-        case true  => this.unreadCount
-        case false => plurkAPI.Polling.getUnreadCount.get.all
+        case false if currentFilter == None => rawUnreadCount.all
+        case false if currentFilter == Some(OnlyFavorite) => rawUnreadCount.favorite
+        case false if currentFilter == Some(OnlyPrivate) => rawUnreadCount.privatePlurks
+        case false if currentFilter == Some(OnlyResponded) => rawUnreadCount.responded
+        case false if currentFilter == Some(OnlyUser) => rawUnreadCount.my
+        case _  => this.unreadCount
       }
       this.unreadCount = unreadCount
+      navigationAdapter.setUnreadCount(rawUnreadCount)
       (plurks, unreadCount, adapterVersion) 
     }
 

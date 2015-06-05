@@ -73,4 +73,23 @@
   <string name="adapterUserTimelineTimeline">河道</string>
   <string name="adapterUserTimelineProfile">個人資料</string>
 
+  <string name="pull_to_refresh_pull_label">下拉重新整理…</string>
+  <string name="pull_to_refresh_release_label">放開重新整理…</string>
+  <string name="pull_to_refresh_refreshing_label">正在載入…</string>
+
+  <string name="activityPostPlurkActionShare">同步更新至 %s</string>
+  <string name="activityPostPlurkActionNotShare">不要同步至 %s</string>
+  <string name="activityPostPlurkActionFB">Facebook</string>
+  <string name="activityPostPlurkActionTwitter">Twitter</string>
+  <string name="blockAndDelete">封鎖並刪除</string>
+  <string name="fragmentUserProfileSendPrivateMessage">私噗</string>
+  <string name="activityUserTimelineSendPrivateMessageOK01">已經幫主人把私噗送出去囉，真希望對方能快點看到呢！</string>
+  <string name="activityUserTimelineSendPrivateMessageOK02">我可以偷偷看主人傳了什麼密秘嗎？</string>
+  <string name="activityUserTimelineSendPMToNotFriend">為了防止濫用，噗浪不允許第三方程式傳私噗給不在朋友列表裡的人呢……</string>
+  <string name="fragmentUserPofileCanntSendFreindRequest">無法送出好友請求</string>
+  <string name="fragmentUserPofileCanntCancelFreindRequest">無法取消好友請求</string>
+  <string name="fragmentUserPofileCanntFollow">無法追蹤對方河道</string>
+  <string name="fragmentUserPofileCanntUnFollow">無法取消追蹤對方河道</string>
+
+
 </resources>

@@ -4,4 +4,6 @@
   <string name="viewResponseViewDeleteConfirmTitle">确定要删除吗？</string>
   <string name="viewResponseViewDeleteConfirm">请问确定要删除这则噗浪吗？此动作无法回复哟！</string>
 
+  <string name="viewResponseViewBlockConfirmTitle">确定要删除并封锁此人吗？</string>
+  <string name="viewResponseViewBlockConfirm">请问确定要删除这则噗并封锁这个人吗？此动作无法回复哟！</string>
 </resources>

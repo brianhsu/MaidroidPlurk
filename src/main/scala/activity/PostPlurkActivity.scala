@@ -32,6 +32,13 @@ import android.support.v4.view.ViewPager.OnPageChangeListener
 
 import scala.concurrent._
 
+object PostPlurkActivity {
+  val PrivatePlurkUserID = "PostPlurkActivity.PrivatePlurkUserID"
+  val PrivatePlurkFullName = "PostPlurkActivity.PrivatePlurkFullName"
+  val PrivatePlurkDisplayName = "PostPlurkActivity.PrivatePlurkDisplayName"
+
+}
+
 class PostPlurkActivity extends ActionBarActivity 
                         with TabListener with OnPageChangeListener
                         with TypedViewHolder 
@@ -56,6 +63,16 @@ class PostPlurkActivity extends ActionBarActivity
 
   private var prevEditorContentHolder: Option[(Editable, Int)] = None
   private var isSliding: Boolean = false
+
+  private var menuShareMain: Option[MenuItem] = None
+  private var menuShareTwitter: Option[MenuItem] = None
+  private var menuShareFacebook: Option[MenuItem] = None
+  
+  def shareSettingPostfix = {
+    val twitterPostfix = menuShareTwitter.filterNot(_.isChecked).map(x => " !TW").getOrElse("")
+    val facebookPostfix = menuShareFacebook.filterNot(_.isChecked).map(x => " !FB").getOrElse("")
+    twitterPostfix + facebookPostfix
+  }
 
   protected def getCurrentEditor = {
     val tag = s"android:switcher:${R.id.activityPostPlurkViewPager}:${viewPager.getCurrentItem}"
@@ -88,6 +105,9 @@ class PostPlurkActivity extends ActionBarActivity
       Nil
     )
 
+    val extraDataHolder = Option(getIntent.getExtras)
+    extraDataHolder.foreach { extraData =>  viewPager.setCurrentItem(1) }
+
     if (savedInstanceState != null) {
       val isEmoticonSelectorShown = 
         savedInstanceState.getBoolean(SelectEmoticonActivity.IsEmoticonSelectorShown, false)
@@ -99,10 +119,38 @@ class PostPlurkActivity extends ActionBarActivity
   override def onCreateOptionsMenu(menu: Menu): Boolean = {
     val inflater = getMenuInflater
     inflater.inflate(R.menu.activity_post_plurk, menu)
+    menuShareMain = Option(menu.findItem(R.id.activityPostPlurkActionShareSetting))
+    menuShareTwitter = Option(menu.findItem(R.id.activityPostPlurkActionShareTwitter))
+    menuShareFacebook = Option(menu.findItem(R.id.activityPostPlurkActionShareFB))
+
+    menuShareTwitter.foreach { menuItem =>
+      menuItem.setCheckable(true)
+      menuItem.setChecked(true)
+    }
+
+    menuShareFacebook.foreach { menuItem =>
+      menuItem.setCheckable(true)
+      menuItem.setChecked(true)
+    }
+
     super.onCreateOptionsMenu(menu)
   }
 
+  private def toggleShare(menuItem: MenuItem, serviceName: String) {
+    val isChecked = !menuItem.isChecked
+    val message = isChecked match {
+      case true  => getString(R.string.activityPostPlurkActionShare).format(serviceName)
+      case fasle => getString(R.string.activityPostPlurkActionNotShare).format(serviceName)
+    }
+
+    menuItem.setChecked(isChecked)
+    Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+    getCurrentEditor.updateCharCounter()
+  }
+
   override def onOptionsItemSelected(menuItem: MenuItem): Boolean = menuItem.getItemId match {
+    case R.id.activityPostPlurkActionShareFB => toggleShare(menuItem, "Facebook"); false
+    case R.id.activityPostPlurkActionShareTwitter => toggleShare(menuItem, "Twitter"); false
     case R.id.activityPostPlurkActionEmoticon => toggleEmoticonSelector(); false
     case R.id.activityPostPlurkActionPhotoFromGallery => startPhotoPicker(); false
     case R.id.activityPostPlurkActionPhotoFromCamera => startCamera(); false
@@ -145,6 +193,7 @@ class PostPlurkActivity extends ActionBarActivity
         getCurrentEditor.setEditorContent(content)
       }
 
+      menuShareMain.foreach(_.setVisible(currentPage == 0))
       showBackstabIntro()
 
     } else if (state == ViewPager.SCROLL_STATE_DRAGGING ) {

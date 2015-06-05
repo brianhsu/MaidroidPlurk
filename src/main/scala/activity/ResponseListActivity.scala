@@ -162,9 +162,60 @@ class ResponseListActivity extends ActionBarActivity with TypedViewHolder
         val plurkID = data.getLong("plurkID", -1)
         val responseID = data.getLong("responseID", -1)
         deleteResponse(plurkID, responseID)
-      
+      case 'BlockUserResponseConfirm =>
+        val plurkID = data.getLong("plurkID", -1)
+        val responseID = data.getLong("responseID", -1)
+        val ownerID = data.getLong("ownerID", -1)
+        blockUserAndDeleteResponse(plurkID, responseID, ownerID)
+     
     }
   }
+
+  private def blockUserAndDeleteResponse(plurkID: Long, responseID: Long, ownerID: Long) {
+
+    val oldRequestedOrientation = getRequestedOrientation
+    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)
+
+    val progressDialogFragment = ProgressDialogFragment.createDialog(
+      getString(R.string.activityResponseListBlocking), 
+      getString(R.string.pleaseWait)
+    )
+
+    progressDialogFragment.show(
+      getSupportFragmentManager.beginTransaction, 
+      "deleteResponseProgress"
+    )
+
+    val deleteFuture = Future {
+      plurkAPI.Responses.responseDelete(plurkID, responseID).get
+      plurkAPI.Blocks.block(ownerID).get
+    }
+
+    deleteFuture.onSuccessInUI { _ =>
+      responseListFragment.foreach(_.deleteResponse(responseID))
+      progressDialogFragment.dismiss()
+      setRequestedOrientation(oldRequestedOrientation)
+
+      dialogFrame.setMessages(
+        Message(MaidMaro.Half.Happy, getString(R.string.activityResponseListBlockResponseOK)) :: 
+        Nil
+      )
+    }
+
+    deleteFuture.onFailureInUI { case e: Exception =>
+      progressDialogFragment.dismiss()
+      setRequestedOrientation(oldRequestedOrientation)
+
+      DebugLog("====> onDeleteResponseFailure....", e)
+      dialogFrame.setMessages(
+        Message(MaidMaro.Half.Normal, getString(R.string.activityResponseListBlockResponseFailure01)) ::
+        Message(MaidMaro.Half.Normal, getString(R.string.activityResponseListBlockResponseFailure02).format(e.getMessage)) ::
+        Message(MaidMaro.Half.Smile,  getString(R.string.activityResponseListBlockResponseFailure03)) :: 
+        Nil
+      )
+    }
+  }
+
 
   private def deleteResponse(plurkID: Long, responseID: Long) {
 

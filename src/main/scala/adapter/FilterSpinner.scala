@@ -10,9 +10,12 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
 import org.bone.soplurk.constant.Filter
+import org.bone.soplurk.api.PlurkAPI.UnreadCount
 import android.util.TypedValue
 
 class FilterSpinnerAdapter(context: Context) extends BaseAdapter {
+
+  private var unreadCount: Option[UnreadCount] = None
 
   def getCount = 5
   def getItemId(position: Int) = position
@@ -25,9 +28,27 @@ class FilterSpinnerAdapter(context: Context) extends BaseAdapter {
   }
 
   override def getDropDownView(position: Int, convertView: View, parent:ViewGroup) = {
-    val label = getView(position, convertView, parent)
-    label.asInstanceOf[TextView].setPadding(15, 20, 0, 20)
+    val label = convertView match {
+      case oldView: TextView => oldView
+      case _ => new TextView(context)
+    }
+
+    val title = position match {
+      case 0 => context.getString(R.string.filterAll) +           s"(${unreadCount.map(_.all).getOrElse(0)})"
+      case 1 => context.getString(R.string.filterOnlyUser) +      s"(${unreadCount.map(_.my).getOrElse(0)})"
+      case 2 => context.getString(R.string.filterOnlyPrivate) +   s"(${unreadCount.map(_.privatePlurks).getOrElse(0)})"
+      case 3 => context.getString(R.string.filterOnlyResponded) + s"(${unreadCount.map(_.responded).getOrElse(0)})"
+      case 4 => context.getString(R.string.filterOnlyFavorite) +  s"(${unreadCount.map(_.favorite).getOrElse(0)})"
+    }
+
+    label.setText(title)
+    label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18)
+    label.setPadding(15, 20, 0, 20)
     label
+  }
+
+  def setUnreadCount(newUnreadCount: UnreadCount) {
+    unreadCount = Some(newUnreadCount)
   }
 
   def getView(position: Int, convertView: View, parent: ViewGroup): View = {
@@ -37,11 +58,11 @@ class FilterSpinnerAdapter(context: Context) extends BaseAdapter {
     }
 
     val title = position match {
-      case 0 => R.string.filterAll
-      case 1 => R.string.filterOnlyUser
-      case 2 => R.string.filterOnlyPrivate
-      case 3 => R.string.filterOnlyResponded
-      case 4 => R.string.filterOnlyFavorite
+      case 0 => context.getString(R.string.filterAll)
+      case 1 => context.getString(R.string.filterOnlyUser)
+      case 2 => context.getString(R.string.filterOnlyPrivate)
+      case 3 => context.getString(R.string.filterOnlyResponded)
+      case 4 => context.getString(R.string.filterOnlyFavorite)
     }
 
     label.setText(title)

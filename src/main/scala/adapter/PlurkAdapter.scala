@@ -64,6 +64,7 @@ class PlurkAdapter(activity: FragmentActivity with PlurkView.Listener
       ResponseListActivity.user = owner
       activity.startActivity(intent)
     }
+    itemView.setTag((plurk, owner))
     itemView
   }
 

@@ -1,6 +1,7 @@
 package idv.brianhsu.maidroid.plurk.fragment
 
 import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.activity.PostPlurkActivity
 import idv.brianhsu.maidroid.plurk.dialog._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.TypedResource._
@@ -53,6 +54,16 @@ class PostPrivateFragment extends Fragment with PlurkEditor
 
     if (savedInstanceState != null) {
       selectLimitedUI.restoreUIState(savedInstanceState)
+    }
+
+    val extraDataHolder = Option(getActivity.getIntent.getExtras)
+
+    extraDataHolder.foreach { extraData =>
+      val userID = extraData.getLong(PostPlurkActivity.PrivatePlurkUserID, -1)
+      val userFullName = extraData.getString(PostPlurkActivity.PrivatePlurkFullName)
+      val userDisplayName = extraData.getString(PostPlurkActivity.PrivatePlurkDisplayName)
+      val selectedPeople = Set((userID, s"$userFullName ($userDisplayName)"))
+      setSelected(Set.empty, selectedPeople)
     }
 
     selectLimitedUI.updateUI()
