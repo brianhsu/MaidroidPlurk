@@ -174,16 +174,6 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
     }
   }
 
-  override def onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-    val actionMenu = inflater.inflate(R.menu.fragment_timeline, menu)
-    this.toggleButtonHolder = Option(menu.findItem(R.id.fragmentTimelineActionToggleUnreadOnly))
-
-    val aboutFromActivity = menu.findItem(R.id.activityMaidroidPlurkActionAbout)
-    aboutFromActivity.setVisible(false)
-    updateToggleButtonTitle(false, None)
-    actionMenu
-  }
-
   def deletePlurk(plurkID: Long) {
     adapterHolder.foreach(_.deletePlurk(plurkID))
   }
@@ -285,14 +275,14 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
     super.onDestroy()
   }
 
-  private def switchToFilter(filter: Option[Filter], isUnreadOnly: Boolean) = {
+  private def switchToFilter(filter: Option[Filter], isUnreadOnly: Boolean, offset: Option[Date] = None) = {
     this.plurkFilter = filter
     this.isUnreadOnly = isUnreadOnly
     toggleButtonHolder.foreach { button =>
       button.setEnabled(false)
       MenuItemCompat.setActionView(button, R.layout.action_bar_loading)
     }
-    updateTimeline(true)
+    updateTimeline(true, false, offset)
     true
   }
 
@@ -303,7 +293,44 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
     ImageCache.clearCache()
   }
 
+  private def showTimeMachine() {
+    import android.app.DatePickerDialog
+    import android.widget.DatePicker
+    import java.util.Calendar
+    
+    val calendar = Calendar.getInstance()
+    val mYear = calendar.get(Calendar.YEAR)
+    val mMonth = calendar.get(Calendar.MONTH)
+    val mDay = calendar.get(Calendar.DAY_OF_MONTH)
+    val onDateSetListener = new DatePickerDialog.OnDateSetListener() {
+      override def onDateSet(view: DatePicker, year: Int, month: Int, day: Int): Unit = {
+        calendar.set(Calendar.YEAR, year)
+        calendar.set(Calendar.MONTH, month)
+        calendar.set(Calendar.DAY_OF_MONTH, day)
+        calendar.set(Calendar.HOUR_OF_DAY, 23)
+        calendar.set(Calendar.MINUTE, 59)
+        calendar.set(Calendar.SECOND, 59)
+        calendar.set(Calendar.MILLISECOND, 999)
+        println("===========> calendar.getTime:" + calendar.getTime)
+        switchToFilter(plurkFilter, isUnreadOnly, Some(calendar.getTime))
+      }
+    }
+    val datePickerDialog = new DatePickerDialog(activity, onDateSetListener, mYear,mMonth, mDay);
+    datePickerDialog.show()
+  }
+
+  override def onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    val actionMenu = inflater.inflate(R.menu.fragment_timeline, menu)
+    this.toggleButtonHolder = Option(menu.findItem(R.id.fragmentTimelineActionToggleUnreadOnly))
+
+    val aboutFromActivity = menu.findItem(R.id.activityMaidroidPlurkActionAbout)
+    aboutFromActivity.setVisible(false)
+    updateToggleButtonTitle(false, None)
+    actionMenu
+  }
+
   override def onOptionsItemSelected(item: MenuItem) = item.getItemId match {
+    case R.id.fragmentTimelineActionTimeMachine => showTimeMachine(); false
     case R.id.fragmentTimelineActionToggleUnreadOnly => switchToFilter(plurkFilter, !this.isUnreadOnly)
     case R.id.fragmentTimelineActionPost => startPostPlurkActivity(); false
     case R.id.fragmentTimelineActionMarkAllAsRead => markAllAsRead(); false
@@ -414,7 +441,7 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
     false
   }
 
-  def updateTimeline(isNewFilter: Boolean = false, isRecreate: Boolean = false) {
+  def updateTimeline(isNewFilter: Boolean = false, isRecreate: Boolean = false, startDate: Option[Date] = None) {
 
     this.isLoadingMore = false
     this.hasMoreItem = true
@@ -425,7 +452,7 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
     }
 
     val plurksFuture = Future { 
-      val plurks = getPlurks(isRecreate = isRecreate)
+      val plurks = getPlurks(isRecreate = isRecreate, offset = startDate)
       val rawUnreadCount = plurkAPI.Polling.getUnreadCount.get
       val unreadCount = isRecreate match {
         case false if currentFilter == None => rawUnreadCount.all

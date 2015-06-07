@@ -95,4 +95,6 @@
   <string name="maidContentCopied">I\'ve copied the content of this plurk to clipboard.</string>
   <string name="maidLinkCopied">I\'ve copied the URL of this plurk to clipboard, you want to share with others?</string>
 
+  <string name="menuTimeMachine">Time Machine</string>
+
 </resources>

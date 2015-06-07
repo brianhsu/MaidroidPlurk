@@ -12,6 +12,9 @@ import android.view.ViewGroup
 import android.widget.AbsListView
 import android.widget.AbsListView.OnScrollListener
 import android.widget.Button
+import android.view.MenuInflater
+import android.view.Menu
+import android.view.MenuItem
 import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.activity._
 import idv.brianhsu.maidroid.plurk.adapter._
@@ -122,6 +125,7 @@ class UserTimelineFragment extends Fragment {
     if (isRecreate && !isInError) {
       updateTimeline(isRecreate = true)
     }
+    setHasOptionsMenu(true)
   }
 
   override def onResume() {
@@ -134,6 +138,45 @@ class UserTimelineFragment extends Fragment {
     val isInError = errorNoticeHolder.map(_.getVisibility == View.VISIBLE).getOrElse(false)
     outState.putBoolean("isInError", isInError)
   }
+
+  override def onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    inflater.inflate(R.menu.fragment_user_timeline, menu)
+    super.onCreateOptionsMenu(menu, inflater)
+  }
+
+  override def onOptionsItemSelected(item: MenuItem) = item.getItemId match {
+    case R.id.fragmentUserTimelineActionTimeMachine => showTimeMachine(); false
+    case _ => super.onOptionsItemSelected(item)
+  }
+
+  private def showTimeMachine() {
+    import android.app.DatePickerDialog
+    import android.widget.DatePicker
+    import java.util.Calendar
+
+    val calendar = Calendar.getInstance()
+    val mYear = calendar.get(Calendar.YEAR)
+    val mMonth = calendar.get(Calendar.MONTH)
+    val mDay = calendar.get(Calendar.DAY_OF_MONTH)
+    val onDateSetListener = new DatePickerDialog.OnDateSetListener() {
+      override def onDateSet(view: DatePicker, year: Int, month: Int, day: Int): Unit = {
+        calendar.set(Calendar.YEAR, year)
+        calendar.set(Calendar.MONTH, month)
+        calendar.set(Calendar.DAY_OF_MONTH, day)
+        calendar.set(Calendar.HOUR_OF_DAY, 23)
+        calendar.set(Calendar.MINUTE, 59)
+        calendar.set(Calendar.SECOND, 59)
+        calendar.set(Calendar.MILLISECOND, 999)
+        println("===========> calendar.getTime:" + calendar.getTime)
+        loadingIndicatorHolder.foreach(_.show())
+        updateTimeline(false, true, Some(calendar.getTime))
+        //switchToFilter(plurkFilter, isUnreadOnly, Some(calendar.getTime))
+      }
+    }
+    val datePickerDialog = new DatePickerDialog(activity, onDateSetListener, mYear,mMonth, mDay);
+    datePickerDialog.show()
+  }
+
 
   private def showErrorNotice(message: String) {
     loadingIndicatorHolder.foreach(_.hide())
@@ -215,7 +258,7 @@ class UserTimelineFragment extends Fragment {
     ImageCache.clearCache()
   }
 
-  def updateTimeline(isRecreate: Boolean = false, isPullRefresh: Boolean = false) {
+  def updateTimeline(isRecreate: Boolean = false, isPullRefresh: Boolean = false, offset: Option[Date] = None) {
 
     this.isLoadingMore = false
     this.hasMoreItem = true
@@ -223,7 +266,7 @@ class UserTimelineFragment extends Fragment {
 
     val plurksFuture = Future { 
       val profile = plurkAPI.Profile.getPublicProfile(userIDHolder.getOrElse(-1L)).get
-      val plurks = getPlurks(isRecreate = isRecreate)
+      val plurks = getPlurks(isRecreate = isRecreate, offset = offset)
       val isPrivateTimeline = profile.privacy == TimelinePrivacy.OnlyFriends && !profile.areFriends.getOrElse(false)
       (plurks, isPrivateTimeline, profile) 
     }

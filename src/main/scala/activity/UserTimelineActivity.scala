@@ -77,12 +77,6 @@ class UserTimelineActivity extends ActionBarActivity
 
   }
 
-  override def onCreateOptionsMenu(menu: Menu): Boolean = {
-    val inflater = getMenuInflater
-    inflater.inflate(R.menu.activity_user_timeline, menu)
-    super.onCreateOptionsMenu(menu)
-  }
-
   override def onOptionsItemSelected(menuItem: MenuItem): Boolean = menuItem.getItemId match {
     case R.id.activityUserTimelineActionAbout => AboutActivity.startActivity(this); false
     case R.id.activityUserTimelineActionLogout => Logout.logout(this); false

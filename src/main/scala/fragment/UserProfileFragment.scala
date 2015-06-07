@@ -13,6 +13,9 @@ import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Menu
+import android.view.MenuItem
+import android.view.MenuInflater
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -79,6 +82,7 @@ class UserProfileFragment extends Fragment {
 
   override def onCreate(savedInstanceState: Bundle) {
     super.onCreate(savedInstanceState)
+    setHasOptionsMenu(true)
   }
 
   private def showErrorNotice(message: String) {
@@ -199,6 +203,15 @@ class UserProfileFragment extends Fragment {
       case true  => setButtonToRemoveFriend()
       case false => setButtonToAddFriend()
     }
+  }
+
+  override def onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    inflater.inflate(R.menu.fragment_user_timeline, menu)
+    super.onCreateOptionsMenu(menu, inflater)
+  }
+
+  override def onOptionsItemSelected(item: MenuItem) = item.getItemId match {
+    case _ => super.onOptionsItemSelected(item)
   }
 
   private def setupFollowingButton(button: Button, isPrivateTimeline: Boolean, areFriends: Boolean, 
