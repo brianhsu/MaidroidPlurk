@@ -155,5 +155,21 @@ class UserTimelineActivity extends ActionBarActivity
     )
   }
 
+  def linkCopied() {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Happy, getString(R.string.maidLinkCopied)) ::
+      Nil
+    )
+  }
+
+  def contentCopied() {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Happy, getString(R.string.maidContentCopied)) ::
+      Nil
+    )
+  }
+
+
+
 
 }

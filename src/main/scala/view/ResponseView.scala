@@ -1,12 +1,12 @@
 package idv.brianhsu.maidroid.plurk.view
 
 import idv.brianhsu.maidroid.plurk._
-import idv.brianhsu.maidroid.plurk.adapter._
 import idv.brianhsu.maidroid.plurk.activity._
+import idv.brianhsu.maidroid.plurk.adapter._
+import idv.brianhsu.maidroid.plurk.cache._
 import idv.brianhsu.maidroid.plurk.dialog._
 import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.TypedResource._
-import idv.brianhsu.maidroid.plurk.cache._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 import idv.brianhsu.maidroid.ui.util.CallbackConversions._
@@ -14,25 +14,28 @@ import idv.brianhsu.maidroid.ui.util.CallbackConversions._
 import scala.concurrent._
 
 import android.app.Activity
-import android.os.Bundle
+import android.content.ClipboardManager
+import android.content.ClipData
 import android.content.Context
 import android.graphics.Bitmap
-import android.text.method.LinkMovementMethod
-import android.text.Html
-import android.view.View
-import android.view.LayoutInflater
-import android.widget.LinearLayout
-import android.view.MenuItem
+import android.os.Bundle
 import android.support.v4.app.FragmentActivity
-import android.support.v7.widget.PopupMenu
 import android.support.v7.internal.view.menu.MenuBuilder
+import android.support.v7.widget.PopupMenu
+import android.text.Html
+import android.text.method.LinkMovementMethod
+import android.view.LayoutInflater
+import android.view.MenuItem
+import android.view.View
+import android.widget.LinearLayout
+import android.widget.Toast
 
 import org.bone.soplurk.api.PlurkAPI._
 import org.bone.soplurk.constant.ReadStatus._
 import org.bone.soplurk.model._
 
-import java.text.SimpleDateFormat
 import java.net.URL
+import java.text.SimpleDateFormat
 
 class ResponseView(adapter: ResponseAdapter)
                   (implicit val activity: FragmentActivity with ConfirmDialog.Listener with ResponseListFragment.Listener)  
@@ -95,6 +98,12 @@ class ResponseView(adapter: ResponseAdapter)
     alertDialog.show(fm, "BlockUserResponseConfirm")
   }
 
+  private def copyContent(response: Response) {
+    val clipboard = activity.getSystemService(Context.CLIPBOARD_SERVICE).asInstanceOf[ClipboardManager]
+    val clipData = ClipData.newPlainText(s"PlurkResponse(${response.id}", response.contentRaw)
+    clipboard.setPrimaryClip(clipData)
+    Toast.makeText(activity, R.string.contentCopied, Toast.LENGTH_SHORT).show()
+  }
 
   private def setDropdownMenu(response: Response, isDeletable: Boolean) {
 
@@ -102,6 +111,7 @@ class ResponseView(adapter: ResponseAdapter)
       val popupMenu = new MyPopupMenu(activity, button) {
         override def onMenuItemSelected(menu: MenuBuilder, item: MenuItem): Boolean = {
           item.getItemId match {
+            case R.id.popup_comment_copy_content => copyContent(response); true
             case R.id.popup_comment_block => showBlockConfirmDialog(response); true
             case R.id.popup_comment_delete => showDeleteConfirmDialog(response); true
             case R.id.popup_comment_reply => activity.onReplyTo(owner.nickname, response.contentRaw); true

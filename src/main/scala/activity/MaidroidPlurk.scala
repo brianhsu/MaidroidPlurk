@@ -189,6 +189,20 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
     }
   }
 
+  def linkCopied() {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Happy, getString(R.string.maidLinkCopied)) ::
+      Nil
+    )
+  }
+
+  def contentCopied() {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Happy, getString(R.string.maidContentCopied)) ::
+      Nil
+    )
+  }
+
   private def deletePlurk(plurkID: Long) {
     val oldRequestedOrientation = activity.getRequestedOrientation
     activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED)

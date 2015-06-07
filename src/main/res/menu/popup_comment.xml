@@ -4,6 +4,10 @@
     android:id="@+id/popup_comment_reply"
     android:icon="@drawable/ic_action_reply"
     android:title="@string/reply"/>
+  <item
+    android:id="@+id/popup_comment_copy_content"
+    android:icon="@drawable/ic_content_copy_white_18dp"
+    android:title="@string/copyContent"/>
 
   <item
     android:id="@+id/popup_comment_delete"

@@ -3,10 +3,10 @@ package idv.brianhsu.maidroid.plurk.view
 import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.activity._
 import idv.brianhsu.maidroid.plurk.adapter._
+import idv.brianhsu.maidroid.plurk.cache._
 import idv.brianhsu.maidroid.plurk.dialog._
 import idv.brianhsu.maidroid.plurk.fragment._
 import idv.brianhsu.maidroid.plurk.TypedResource._
-import idv.brianhsu.maidroid.plurk.cache._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 import idv.brianhsu.maidroid.ui.util.CallbackConversions._
@@ -14,31 +14,31 @@ import idv.brianhsu.maidroid.ui.util.CallbackConversions._
 import scala.concurrent._
 
 import android.app.Activity
+import android.content.ClipboardManager
+import android.content.ClipData
+import android.content.Context
+import android.content.Intent
+import android.content.pm.ActivityInfo
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
-
-import android.content.Intent
-import android.content.Context
-import android.content.pm.ActivityInfo
-
-import android.graphics.Bitmap
-import android.text.method.LinkMovementMethod
-import android.text.Html
-import android.view.View
-import android.view.MenuItem
-
-import android.view.LayoutInflater
-import android.widget.LinearLayout
 import android.support.v7.internal.view.menu.MenuBuilder
+import android.text.Html
+import android.text.method.LinkMovementMethod
+import android.view.LayoutInflater
+import android.view.MenuItem
+import android.view.View
+import android.widget.LinearLayout
+import android.widget.Toast
 
 import org.bone.soplurk.api.PlurkAPI._
-import org.bone.soplurk.constant.ReadStatus._
 import org.bone.soplurk.constant.PlurkType
+import org.bone.soplurk.constant.ReadStatus._
 
 import org.bone.soplurk.model._
 
-import java.text.SimpleDateFormat
 import java.net.URL
+import java.text.SimpleDateFormat
 
 object PlurkView {
 
@@ -78,6 +78,8 @@ object PlurkView {
 
   trait Listener {
     def startEditActivity(plurk: Plurk)
+    def contentCopied()
+    def linkCopied()
   }
 }
 
@@ -380,6 +382,22 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
     alertDialog.show(fm, "DeletePlurkConfirm")
   }
 
+  private def copyPlurkContent(plurk: Plurk) {
+    val clipboard = activity.getSystemService(Context.CLIPBOARD_SERVICE).asInstanceOf[ClipboardManager]
+    val clipData = ClipData.newPlainText(s"PlurkContent(${plurk.plurkID}", plurk.contentRaw.getOrElse(plurk.content))
+    clipboard.setPrimaryClip(clipData)
+    Toast.makeText(activity, R.string.contentCopied, Toast.LENGTH_SHORT).show()
+    activity.contentCopied()
+  }
+
+  private def copyPlurkLink(plurk: Plurk) {
+    val clipboard = activity.getSystemService(Context.CLIPBOARD_SERVICE).asInstanceOf[ClipboardManager]
+    val clipData = ClipData.newPlainText(s"PlurkLink(${plurk.plurkID}", plurk.plurkURL)
+    clipboard.setPrimaryClip(clipData)
+    Toast.makeText(activity, R.string.linkCopied, Toast.LENGTH_SHORT).show()
+    activity.linkCopied()
+  }
+
   private def setDropdownMenu(plurk: Plurk) {
 
     val isAnonymous = {
@@ -387,31 +405,30 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
       plurk.plurkType == PlurkType.AnonymousResponded
     }
 
-    if (!isInResponseList && PlurkAPIHelper.isMinePlurk(plurk)) {
-      dropdownMenu.setOnClickListener { button: View =>
-        val popupMenu = new MyPopupMenu(activity, button) {
-          override def onMenuItemSelected(menu: MenuBuilder, item: MenuItem): Boolean = {
-            item.getItemId match {
-              case R.id.popup_plurk_delete => showDeleteConfirmDialog(plurk); true
-              case R.id.popup_plurk_edit => startEditActivity(plurk); true
-              case _ => true
-            }
+    dropdownMenu.setOnClickListener { button: View =>
+      val popupMenu = new MyPopupMenu(activity, button) {
+        override def onMenuItemSelected(menu: MenuBuilder, item: MenuItem): Boolean = {
+          item.getItemId match {
+            case R.id.popup_plurk_delete => showDeleteConfirmDialog(plurk); true
+            case R.id.popup_plurk_edit => startEditActivity(plurk); true
+            case R.id.popup_plurk_copy_content => copyPlurkContent(plurk); true
+            case R.id.popup_plurk_copy_link => copyPlurkLink(plurk); true
+            case _ => true
           }
         }
-        popupMenu.getMenuInflater.inflate(R.menu.popup_plurk, popupMenu.getMenu)
-        popupMenu.show()
       }
-      dropdownMenu.setEnabled(true)
-      dropdownMenu.setVisibility(View.VISIBLE)
 
-    } else {
-      dropdownMenu.setEnabled(false)
-      dropdownMenu.setVisibility(View.GONE)
-    }
+      val shouldShowEditDelete = !isInResponseList && PlurkAPIHelper.isMinePlurk(plurk)
+      popupMenu.getMenuInflater.inflate(R.menu.popup_plurk, popupMenu.getMenu)
 
-    if (isInUserProfile) {
-      dropdownMenu.setEnabled(false)
-      dropdownMenu.setVisibility(View.GONE)
+      if (!shouldShowEditDelete) {
+        val deleteMenuItem = popupMenu.getMenu.findItem(R.id.popup_plurk_delete)
+        val editMenuItem = popupMenu.getMenu.findItem(R.id.popup_plurk_edit)
+        deleteMenuItem.setVisible(false)
+        editMenuItem.setVisible(false)
+      }
+
+      popupMenu.show()
     }
 
   }

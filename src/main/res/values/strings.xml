@@ -88,4 +88,11 @@
   <string name="fragmentUserPofileCanntFollow">Can not set to follow.</string>
   <string name="fragmentUserPofileCanntUnFollow">Can not set to unfollow.</string>
 
+  <string name="copyContent">Copy Content</string>
+  <string name="copyLink">Copy Link</string>
+  <string name="contentCopied">Content Copied</string>
+  <string name="linkCopied">Link Copied</string>
+  <string name="maidContentCopied">I\'ve copied the content of this plurk to clipboard.</string>
+  <string name="maidLinkCopied">I\'ve copied the URL of this plurk to clipboard, you want to share with others?</string>
+
 </resources>

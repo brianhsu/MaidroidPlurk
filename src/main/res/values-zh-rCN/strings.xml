@@ -88,4 +88,12 @@
   <string name="fragmentUserPofileCanntFollow">无法追踪对方河道</string>
   <string name="fragmentUserPofileCanntUnFollow">无法取消追踪对方河道</string>
 
+  <string name="copyContent">复制内容</string>
+  <string name="copyLink">复制连结</string>
+  <string name="contentCopied">已复制内容至剪贴簿</string>
+  <string name="linkCopied">已复制连结至剪贴簿</string>
+  <string name="maidContentCopied">已经帮主人把这则噗文的内容放到剪贴簿里去啰，主人一定很喜欢这则噗文吧？</string>
+  <string name="maidLinkCopied">已经帮主人把这则噗文的连结放到剪贴簿里去啰，主人是想要和别人分享这则噗文吗？</string>
+
+
 </resources>

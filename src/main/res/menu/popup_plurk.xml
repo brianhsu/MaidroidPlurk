@@ -1,4 +1,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <item
+    android:id="@+id/popup_plurk_copy_content"
+    android:icon="@drawable/ic_content_copy_white_18dp"
+    android:title="@string/copyContent"/>
+
+  <item
+    android:id="@+id/popup_plurk_copy_link"
+    android:icon="@drawable/ic_link_white_36dp"
+    android:title="@string/copyLink"/>
+
   <item
     android:id="@+id/popup_plurk_edit"
     android:icon="@drawable/ic_action_edit"
