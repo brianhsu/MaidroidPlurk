@@ -122,14 +122,14 @@ class ResponseView(adapter: ResponseAdapter)
 
       popupMenu.getMenuInflater.inflate(R.menu.popup_comment, popupMenu.getMenu)
 
-      val isMineResponse = PlurkAPIHelper.plurkUserID == response.userID
+      val isMineResponse = response.myAnonymous getOrElse (PlurkAPIHelper.plurkUserID == response.userID)
 
       if (!isDeletable) {
         val deleteMenuItem = popupMenu.getMenu.findItem(R.id.popup_comment_delete)
         deleteMenuItem.setVisible(false)
       }
 
-      if (!isDeletable || isMineResponse) {
+      if (!isDeletable || isMineResponse || response.userID == 99999) {
         val blockMenuItem = popupMenu.getMenu.findItem(R.id.popup_comment_block)
         blockMenuItem.setVisible(false)
       }
@@ -144,7 +144,7 @@ class ResponseView(adapter: ResponseAdapter)
     this.owner = owner
     content.setText(Html.fromHtml(response.content, imageGetter, StrikeTagHandler))
     postedDate.setText(dateTimeFormatter.format(response.posted))
-    displayName.setText(owner.displayName getOrElse owner.nickname)
+    displayName.setText((response.handle orElse owner.displayName) getOrElse owner.nickname)
     displayName.setOnClickListener { view: View => UserTimelineActivity.startActivity(activity, owner) }
     avatar.setOnClickListener { view: View => UserTimelineActivity.startActivity(activity, owner) }
     setDropdownMenu(response, isDeletable)

@@ -36,7 +36,7 @@ dependencyOverrides += "com.android.support" % "appcompat-v7" % "19.1.+"
 
 
 libraryDependencies ++= Seq(
-  "org.bone" %% "soplurk" % "0.3.3",
+  "org.bone" %% "soplurk" % "0.3.4",
   "com.typesafe.akka" %% "akka-actor" % "2.3.2"
 )
 

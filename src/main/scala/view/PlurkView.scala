@@ -418,7 +418,7 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
         }
       }
 
-      val shouldShowEditDelete = !isInResponseList && PlurkAPIHelper.isMinePlurk(plurk)
+      val shouldShowEditDelete = !isInResponseList && (PlurkAPIHelper.isMinePlurk(plurk) || plurk.myAnonymous.getOrElse(false))
       popupMenu.getMenuInflater.inflate(R.menu.popup_plurk, popupMenu.getMenu)
 
       if (!shouldShowEditDelete) {

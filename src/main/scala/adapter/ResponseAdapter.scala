@@ -96,9 +96,17 @@ class ResponseAdapter(activity: FragmentActivity with PlurkView.Listener
     }
 
     val owner = friendsHolder.get(response.userID)
-    val isDeletable = 
+    val isDeleteableNormal = 
       (plurk.userID == plurk.ownerID)  || // Comment is in current user's plurk
       (plurk.userID == response.userID)   // Comment wrote by current user
+
+    val isAnonymousPlurk = plurk.isAnonymous.getOrElse(false)
+    val isMyAnonymousPlurk = plurk.myAnonymous.getOrElse(false)
+    val isDeletable = isAnonymousPlurk match {
+      case true if isMyAnonymousPlurk  => true
+      case true if !isMyAnonymousPlurk => response.myAnonymous.getOrElse(false)
+      case _ => isDeleteableNormal
+    }
 
     itemView.update(response, owner, isDeletable, textViewImageGetter)
     itemView
