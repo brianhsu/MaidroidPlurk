@@ -5,6 +5,7 @@ import idv.brianhsu.maidroid.plurk.TypedResource._
 import idv.brianhsu.maidroid.ui.util.AsyncUI._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.adapter._
+import org.bone.soplurk.model.Completion
 
 import android.os.Bundle
 import android.app.ProgressDialog
@@ -40,12 +41,19 @@ abstract class SelectPeopleDialog(title: Int,
 
     val cliques = plurkAPI.Cliques.getCliques.get
     val completion = plurkAPI.FriendsFans.getCompletion.get
-    val friends = completion.map { case(userID, completion) =>
+    val (currentUser, pageTitle, about) = plurkAPI.Users.currUser.get
+
+    def toRecord(userID: Long, completion: Completion) = {
       val displayName = completion.displayName getOrElse completion.nickname
       (userID, s"${completion.fullName} (${displayName})")
-    }.toVector.sortWith(_._2 < _._2)
+    }
 
-    new PeopleListAdapter(activity, cliques.toVector, friends)
+    val friends: Vector[(Long, String)] = completion.map { case(userID, completion) => toRecord(userID, completion) }.toVector
+    val myDisplayName = currentUser.basicInfo.displayName getOrElse currentUser.basicInfo.nickname
+    val me = (currentUser.basicInfo.id, myDisplayName)
+    val allList = (friends :+ me).sortWith(_._2 < _._2)
+
+    new PeopleListAdapter(activity, cliques.toVector, allList)
   }
 
   private def getOnCancelListener = new DialogInterface.OnClickListener() {

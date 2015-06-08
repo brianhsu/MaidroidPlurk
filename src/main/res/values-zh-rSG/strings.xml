@@ -96,4 +96,6 @@
   <string name="maidLinkCopied">已经帮主人把这则噗文的连结放到剪贴簿里去啰，主人是想要和别人分享这则噗文吗？</string>
 
   <string name="menuTimeMachine">时光机</string>
+  <string name="fragmentUserProfileSendPrivateMessageToSelf">私噗给自己</string>
+
 </resources>

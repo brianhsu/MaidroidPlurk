@@ -100,4 +100,7 @@
 
   <string name="menuTimeMachine">時光機</string>
 
+  <string name="fragmentUserProfileSendPrivateMessageToSelf">私噗給自己</string>
+
+
 </resources>

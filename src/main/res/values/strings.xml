@@ -96,5 +96,6 @@
   <string name="maidLinkCopied">I\'ve copied the URL of this plurk to clipboard, you want to share with others?</string>
 
   <string name="menuTimeMachine">Time Machine</string>
+  <string name="fragmentUserProfileSendPrivateMessageToSelf">Private Message to Self</string>
 
 </resources>

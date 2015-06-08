@@ -73,6 +73,7 @@ class UserProfileFragment extends Fragment {
   private def friendButtonHolder = Option(getView).map(_.findView(TR.fragmentUserProfileFriendButton))
   private def fanButtonHolder = Option(getView).map(_.findView(TR.fragmentUserProfileFanButton))
   private def privateMessageButtonHolder = Option(getView).map(_.findView(TR.fragmentUserProfilePrivateMessage))
+  private def privateMessageToSelfButtonHolder = Option(getView).map(_.findView(TR.fragmentUserProfilePrivateMessageToSelf))
 
   private lazy val userIDHolder = for {
     argument <- Option(getArguments)
@@ -282,7 +283,7 @@ class UserProfileFragment extends Fragment {
   private def setupPrivateMessageButton(button: Button, profile: PublicProfile) {
     button.setOnClickListener { view: View =>
 
-      if (profile.areFriends.getOrElse(false)) {
+      if (profile.areFriends.getOrElse(false) || profile.userInfo.basicInfo.id == PlurkAPIHelper.plurkUserID) {
         val intent = new Intent(activity, classOf[PostPlurkActivity])
         val basicInfo = profile.userInfo.basicInfo
         val displayName = basicInfo.displayName getOrElse basicInfo.nickname
@@ -313,6 +314,7 @@ class UserProfileFragment extends Fragment {
         friendButtonHolder.foreach(_.setVisibility(View.GONE))
         fanButtonHolder.foreach(_.setVisibility(View.GONE))
         privateMessageButtonHolder.foreach(_.setVisibility(View.GONE))
+        privateMessageToSelfButtonHolder.foreach(button => setupPrivateMessageButton(button, profile))
       } else {
         val areFriends = profile.areFriends.getOrElse(false)
         val isFollowing = profile.isFollowing.getOrElse(false)
@@ -321,6 +323,7 @@ class UserProfileFragment extends Fragment {
         friendButtonHolder.foreach(button => setupFriendButton(button, areFriends, userID))
         fanButtonHolder.foreach(button => setupFollowingButton(button, isPrivateTimeline, areFriends, isFollowing, userID) )
         privateMessageButtonHolder.foreach(button => setupPrivateMessageButton(button, profile))
+        privateMessageToSelfButtonHolder.foreach(_.setVisibility(View.GONE))
       }
 
       AvatarCache.getAvatarBitmapFromCache(activity, basicInfo) match {
