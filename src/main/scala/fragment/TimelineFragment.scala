@@ -336,6 +336,7 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
     case R.id.fragmentTimelineActionMarkAllAsRead => markAllAsRead(); false
     case R.id.fragmentTimelineActionLogout => Logout.logout(activity); false
     case R.id.fragmentTimelineActionAbout => AboutActivity.startActivity(activity); false
+    case R.id.fragmentTimelineActionCurrentUser => CurrentUserActivity.startActivity(activity); false
     case _ => super.onOptionsItemSelected(item)
   }
 

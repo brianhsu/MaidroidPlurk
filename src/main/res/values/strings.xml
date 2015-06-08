@@ -98,4 +98,7 @@
   <string name="menuTimeMachine">Time Machine</string>
   <string name="fragmentUserProfileSendPrivateMessageToSelf">Private Message to Self</string>
 
+  <string name="menuCurrentUser">個人檔案</string>
+  <string name="titleCurrentUser">個人檔案</string>
+
 </resources>

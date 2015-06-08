@@ -248,6 +248,7 @@ class MaidroidPlurk extends ActionBarActivity with TypedViewHolder
   override def onOptionsItemSelected(menuItem: MenuItem): Boolean = menuItem.getItemId match {
     case R.id.activityMaidroidPlurkActionAbout => AboutActivity.startActivity(this); false
     case R.id.activityMaidroidPlurkActionToggleMaid => ToggleView(this, dialogFrame) ; false
+    case R.id.fragmentTimelineActionLogout => println("=======> ............"); false
     case _ => super.onOptionsItemSelected(menuItem)
   }
 

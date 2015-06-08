@@ -26,6 +26,11 @@
     maidroid:showAsAction="never" />
 
   <item
+    android:id="@+id/fragmentTimelineActionCurrentUser"
+    android:title="@string/menuCurrentUser"
+    maidroid:showAsAction="never" />
+
+  <item
     android:id="@+id/fragmentTimelineActionLogout"
     android:title="@string/menuLogout"
     maidroid:showAsAction="never" />
