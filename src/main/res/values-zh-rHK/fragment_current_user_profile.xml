@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="menuCurrentUser">個人檔案</string>
+  <string name="titleCurrentUser">個人檔案</string>
+
+  <string name="profileEditFullName">修改全名</string>
+  <string name="profileEditDisplayName">修改暱稱</string>
+  <string name="profileEditAbout">修改自介</string>
+  <string name="profileEditBirthday">修改生日</string>
+  <string name="profileEditPrivacy">修改河道權限</string>
+
+  <string name="profileFullName">全名</string>
+  <string name="profileBirthday">生日</string>
+  <string name="timelinePrivacy">河道權限</string>
+  <string name="timelinePrivacyWorld">公開河道</string>
+  <string name="timelinePrivacyOnlyFriends">私密河道</string>
+  <string name="profileSaving">儲存中，請稍候……</string>
+  <string name="profileSavingFailed">無法儲存，請檢查網路狀態後重試。</string>
+  <string name="profilePrivateTimelineConfirmTitle">確定要設為私密河道嗎？</string>
+  <string name="profilePrivateTimelineConfirmContent">設為私密河道將無法擁有粉絲功能，現在所擁有的粉絲將會全數清除，確定要繼續嗎？</string>
+
+  <string name="activityCurrentUserWelcome01">小鈴正在幫主人讀取您的個人檔案，請主人稍候一下喲！</string>
+</resources>

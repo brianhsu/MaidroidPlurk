@@ -43,7 +43,7 @@
   <string name="cancel">Cancel</string>
   <string name="yes">Yes</string>
   <string name="no">No</string>
-  <string name="pleaseWait">請稍候……</string>
+  <string name="pleaseWait">Please Wait...</string>
   <string name="select">Select</string>
   <string name="ok">OK</string>
   <string name="cannotGetAvatar">Cannot get avatar from %s</string>
@@ -97,8 +97,5 @@
 
   <string name="menuTimeMachine">Time Machine</string>
   <string name="fragmentUserProfileSendPrivateMessageToSelf">Private Message to Self</string>
-
-  <string name="menuCurrentUser">個人檔案</string>
-  <string name="titleCurrentUser">個人檔案</string>
 
 </resources>

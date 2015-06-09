@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="menuCurrentUser">个人档案</string>
+  <string name="titleCurrentUser">个人档案</string>
+
+  <string name="profileEditFullName">修改全名</string>
+  <string name="profileEditDisplayName">修改昵称</string>
+  <string name="profileEditAbout">修改自介</string>
+  <string name="profileEditBirthday">修改生日</string>
+  <string name="profileEditPrivacy">修改河道权限</string>
+
+  <string name="profileFullName">全名</string>
+  <string name="profileBirthday">生日</string>
+  <string name="timelinePrivacy">河道权限</string>
+  <string name="timelinePrivacyWorld">公开河道</string>
+  <string name="timelinePrivacyOnlyFriends">私密河道</string>
+  <string name="profileSaving">储存中，请稍候……</string>
+  <string name="profileSavingFailed">无法储存，请检查网路状态后重试。</string>
+  <string name="profilePrivateTimelineConfirmTitle">确定要设为私密河道吗？</string>
+  <string name="profilePrivateTimelineConfirmContent">设为私密河道将无法拥有粉丝功能，现在所拥有的粉丝将会全数清除，确定要继续吗？</string>
+
+</resources>

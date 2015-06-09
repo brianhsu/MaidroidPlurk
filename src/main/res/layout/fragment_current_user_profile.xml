@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout 
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+
+  <idv.brianhsu.maidroid.plurk.view.LoadingIndicator
+    android:id="@+id/fragmentCurrentUserProfileLoadingIndicator"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"/>
+
+  <idv.brianhsu.maidroid.plurk.view.ErrorNoticeView
+    android:id="@+id/fragmentCurrentUserProfileErrorNotice"
+    android:visibility="gone"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"/>
+
+  <ScrollView
+    android:layout_weight="1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+      android:orientation="vertical"
+      android:layout_weight="1"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
+
+
+      <LinearLayout
+        android:orientation="horizontal"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+          android:id="@+id/currentUserProfileAvatar"
+          android:src="@drawable/default_avatar"
+          android:paddingRight="10dp"
+          android:maxWidth="80dp"
+          android:scaleType="fitCenter"
+          android:adjustViewBounds="true"
+          android:layout_margin="5dp"
+          android:layout_weight="1"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"/>
+
+        <LinearLayout
+          android:orientation="vertical"
+          android:layout_weight="1"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent">
+
+          <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+              android:id="@+id/currentUserProfileDisplayName"
+              android:layout_weight="1"
+              android:gravity="center"
+              android:textColor="?android:textColorPrimary"
+              android:textSize="18sp"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"/>
+
+            <TextView
+              android:id="@+id/currentUserProfileNickName"
+              android:text="NickName"
+              android:layout_weight="1"
+              android:gravity="center"
+              android:textSize="16sp"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"/>
+
+          </LinearLayout>
+          <LinearLayout
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+              android:orientation="vertical"
+              android:layout_weight="1"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+
+              <TextView
+                android:id="@+id/currentUserProfileKarma"
+                android:text="115.48"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="#2b9eff"
+                android:textSize="16sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+              <TextView
+                android:text="@string/fragmentUserProfileKarmaTitle"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+            <LinearLayout
+              android:orientation="horizontal"
+              android:layout_weight="1"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+
+              <LinearLayout
+                android:orientation="vertical"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                  android:id="@+id/currentUserProfilePosts"
+                  android:text="456"
+                  android:layout_weight="1"
+                  android:gravity="center"
+                  android:textColor="#2b9eff"
+                  android:textSize="16sp"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"/>
+                <TextView
+                  android:text="@string/fragmentUserProfilePostTitle"
+                  android:layout_weight="1"
+                  android:gravity="center"
+                  android:textSize="16sp"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"/>
+
+              </LinearLayout>
+              <LinearLayout
+                android:orientation="vertical"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                  android:id="@+id/currentUserProfileFriends"
+                  android:text="456"
+                  android:layout_weight="1"
+                  android:gravity="center"
+                  android:textColor="#2b9eff"
+                  android:textSize="16sp"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"/>
+                <TextView
+                  android:text="@string/fragmentUserProfileFriendsTitle"
+                  android:layout_weight="1"
+                  android:gravity="center"
+                  android:textSize="16sp"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"/>
+              </LinearLayout>
+              <LinearLayout
+                android:orientation="vertical"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                  android:id="@+id/currentUserProfileFans"
+                  android:text="789"
+                  android:layout_weight="1"
+                  android:gravity="center"
+                  android:textColor="#2b9eff"
+                  android:textSize="16sp"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"/>
+                <TextView
+                  android:text="@string/fragmentUserProfileFansTitle"
+                  android:layout_weight="1"
+                  android:gravity="center"
+                  android:textSize="16sp"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"/>
+              </LinearLayout>
+            </LinearLayout>
+          </LinearLayout>
+
+        </LinearLayout>
+
+      </LinearLayout>
+
+
+      <LinearLayout
+        android:orientation="vertical"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+          android:orientation="horizontal"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content">
+
+          <TextView
+            android:text="@string/profileFullName"
+            android:textSize="18sp"
+            android:gravity="center|center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_weight="2"/>
+
+          <TextView
+            android:id="@+id/currentUserProfileFullName"
+            android:textSize="18sp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <LinearLayout
+          android:orientation="horizontal"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content">
+
+          <TextView
+            android:text="@string/profileBirthday"
+            android:textSize="18sp"
+            android:gravity="center|center_vertical"
+            android:layout_marginBottom="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"/>
+
+          <TextView
+            android:id="@+id/currentUserProfileBirthday"
+            android:text="2015-01-01"
+            android:textSize="18sp"
+            android:layout_weight="1"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        </LinearLayout>
+        <LinearLayout
+          android:orientation="horizontal"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content">
+
+          <TextView
+            android:text="@string/timelinePrivacy"
+            android:textSize="18sp"
+            android:gravity="center|center_vertical"
+            android:layout_marginBottom="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"/>
+
+          <TextView
+            android:id="@+id/currentUserProfilePrivacy"
+            android:textSize="18sp"
+            android:layout_weight="1"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+          android:orientation="horizontal"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content">
+
+          <Button
+            android:id="@+id/fragmentCurrentUserProfilePrivateMessageToSelf"
+            android:text="@string/fragmentUserProfileSendPrivateMessageToSelf"
+            android:textSize="16sp"
+            android:background="@drawable/rounded_blue"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+          <Button
+            android:id="@+id/fragmentUserProfileAlert"
+            android:text="通知"
+            android:textSize="16sp"
+            android:background="@drawable/rounded_blue"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <TextView
+          android:id="@+id/fragmentCurrentUserProfileAbout"
+          android:text="AboutMessage"
+          android:textSize="16sp"
+          android:lineSpacingMultiplier="1.3"
+          android:autoLink="all"
+          android:layout_weight="1"
+          android:layout_marginLeft="10dp"
+          android:layout_marginRight="10dp"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"/>
+
+      </LinearLayout>
+    </LinearLayout>
+  </ScrollView>
+
+</LinearLayout>
