@@ -35,8 +35,15 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content">
 
+      <ImageView
+        android:id="@+id/itemResponseCake" 
+        android:src="@drawable/cake"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
       <TextView 
         android:id="@+id/itemResponseDisplayName"
+        android:gravity="center_vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="?android:textColorPrimary"
@@ -45,6 +52,7 @@
 
       <TextView 
         android:id="@+id/itemResponseQualifier"
+        android:gravity="center_vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="#FFFFFF"
@@ -62,7 +70,7 @@
           android:id="@+id/itemResponseDropdownMenu"
           android:src="@drawable/ic_btn_more"
           android:adjustViewBounds="true"
-          android:scaleType="fitXY"
+          android:scaleType="centerInside"
           android:minWidth="30dp"
           android:layout_width="wrap_content"
           android:layout_height="match_parent"/>

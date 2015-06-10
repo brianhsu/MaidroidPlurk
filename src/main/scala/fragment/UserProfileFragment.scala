@@ -32,6 +32,8 @@ import org.bone.soplurk.api.PlurkAPI.PublicProfile
 import org.bone.soplurk.constant.TimelinePrivacy
 import org.bone.soplurk.model.User
 import scala.concurrent._
+import java.util.Date
+import java.text.SimpleDateFormat
 
 object UserProfileFragment {
 
@@ -74,6 +76,9 @@ class UserProfileFragment extends Fragment {
   private def fanButtonHolder = Option(getView).map(_.findView(TR.fragmentUserProfileFanButton))
   private def privateMessageButtonHolder = Option(getView).map(_.findView(TR.fragmentUserProfilePrivateMessage))
   private def privateMessageToSelfButtonHolder = Option(getView).map(_.findView(TR.fragmentUserProfilePrivateMessageToSelf))
+  private def cakeIconHolder = Option(getView).map(_.findView(TR.userProfileCake))
+
+  private val birthDateFormatter = new SimpleDateFormat("MM-dd")
 
   private lazy val userIDHolder = for {
     argument <- Option(getArguments)
@@ -110,11 +115,22 @@ class UserProfileFragment extends Fragment {
     }
   }
 
+  private def setCakeIcon(user: User) {
+    val shouldDisplay = user.birthday match {
+      case Some(birthday) => birthDateFormatter.format(birthday.getTime) == birthDateFormatter.format(new Date)
+      case None => false
+    }
+
+    val visibility = if (shouldDisplay) View.VISIBLE else View.GONE
+    cakeIconHolder.foreach(_.setVisibility(visibility))
+  }
+
   private def setupBasicInfo(profile: PublicProfile) = {
     val basicInfo = profile.userInfo.basicInfo
     val nickname = basicInfo.nickname
     val displayName = basicInfo.displayName.getOrElse(nickname)
 
+    setCakeIcon(profile.userInfo.basicInfo)
     displayNameHolder.foreach { _.setText(displayName) }
     nickNameHolder.foreach { _.setText(s"@$nickname") }
     karmaHolder.foreach{ _.setText(f"${basicInfo.karma}%.2f") }

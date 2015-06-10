@@ -36,6 +36,7 @@ import org.bone.soplurk.model._
 
 import java.net.URL
 import java.text.SimpleDateFormat
+import java.util.Date
 
 class ResponseView(adapter: ResponseAdapter)
                   (implicit val activity: FragmentActivity with ConfirmDialog.Listener with ResponseListFragment.Listener)  
@@ -46,13 +47,15 @@ class ResponseView(adapter: ResponseAdapter)
   initView()
 
   lazy val dateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-  
+  lazy val dateFormatter = new SimpleDateFormat("MM-dd")
+ 
   lazy val avatar = this.findView(TR.itemResponseAvatar)
   lazy val content = this.findView(TR.itemResponseText)
   lazy val displayName = this.findView(TR.itemResponseDisplayName)
   lazy val qualifier = this.findView(TR.itemResponseQualifier)
   lazy val postedDate = this.findView(TR.itemResponsePostedDate)
   lazy val dropdownMenu = this.findView(TR.itemResponseDropdownMenu)
+  lazy val cakeIcon = this.findView(TR.itemResponseCake)
   lazy val plurkAPI = PlurkAPIHelper.getPlurkAPI(activity)
 
   private var owner: User = _
@@ -138,6 +141,18 @@ class ResponseView(adapter: ResponseAdapter)
     }
   }
 
+  private def setCakeIcon(user: User) {
+   
+    val shouldDisplay = user.birthday match {
+      case Some(birthday) => dateFormatter.format(birthday.getTime) == dateFormatter.format(new Date)
+      case None => false
+    }
+
+    val visibility = if (shouldDisplay) View.VISIBLE else View.GONE
+    cakeIcon.setVisibility(visibility)
+
+  }
+
   def update(response: Response, owner: User, isDeletable: Boolean, 
              imageGetter: PlurkImageGetter): View = {
 
@@ -148,6 +163,7 @@ class ResponseView(adapter: ResponseAdapter)
     displayName.setOnClickListener { view: View => UserTimelineActivity.startActivity(activity, owner) }
     avatar.setOnClickListener { view: View => UserTimelineActivity.startActivity(activity, owner) }
     setDropdownMenu(response, isDeletable)
+    setCakeIcon(owner)
 
     QualifierDisplay(response.qualifier, activity) match {
       case None => qualifier.setVisibility(View.GONE)
