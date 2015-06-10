@@ -10,12 +10,14 @@ import idv.brianhsu.maidroid.plurk._
 
 
 class CurrentUserAdapter(context: Context, fm: FragmentManager) extends FragmentPagerAdapter(fm) {
-  override def getCount = 1
+  override def getCount = 2
   override def getItem(position: Int) = position match {
     case 0 => CurrentUserProfileFragment.newInstance()
+    case 1 => new FriendListFragment
   }
   override def getPageTitle(position: Int) = position match {
     case 0 => context.getString(R.string.titleMyProfile)
+    case 1 => "好友列表"
   }
 }
 
