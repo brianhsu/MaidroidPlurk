@@ -341,6 +341,68 @@ class CurrentUserProfileFragment extends Fragment {
     }
   }
 
+  private val PickFromFile = 0
+  private val PickFromCamera = 1
+  private val CropImage = 2
+
+  private def startCropIntent(dataIntent: Intent) {
+    val photoDataHolder = Option(dataIntent).map(_.getData)
+    
+    photoDataHolder.foreach { photo => 
+      val intent = new Intent("com.android.camera.action.CROP")
+      intent.setType("image/*")
+      intent.setData(photo)
+      intent.putExtra("outputX", 200)
+      intent.putExtra("outputY", 200)
+      intent.putExtra("aspectX", 1)
+      intent.putExtra("aspectY", 1)
+      intent.putExtra("scale", true)
+      intent.putExtra("return-data", true)
+      startActivityForResult(Intent.createChooser(intent, activity.getString(R.string.profileEditCrop)), CropImage)
+    }
+  }
+
+  private def uploadAvatar(dataIntent: Intent) {
+    val photoHolder: Option[Bitmap] = for {
+      returnedData <- Option(dataIntent)
+      returnedExtra <- Option(returnedData.getExtras)
+      returnedBitmap <- Option(returnedExtra.getParcelable[Bitmap]("data"))
+    } yield returnedBitmap
+
+    photoHolder.foreach { bitmap =>
+      val progressDialog = ProgressDialog.show(
+        activity, 
+        activity.getString(R.string.pleaseWait), 
+        activity.getString(R.string.profileSaving),
+        true, false
+      )
+
+      val future = Future {
+        val fileHolder = DiskCacheHelper.writeBitmapToCache(activity, dataIntent.toString, bitmap)
+        fileHolder.foreach { avatarFile =>
+          plurkAPI.Users.updatePicture(avatarFile).get
+        }
+      }
+
+      future.onSuccessInUI { e => 
+        progressDialog.dismiss() 
+        updateProfile() 
+      }
+
+      future.onFailureInUI { case e: Exception =>
+        progressDialog.dismiss() 
+        Toast.makeText(activity, R.string.profileSavingFailed, Toast.LENGTH_LONG).show()
+      }
+    }
+  }
+
+  override protected def onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    requestCode match {
+      case PickFromFile|PickFromCamera => startCropIntent(data)
+      case CropImage => uploadAvatar(data)
+    }
+  }
+
   private def setupBasicInfo(profile: OwnProfile) = {
     val basicInfo = profile.userInfo.basicInfo
     val nickname = basicInfo.nickname
@@ -352,6 +414,37 @@ class CurrentUserProfileFragment extends Fragment {
     friendsHolder.foreach{ _.setText(profile.friendsCount.toString) }
     fansHolder.foreach{ _.setText(profile.fansCount.toString) }
     fullNameViewHolder.foreach(_.setText(profile.userInfo.basicInfo.fullName))
+    avatarHolder.foreach { avatar =>
+      avatar.setOnClickListener { view: View =>
+        import android.widget.ArrayAdapter
+        import android.provider.MediaStore
+        val dialog = new AlertDialog.Builder(activity)
+        val adapter = new ArrayAdapter(
+          activity, 
+          android.R.layout.select_dialog_item, 
+          Array(activity.getString(R.string.profileEditGallery), activity.getString(R.string.profileEditCamera))
+        )
+        dialog.setTitle(R.string.profileEditChooseAvatar)
+        dialog.setAdapter(adapter, new DialogInterface.OnClickListener() {
+          override def onClick(dialog: DialogInterface, which: Int): Unit = {
+            which match {
+              case 0 =>
+                val intent = new Intent
+                intent.setType("image/*")
+                intent.setAction(Intent.ACTION_GET_CONTENT)
+                val chooser = Intent.createChooser(intent, activity.getString(R.string.profileEditChooseAvatar))
+                startActivityForResult(chooser, PickFromFile)
+              case 1 =>
+                val takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                if (takePictureIntent.resolveActivity(activity.getPackageManager()) != null) {
+                  startActivityForResult(takePictureIntent, PickFromCamera)
+                }
+            }
+          }
+        })
+        dialog.show()
+      }
+    }
     userBirthdayHolder = profile.userInfo.basicInfo.birthday
     userPrivacy = Some(profile.privacy)
 

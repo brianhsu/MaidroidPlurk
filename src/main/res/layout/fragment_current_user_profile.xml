@@ -35,18 +35,33 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ImageView
-          android:id="@+id/currentUserProfileAvatar"
-          android:src="@drawable/default_avatar"
-          android:paddingRight="10dp"
+
+        <RelativeLayout
           android:maxWidth="80dp"
-          android:scaleType="fitCenter"
-          android:adjustViewBounds="true"
+          android:paddingRight="10dp"
           android:layout_margin="5dp"
           android:layout_weight="1"
           android:layout_width="match_parent"
-          android:layout_height="wrap_content"/>
+          android:layout_height="wrap_content">
 
+          <ImageView
+            android:id="@+id/currentUserProfileAvatar"
+            android:src="@drawable/default_avatar"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+          <ImageView
+            android:id="@+id/text"
+            android:src="@drawable/ic_action_camera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_margin="6dp"
+            android:layout_marginBottom="18dp"/>
+        </RelativeLayout>
         <LinearLayout
           android:orientation="vertical"
           android:layout_weight="1"
@@ -292,6 +307,7 @@
 
           <Button
             android:id="@+id/fragmentUserProfileAlert"
+            android:visibility="gone"
             android:text="通知"
             android:textSize="16sp"
             android:background="@drawable/rounded_blue"

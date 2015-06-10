@@ -3,6 +3,12 @@
 
   <string name="menuCurrentUser">My Profile</string>
   <string name="titleCurrentUser">My Profile</string>
+  <string name="titleMyProfile">My Profile</string>
+
+  <string name="profileEditCrop">Crop</string>
+  <string name="profileEditChooseAvatar">Choose Avatar From</string>
+  <string name="profileEditGallery">Choose from Gallery</string>
+  <string name="profileEditCamera">Take a Photo</string>
 
   <string name="profileEditFullName">Edit Full Name</string>
   <string name="profileEditDisplayName">Edit Display Name</string>

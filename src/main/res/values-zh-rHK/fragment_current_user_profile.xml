@@ -3,6 +3,12 @@
 
   <string name="menuCurrentUser">個人檔案</string>
   <string name="titleCurrentUser">個人檔案</string>
+  <string name="titleMyProfile">我的檔案</string>
+
+  <string name="profileEditCrop">剪裁</string>
+  <string name="profileEditChooseAvatar">選擇大頭貼</string>
+  <string name="profileEditGallery">從相簿選取</string>
+  <string name="profileEditCamera">拍照</string>
 
   <string name="profileEditFullName">修改全名</string>
   <string name="profileEditDisplayName">修改暱稱</string>
