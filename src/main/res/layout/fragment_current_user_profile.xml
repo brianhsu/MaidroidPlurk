@@ -7,12 +7,12 @@
   android:layout_height="match_parent">
 
   <idv.brianhsu.maidroid.plurk.view.LoadingIndicator
-    android:id="@+id/fragmentUserProfileLoadingIndicator"
+    android:id="@+id/fragmentCurrentUserProfileLoadingIndicator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"/>
 
   <idv.brianhsu.maidroid.plurk.view.ErrorNoticeView
-    android:id="@+id/fragmentUserProfileErrorNotice"
+    android:id="@+id/fragmentCurrentUserProfileErrorNotice"
     android:visibility="gone"
     android:layout_width="match_parent"
     android:layout_height="match_parent"/>
@@ -34,6 +34,8 @@
         android:layout_weight="1"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
+
         <RelativeLayout
           android:maxWidth="80dp"
           android:paddingRight="10dp"
@@ -43,7 +45,7 @@
           android:layout_height="wrap_content">
 
           <ImageView
-            android:id="@+id/userProfileAvatar"
+            android:id="@+id/currentUserProfileAvatar"
             android:src="@drawable/default_avatar"
             android:scaleType="fitCenter"
             android:adjustViewBounds="true"
@@ -51,18 +53,15 @@
             android:layout_height="wrap_content"/>
 
           <ImageView
-            android:id="@+id/userProfileCake"
-            android:src="@drawable/cake"
+            android:id="@+id/text"
+            android:src="@drawable/ic_action_camera"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:paddingRight="10dp"
-            android:paddingBottom="10dp" />
-
+            android:layout_margin="6dp"
+            android:layout_marginBottom="18dp"/>
         </RelativeLayout>
-
-
         <LinearLayout
           android:orientation="vertical"
           android:layout_weight="1"
@@ -75,8 +74,7 @@
             android:layout_height="wrap_content">
 
             <TextView
-              android:id="@+id/userProfileDisplayName"
-              android:text="DisplayName"
+              android:id="@+id/currentUserProfileDisplayName"
               android:layout_weight="1"
               android:gravity="center"
               android:textColor="?android:textColorPrimary"
@@ -85,7 +83,7 @@
               android:layout_height="wrap_content"/>
 
             <TextView
-              android:id="@+id/userProfileNickName"
+              android:id="@+id/currentUserProfileNickName"
               android:text="NickName"
               android:layout_weight="1"
               android:gravity="center"
@@ -107,7 +105,7 @@
               android:layout_height="wrap_content">
 
               <TextView
-                android:id="@+id/userProfileKarma"
+                android:id="@+id/currentUserProfileKarma"
                 android:text="115.48"
                 android:layout_weight="1"
                 android:gravity="center"
@@ -136,7 +134,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <TextView
-                  android:id="@+id/userProfilePosts"
+                  android:id="@+id/currentUserProfilePosts"
                   android:text="456"
                   android:layout_weight="1"
                   android:gravity="center"
@@ -160,7 +158,7 @@
                 android:layout_height="wrap_content">
 
                 <TextView
-                  android:id="@+id/userProfileFriends"
+                  android:id="@+id/currentUserProfileFriends"
                   android:text="456"
                   android:layout_weight="1"
                   android:gravity="center"
@@ -183,7 +181,7 @@
                 android:layout_height="wrap_content">
 
                 <TextView
-                  android:id="@+id/userProfileFans"
+                  android:id="@+id/currentUserProfileFans"
                   android:text="789"
                   android:layout_weight="1"
                   android:gravity="center"
@@ -218,41 +216,47 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content">
 
-          <Button
-            android:id="@+id/fragmentUserProfileFriendButton"
-            android:text="@string/fragmentUserProfileAddFreind"
-            android:textSize="16sp"
-            android:padding="10dp"
-            android:background="@drawable/rounded_blue"
-            android:layout_weight="1"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
+          <TextView
+            android:text="@string/profileFullName"
+            android:textSize="18sp"
+            android:gravity="center|center_vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-          <Button
-            android:id="@+id/fragmentUserProfileFanButton"
-            android:text="@string/fragmentUserProfileIsFollowing"
-            android:textSize="16sp"
-            android:background="@drawable/rounded_blue"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_weight="2"/>
+
+          <TextView
+            android:id="@+id/currentUserProfileFullName"
+            android:textSize="18sp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
             android:layout_weight="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-          <Button
-            android:id="@+id/fragmentUserProfilePrivateMessage"
-            android:text="@string/fragmentUserProfileSendPrivateMessage"
-            android:textSize="16sp"
-            android:background="@drawable/rounded_blue"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
+
+        </LinearLayout>
+
+        <LinearLayout
+          android:orientation="horizontal"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content">
+
+          <TextView
+            android:text="@string/profileBirthday"
+            android:textSize="18sp"
+            android:gravity="center|center_vertical"
+            android:layout_marginBottom="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"/>
+
+          <TextView
+            android:id="@+id/currentUserProfileBirthday"
+            android:text="2015-01-01"
+            android:textSize="18sp"
             android:layout_weight="1"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
@@ -262,9 +266,49 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content">
 
+          <TextView
+            android:text="@string/timelinePrivacy"
+            android:textSize="18sp"
+            android:gravity="center|center_vertical"
+            android:layout_marginBottom="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"/>
+
+          <TextView
+            android:id="@+id/currentUserProfilePrivacy"
+            android:textSize="18sp"
+            android:layout_weight="1"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+          android:orientation="horizontal"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content">
+
           <Button
-            android:id="@+id/fragmentUserProfilePrivateMessageToSelf"
+            android:id="@+id/fragmentCurrentUserProfilePrivateMessageToSelf"
             android:text="@string/fragmentUserProfileSendPrivateMessageToSelf"
+            android:textSize="16sp"
+            android:background="@drawable/rounded_blue"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+          <Button
+            android:id="@+id/fragmentUserProfileAlert"
+            android:visibility="gone"
+            android:text="通知"
             android:textSize="16sp"
             android:background="@drawable/rounded_blue"
             android:layout_marginLeft="10dp"
@@ -278,7 +322,7 @@
         </LinearLayout>
 
         <TextView
-          android:id="@+id/fragmentUserProfileAbout"
+          android:id="@+id/fragmentCurrentUserProfileAbout"
           android:text="AboutMessage"
           android:textSize="16sp"
           android:lineSpacingMultiplier="1.3"

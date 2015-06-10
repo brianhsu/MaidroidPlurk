@@ -41,6 +41,11 @@
 
     <activity 
       android:configChanges="orientation|screenSize"
+      android:name=".activity.CurrentUserActivity" 
+      android:label="@string/titleCurrentUser" />
+
+    <activity 
+      android:configChanges="orientation|screenSize"
       android:name=".activity.PostResponseActivity"
       android:label="@string/titlePostResponse"
       android:windowSoftInputMode="adjustResize"/>

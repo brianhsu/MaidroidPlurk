@@ -38,6 +38,7 @@ import org.bone.soplurk.constant.ReadStatus._
 import org.bone.soplurk.model._
 
 import java.net.URL
+import java.util.Date
 import java.text.SimpleDateFormat
 
 object PlurkView {
@@ -94,7 +95,8 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
   initView()
 
   lazy val dateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-  
+  lazy val dateFormatter = new SimpleDateFormat("MM-dd")
+ 
   lazy val avatar = this.findView(TR.itemPlurkAvatar)
   lazy val content = this.findView(TR.itemPlurkText)
   lazy val displayName = this.findView(TR.itemPlurkDisplayName)
@@ -108,6 +110,8 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
   lazy val replurkerBlock = this.findView(TR.itemPlurkReplurkerBlock)
   lazy val lockIcon = this.findView(TR.itemPlurkLockIcon)
   lazy val dropdownMenu = this.findView(TR.itemPlurkDropdownMenu)
+  lazy val cakeIcon = this.findView(TR.itemPlurkCake)
+
 
   private var ownerID: Long = 0
   private var owner: User = _
@@ -362,7 +366,20 @@ class PlurkView(adapterHolder: Option[PlurkAdapter] = None,
     setFavoriteInfo(plurk)
     setMuteInfo(plurk)
     setDropdownMenu(plurk)
+    setCakeIcon(owner)
     this
+  }
+
+  private def setCakeIcon(user: User) {
+   
+    val shouldDisplay = user.birthday match {
+      case Some(birthday) => dateFormatter.format(birthday.getTime) == dateFormatter.format(new Date)
+      case None => false
+    }
+
+    val visibility = if (shouldDisplay) View.VISIBLE else View.GONE
+    cakeIcon.setVisibility(visibility)
+
   }
 
   private def showDeleteConfirmDialog(plurk: Plurk) {
