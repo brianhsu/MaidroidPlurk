@@ -39,13 +39,12 @@ import android.app.ProgressDialog
 
 object CurrentUserProfileFragment {
 
-  val SendPrivatePlurk = 1
-
   def newInstance() = new CurrentUserProfileFragment
 
   trait Listener {
-    def onPostPrivateMessageOK(): Unit
-    def onPostPrivateMessageToNotFriend(): Unit
+    def onProfileFetchedOK(): Unit
+    def onProfileFetchedFailure(error: Exception): Unit
+
   }
 
 
@@ -490,7 +489,7 @@ class CurrentUserProfileFragment extends Fragment {
       intent.putExtra(PostPlurkActivity.PrivatePlurkFullName, profile.userInfo.basicInfo.fullName)
       intent.putExtra(PostPlurkActivity.PrivatePlurkDisplayName, displayName)
 
-      startActivityForResult(intent, CurrentUserProfileFragment.SendPrivatePlurk)
+      startActivity(intent)
     }
   }
 
@@ -519,10 +518,12 @@ class CurrentUserProfileFragment extends Fragment {
       }
       editButtonHolder.foreach(_.setVisible(true))
       loadingIndicatorHolder.foreach(_.hide())
+      activity.onProfileFetchedOK()
     }
 
     userProfile.onFailureInUI { case e: Exception =>
       showErrorNotice(activity.getString(R.string.fragmentUserProfileError))
+      activity.onProfileFetchedFailure(e)
     }
   }
 

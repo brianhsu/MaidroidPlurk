@@ -39,7 +39,7 @@ import org.bone.soplurk.model._
 import scala.concurrent._
 import scala.util.Try
 
-class FanListFragment extends Fragment {
+class FollowingListFragment extends Fragment {
 
   private implicit def activity = getActivity.asInstanceOf[FragmentActivity]
 
@@ -50,24 +50,23 @@ class FanListFragment extends Fragment {
   private def retryButtonHolder = Option(getView).map(_.findView(TR.moduleErrorNoticeRetryButton))
 
   private def plurkAPI = PlurkAPIHelper.getPlurkAPI(activity)
-  private val userID = PlurkAPIHelper.plurkUserID
-  private var fanList: Option[Vector[User]] = None
+  private var followingList: Option[Vector[User]] = None
   private lazy val searchView = new SearchView(activity)
 
-  private def getFanList: Vector[User] = {
+  private def getFollowingList: Vector[User] = {
 
-    fanList match {
+    followingList match {
       case Some(list) => list
       case None =>
-        var batch = plurkAPI.FriendsFans.getFansByOffset(userID, 100).get
-        var allFans: Vector[User] = batch.toVector.map(_.basicInfo)
+        var batch = plurkAPI.FriendsFans.getFollowingByOffset(100).get
+        var allFollowings: Vector[User] = batch.toVector.map(_.basicInfo)
     
         while (batch != Nil) {
-          batch = plurkAPI.FriendsFans.getFansByOffset(userID, 100, offset = Some(allFans.size)).get
-          allFans = allFans ++ batch.toVector.map(_.basicInfo)
+          batch = plurkAPI.FriendsFans.getFollowingByOffset(100, offset = Some(allFollowings.size)).get
+          allFollowings = allFollowings ++ batch.toVector.map(_.basicInfo)
         }
-        val distinctUser = allFans.distinct
-        fanList = Some(distinctUser)
+        val distinctUser = allFollowings.distinct
+        followingList = Some(distinctUser)
         distinctUser
     }
   }
@@ -85,7 +84,7 @@ class FanListFragment extends Fragment {
     }
   }
 
-  private def removeFan(adapter: UserListAdapter, user: User) {
+  private def removeFollowing(adapter: UserListAdapter, user: User) {
     val dialogBuilder = new AlertDialog.Builder(activity)
     val displayName = (
       user.displayName.filterNot(_.trim.isEmpty) orElse 
@@ -94,8 +93,8 @@ class FanListFragment extends Fragment {
     ).getOrElse(user.id)
 
     val confirmDialog = 
-        dialogBuilder.setTitle(R.string.fragmentFanListBlockTitle)
-                     .setMessage(activity.getString(R.string.fragmentFanListBlockMessage).format(displayName))
+        dialogBuilder.setTitle(R.string.fragmentFollowingListUnfollowTitle)
+                     .setMessage(activity.getString(R.string.fragmentFollowingListUnfollowMessage).format(displayName))
                      .setPositiveButton(R.string.ok, null)
                      .setNegativeButton(R.string.cancel, null)
                      .create()
@@ -107,7 +106,7 @@ class FanListFragment extends Fragment {
           val progressDialog = ProgressDialog.show(
             activity, 
             activity.getString(R.string.pleaseWait), 
-            activity.getString(R.string.fragmentFanListBlocking), 
+            activity.getString(R.string.fragmentFollowingListUnfollowing), 
             true, false
           )
           val future = Future { plurkAPI.Blocks.block(user.id) }
@@ -119,7 +118,7 @@ class FanListFragment extends Fragment {
           }
 
           future.onFailureInUI { case e: Exception => 
-            Toast.makeText(activity, R.string.fragmentFanListBlockFailed, Toast.LENGTH_LONG).show() 
+            Toast.makeText(activity, R.string.fragmentFollowingListUnfollowFailed, Toast.LENGTH_LONG).show() 
             progressDialog.dismiss()
             confirmDialog.dismiss()
           }
@@ -131,9 +130,9 @@ class FanListFragment extends Fragment {
   }
 
   def updateList() {
-    val future = Future { getFanList }
-    future.onSuccessInUI { allFans =>
-      val adapter = new UserListAdapter(activity, allFans)
+    val future = Future { getFollowingList }
+    future.onSuccessInUI { allFollowings =>
+      val adapter = new UserListAdapter(activity, allFollowings)
 
       listViewHolder.foreach { listView =>
         listView.setAdapter(adapter)
@@ -161,8 +160,8 @@ class FanListFragment extends Fragment {
           override def onItemLongClick(parent: AdapterView[_], view: View, position: Int, id: Long): Boolean = {
             val dialog = new AlertDialog.Builder(activity)
             val itemList = Array(
-              activity.getString(R.string.fragmentFanListViewTimeline), 
-              activity.getString(R.string.fragmentFanListBlock)
+              activity.getString(R.string.fragmentFollowingListViewTimeline), 
+              activity.getString(R.string.fragmentFollowingListUnfollow)
             )
             val itemAdapter = new ArrayAdapter(activity, android.R.layout.select_dialog_item, itemList)
             val onClickListener = new DialogInterface.OnClickListener {
@@ -170,11 +169,11 @@ class FanListFragment extends Fragment {
                 val user = adapter.getItem(position)
                 which match {
                   case 0 => UserTimelineActivity.startActivity(activity, user)
-                  case 1 => removeFan(adapter, user)
+                  case 1 => removeFollowing(adapter, user)
                 }
               }
             }
-            dialog.setTitle(R.string.fragmentFanListAction)
+            dialog.setTitle(R.string.fragmentFollowingListAction)
                   .setAdapter(itemAdapter, onClickListener)
                   .show()
             true
@@ -186,7 +185,7 @@ class FanListFragment extends Fragment {
     }
 
     future.onFailureInUI { case e: Exception =>
-      showErrorNotice(activity.getString(R.string.fragmentFanFetchFailure))
+      showErrorNotice(activity.getString(R.string.fragmentFollowingFetchFailure))
     }
 
   }

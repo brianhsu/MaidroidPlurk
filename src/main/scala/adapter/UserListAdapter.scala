@@ -10,18 +10,18 @@ import android.widget.Filter
 
 import org.bone.soplurk.model._
 
-class UserListAdapter(activity: Activity, originList: Vector[ExtendedUser]) extends BaseAdapter with Filterable {
+class UserListAdapter(activity: Activity, originList: Vector[User]) extends BaseAdapter with Filterable {
 
   private var userList = originList
   private var filteredUserList = originList
 
   override def getCount = filteredUserList.size
   override def getItem(position: Int) = filteredUserList(position)
-  override def getItemId(position: Int) = filteredUserList(position).basicInfo.id
+  override def getItemId(position: Int) = filteredUserList(position).id
   override def getFilter = filter
 
   def removeUser(userID: Long) {
-    userList = userList.filterNot(_.basicInfo.id == userID)
+    userList = userList.filterNot(_.id == userID)
     filteredUserList = userList
     notifyDataSetChanged()
   }
@@ -51,9 +51,9 @@ class UserListAdapter(activity: Activity, originList: Vector[ExtendedUser]) exte
     private def getSearchResults(constraint: String) = {
       val results = new FilterResults
       val filteredUsers = userList.filter { user => 
-        user.basicInfo.nickname.contains(constraint) ||
-        user.basicInfo.fullName.contains(constraint) ||
-        user.basicInfo.displayName.map(_ contains constraint).getOrElse(false)
+        user.nickname.toLowerCase.contains(constraint.toLowerCase) ||
+        user.fullName.toLowerCase.contains(constraint.toLowerCase) ||
+        user.displayName.map(_.toLowerCase contains constraint.toLowerCase).getOrElse(false)
       }
       results.count = filteredUsers.size
       results.values = filteredUsers
@@ -70,7 +70,7 @@ class UserListAdapter(activity: Activity, originList: Vector[ExtendedUser]) exte
     }
 
     override def publishResults(constraint: CharSequence, results: FilterResults) {
-      val filteredUserList = results.values.asInstanceOf[Vector[ExtendedUser]]
+      val filteredUserList = results.values.asInstanceOf[Vector[User]]
       UserListAdapter.this.filteredUserList = filteredUserList
       notifyDataSetChanged()
     }

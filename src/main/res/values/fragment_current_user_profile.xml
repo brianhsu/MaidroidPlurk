@@ -27,4 +27,8 @@
   <string name="profilePrivateTimelineConfirmContent">Private timeline cannot have any fans, fans your currently have will also be deleted. Are you sure to continue?</string>
   <string name="activityCurrentUserWelcome01">I\'m loading your profile now, please wait a moment, my master.</string>
 
+  <string name="fragmentCurrentUserFetchDone">I\'ve fetched your profile for you, my master.</string>
+  <string name="fragmentCurrentUserFetchFailure01">Sorry, I\'m so useless. I cannot get your profile from Plurk...</string>
+  <string name="fragmentCurrentUserFetchFailure02">The system says this is caused by: %s</string>
+
 </resources>

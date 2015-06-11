@@ -51,19 +51,19 @@ class FriendListFragment extends Fragment {
 
   private def plurkAPI = PlurkAPIHelper.getPlurkAPI(activity)
   private val userID = PlurkAPIHelper.plurkUserID
-  private var friendList: Option[Vector[ExtendedUser]] = None
+  private var friendList: Option[Vector[User]] = None
   private lazy val searchView = new SearchView(activity)
 
-  private def getFriendList: Vector[ExtendedUser] = {
+  private def getFriendList: Vector[User] = {
     friendList match {
       case Some(list) => list
       case None =>
         var batch = plurkAPI.FriendsFans.getFriendsByOffset(userID, 100).get
-        var allFriends: Vector[ExtendedUser] = batch.toVector
+        var allFriends: Vector[User] = batch.toVector.map(_.basicInfo)
         
         while (batch != Nil) {
           batch = plurkAPI.FriendsFans.getFriendsByOffset(userID, 100, offset = Some(allFriends.size)).get
-          allFriends = allFriends ++ batch.toVector
+          allFriends = allFriends ++ batch.toVector.map(_.basicInfo)
         }
 
         val distinctUsers = allFriends.distinct
@@ -86,9 +86,15 @@ class FriendListFragment extends Fragment {
     }
   }
 
-  private def removeFriend(adapter: UserListAdapter, user: ExtendedUser) {
+  private def removeFriend(adapter: UserListAdapter, user: User) {
     val dialogBuilder = new AlertDialog.Builder(activity)
-    val displayName = user.basicInfo.displayName.getOrElse(user.basicInfo.nickname)
+    val displayName = (
+      user.displayName.filterNot(_.trim.isEmpty) orElse 
+      Option(user.fullName).filterNot(_.trim.isEmpty) orElse
+      Option(user.nickname).filterNot(_.trim.isEmpty)
+    ).getOrElse(user.id)
+
+
     val confirmDialog = 
         dialogBuilder.setTitle(R.string.fragmentFriendListDeleteTitle)
                      .setMessage(activity.getString(R.string.fragmentFriendListDeleteMessage).format(displayName))
@@ -106,10 +112,10 @@ class FriendListFragment extends Fragment {
             activity.getString(R.string.fragmentFriendListDeleting), 
             true, false
           )
-          val future = Future { plurkAPI.FriendsFans.removeAsFriend(user.basicInfo.id) }
+          val future = Future { plurkAPI.FriendsFans.removeAsFriend(user.id) }
 
           future.onSuccessInUI { status => 
-            adapter.removeUser(user.basicInfo.id) 
+            adapter.removeUser(user.id) 
             progressDialog.dismiss()
             confirmDialog.dismiss()
           }
@@ -147,8 +153,8 @@ class FriendListFragment extends Fragment {
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
           override def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long) {
-            val user = adapter.getItem(position).asInstanceOf[ExtendedUser]
-            UserTimelineActivity.startActivity(activity, user.basicInfo)
+            val user = adapter.getItem(position).asInstanceOf[User]
+            UserTimelineActivity.startActivity(activity, user)
           }
         })
 
@@ -165,7 +171,7 @@ class FriendListFragment extends Fragment {
               override def onClick(dialog: DialogInterface, which: Int) {
                 val user = adapter.getItem(position)
                 which match {
-                  case 0 => UserTimelineActivity.startActivity(activity, user.basicInfo)
+                  case 0 => UserTimelineActivity.startActivity(activity, user)
                   case 1 => removeFriend(adapter, user)
                 }
               }
@@ -188,7 +194,6 @@ class FriendListFragment extends Fragment {
   }
 
   override def onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-    println("=======> createOptionsMenu in fans list....")
     inflater.inflate(R.menu.fragment_user_list, menu)
     val searchItem = menu.findItem(R.id.userListSearch)
 

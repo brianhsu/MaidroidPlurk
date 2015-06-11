@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="fragmentFollowingListTitle">关注的对象</string>
+  <string name="fragmentFollowingListUnfollowTitle">确定要取消关注吗？</string>
+  <string name="fragmentFollowingListUnfollowMessage">确定要取消关关【%s】此人吗?</string>
+  <string name="fragmentFollowingListUnfollowing">取消关注中，请稍候……</string>
+  <string name="fragmentFollowingListUnfollowFailed">无法取消关注，请检查网路连线状态后重试。</string>
+  <string name="fragmentFollowingListViewTimeline">关看河道</string>
+  <string name="fragmentFollowingListUnfollow">取消关注</string>
+  <string name="fragmentFollowingListAction">请选择</string>
+  <string name="fragmentFollowingFetchFailure">无法取得关注对象名单</string>
+
+</resources>
+

@@ -72,15 +72,15 @@ class UserListItem(activity: Activity) extends LinearLayout(activity) {
   }
 
 
-  def update(user: ExtendedUser) {
-    this.ownerID = user.basicInfo.id
-    val displayName = user.basicInfo.displayName.getOrElse(user.basicInfo.nickname)
-    title.setText(s"$displayName (${user.basicInfo.fullName})")
+  def update(user: User) {
+    this.ownerID = user.id
+    val displayName = user.displayName.getOrElse(user.nickname)
+    title.setText(s"$displayName (${user.fullName})")
     avatar.setImageResource(R.drawable.default_avatar)
-    avatar.setOnClickListener { view: View => UserTimelineActivity.startActivity(activity, user.basicInfo) }
-    AvatarCache.getAvatarBitmapFromCache(activity, user.basicInfo) match {
+    avatar.setOnClickListener { view: View => UserTimelineActivity.startActivity(activity, user) }
+    AvatarCache.getAvatarBitmapFromCache(activity, user) match {
       case Some(avatarBitmap) => setAvatarFromCache(avatarBitmap)
-      case None => setAvatarFromNetwork(activity, user.basicInfo)
+      case None => setAvatarFromNetwork(activity, user)
     }
 
   }
