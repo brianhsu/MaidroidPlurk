@@ -21,11 +21,15 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.View
+import android.view.Menu
+import android.view.MenuItem
+import android.view.MenuInflater
 import android.widget.AdapterView
 import android.widget.Toast
 import android.webkit.WebViewClient
 import android.webkit.WebView
 import android.support.v4.app.FragmentActivity
+import android.support.v7.widget.SearchView
 
 import org.bone.soplurk.api._
 import org.bone.soplurk.api.PlurkAPI._
@@ -43,11 +47,10 @@ class FriendListFragment extends Fragment {
   private def errorNoticeHolder = Option(getView).map(_.findView(TR.userListErrorNotice))
   private def emptyNoticeHolder = Option(getView).map(_.findView(TR.userListEmptyNotice))
   private def retryButtonHolder = Option(getView).map(_.findView(TR.moduleErrorNoticeRetryButton))
-  private def searchViewHolder = Option(getView).map(_.findView(TR.userListSearchView))
 
   private def plurkAPI = PlurkAPIHelper.getPlurkAPI(activity)
   private val userID = PlurkAPIHelper.plurkUserID
-
+  private lazy val searchView = new SearchView(activity)
 
   private def getFriendList: Vector[ExtendedUser] = {
     var batch = plurkAPI.FriendsFans.getFriendsByOffset(userID, 100).get
@@ -74,12 +77,12 @@ class FriendListFragment extends Fragment {
     }
   }
 
-  private def removeFriend(adapter: FriendListAdapter, user: ExtendedUser) {
+  private def removeFriend(adapter: UserListAdapter, user: ExtendedUser) {
     val dialogBuilder = new AlertDialog.Builder(activity)
     val displayName = user.basicInfo.displayName.getOrElse(user.basicInfo.nickname)
     val confirmDialog = 
-        dialogBuilder.setTitle("確定要刪除好友嗎？")
-                     .setMessage(s"確定要把【$displayName】從好友名單中移除嗎？")
+        dialogBuilder.setTitle(R.string.fragmentFriendListDeleteTitle)
+                     .setMessage(activity.getString(R.string.fragmentFriendListDeleteMessage).format(displayName))
                      .setPositiveButton(R.string.ok, null)
                      .setNegativeButton(R.string.cancel, null)
                      .create()
@@ -88,7 +91,12 @@ class FriendListFragment extends Fragment {
       override def onShow(dialog: DialogInterface) {
         val okButton = confirmDialog.getButton(DialogInterface.BUTTON_POSITIVE)
         okButton.setOnClickListener { view: View =>
-          val progressDialog = ProgressDialog.show(activity, "請稍候", "刪除好友中，請稍候……", true, false)
+          val progressDialog = ProgressDialog.show(
+            activity, 
+            activity.getString(R.string.pleaseWait), 
+            activity.getString(R.string.fragmentFriendListDeleting), 
+            true, false
+          )
           val future = Future { plurkAPI.FriendsFans.removeAsFriend(user.basicInfo.id) }
 
           future.onSuccessInUI { status => 
@@ -98,7 +106,7 @@ class FriendListFragment extends Fragment {
           }
 
           future.onFailureInUI { case e: Exception => 
-            Toast.makeText(activity, "刪除失敗，請檢查網路狀態後重試一次。", Toast.LENGTH_LONG).show() 
+            Toast.makeText(activity, R.string.fragmentFriendListDeleteFailed, Toast.LENGTH_LONG).show() 
             progressDialog.dismiss()
             confirmDialog.dismiss()
           }
@@ -112,10 +120,22 @@ class FriendListFragment extends Fragment {
   def updateList() {
     val future = Future { getFriendList }
     future.onSuccessInUI { allFriends =>
-      val adapter = new FriendListAdapter(activity, allFriends)
+      val adapter = new UserListAdapter(activity, allFriends)
       listViewHolder.foreach { listView =>
         listView.setAdapter(adapter)
         emptyNoticeHolder.foreach(view => listView.setEmptyView(view))
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+          override def onQueryTextChange(newText: String) = {
+            adapter.getFilter.filter(newText)
+            false
+          }
+          override def onQueryTextSubmit(text: String) = {
+            adapter.getFilter.filter(text)
+            true
+          }
+        })
+
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
           override def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long) {
             val user = adapter.getItem(position).asInstanceOf[ExtendedUser]
@@ -127,7 +147,10 @@ class FriendListFragment extends Fragment {
 
           override def onItemLongClick(parent: AdapterView[_], view: View, position: Int, id: Long): Boolean = {
             val dialog = new AlertDialog.Builder(activity)
-            val itemList = Array("關看河道", "刪除好友")
+            val itemList = Array(
+              activity.getString(R.string.fragmentFriendListViewTimeline), 
+              activity.getString(R.string.fragmentFriendListDeleteFriend)
+            )
             val itemAdapter = new ArrayAdapter(activity, android.R.layout.select_dialog_item, itemList)
             val onClickListener = new DialogInterface.OnClickListener {
               override def onClick(dialog: DialogInterface, which: Int) {
@@ -138,7 +161,7 @@ class FriendListFragment extends Fragment {
                 }
               }
             }
-            dialog.setTitle("請選擇")
+            dialog.setTitle(R.string.fragmentFriendListAction)
                   .setAdapter(itemAdapter, onClickListener)
                   .show()
             true
@@ -147,21 +170,31 @@ class FriendListFragment extends Fragment {
 
       }
       loadingIndicatorHolder.foreach(_.setVisibility(View.GONE))
-      searchViewHolder.foreach { searchView =>
-        searchView.setIconifiedByDefault(false)
-      }
     }
 
     future.onFailureInUI { case e: Exception =>
-      showErrorNotice("無法取得好友列表")
+      showErrorNotice(activity.getString(R.string.fragmentFriendFetchFailure))
     }
 
+  }
+
+  override def onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    import android.support.v4.view.MenuItemCompat
+    inflater.inflate(R.menu.fragment_user_list, menu)
+    val searchItem = menu.findItem(R.id.userListSearch)
+    MenuItemCompat.setActionView(searchItem, searchView)
+    super.onCreateOptionsMenu(menu, inflater)
+  }
+
+  override def onOptionsItemSelected(item: MenuItem) = item.getItemId match {
+    case _ => super.onOptionsItemSelected(item)
   }
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
                             savedInstanceState: Bundle): View = {
     val view = inflater.inflate(R.layout.fragment_user_list, container, false)
     updateList()
+    setHasOptionsMenu(true)
     view
   }
 

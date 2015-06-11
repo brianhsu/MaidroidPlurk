@@ -99,8 +99,9 @@
   <string name="maidLinkCopied">已經幫主人把這則噗文的連結放到剪貼簿裡去囉，主人是想要和別人分享這則噗文嗎？</string>
 
   <string name="menuTimeMachine">時光機</string>
-
   <string name="fragmentUserProfileSendPrivateMessageToSelf">私噗給自己</string>
 
+  <string name="userListEmptyNoticeText">沒有任何人呢！</string>
+  <string name="userListSearch">搜尋</string>
 
 </resources>

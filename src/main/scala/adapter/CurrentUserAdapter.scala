@@ -17,7 +17,7 @@ class CurrentUserAdapter(context: Context, fm: FragmentManager) extends Fragment
   }
   override def getPageTitle(position: Int) = position match {
     case 0 => context.getString(R.string.titleMyProfile)
-    case 1 => "好友列表"
+    case 1 => context.getString(R.string.fragmentFriendListTitle)
   }
 }
 

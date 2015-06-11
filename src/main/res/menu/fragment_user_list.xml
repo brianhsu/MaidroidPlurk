@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:maidroid="http://schemas.android.com/apk/res-auto">
+
+  <item android:id="@+id/userListSearch"
+        android:title="@string/userListSearch"
+        maidroid:showAsAction="always" />
+
+</menu>

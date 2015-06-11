@@ -41,7 +41,7 @@ import java.net.URL
 import java.util.Date
 import java.text.SimpleDateFormat
 
-class FriendView(activity: Activity) extends LinearLayout(activity) {
+class UserListItem(activity: Activity) extends LinearLayout(activity) {
 
   private implicit val mActivity = activity
   private val inflater = LayoutInflater.from(activity)

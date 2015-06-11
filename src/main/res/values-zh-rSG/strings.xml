@@ -98,4 +98,7 @@
   <string name="menuTimeMachine">时光机</string>
   <string name="fragmentUserProfileSendPrivateMessageToSelf">私噗给自己</string>
 
+
+  <string name="userListEmptyNoticeText">没有任何人呢！</string>
+  <string name="userListSearch">搜寻</string>
 </resources>
