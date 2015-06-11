@@ -39,7 +39,7 @@ import org.bone.soplurk.model._
 import scala.concurrent._
 import scala.util.Try
 
-class FriendListFragment extends Fragment {
+class FanListFragment extends Fragment {
 
   private implicit def activity = getActivity.asInstanceOf[FragmentActivity]
 
@@ -51,25 +51,24 @@ class FriendListFragment extends Fragment {
 
   private def plurkAPI = PlurkAPIHelper.getPlurkAPI(activity)
   private val userID = PlurkAPIHelper.plurkUserID
-  private var friendList: Option[Vector[ExtendedUser]] = None
+  private var fanList: Option[Vector[ExtendedUser]] = None
   private lazy val searchView = new SearchView(activity)
 
-  private def getFriendList: Vector[ExtendedUser] = {
-    friendList match {
+  private def getFanList: Vector[ExtendedUser] = {
+
+    fanList match {
       case Some(list) => list
       case None =>
-        var batch = plurkAPI.FriendsFans.getFriendsByOffset(userID, 100).get
-        var allFriends: Vector[ExtendedUser] = batch.toVector
-        
+        var batch = plurkAPI.FriendsFans.getFansByOffset(userID, 100).get
+        var allFans: Vector[ExtendedUser] = batch.toVector
+    
         while (batch != Nil) {
-          batch = plurkAPI.FriendsFans.getFriendsByOffset(userID, 100, offset = Some(allFriends.size)).get
-          allFriends = allFriends ++ batch.toVector
+          batch = plurkAPI.FriendsFans.getFansByOffset(userID, 100, offset = Some(allFans.size)).get
+          allFans = allFans ++ batch.toVector
         }
-
-        val distinctUsers = allFriends.distinct
-        friendList = Some(distinctUsers)
-        distinctUsers
-
+        val distinctUser = allFans.distinct
+        fanList = Some(distinctUser)
+        distinctUser
     }
   }
 
@@ -90,8 +89,8 @@ class FriendListFragment extends Fragment {
     val dialogBuilder = new AlertDialog.Builder(activity)
     val displayName = user.basicInfo.displayName.getOrElse(user.basicInfo.nickname)
     val confirmDialog = 
-        dialogBuilder.setTitle(R.string.fragmentFriendListDeleteTitle)
-                     .setMessage(activity.getString(R.string.fragmentFriendListDeleteMessage).format(displayName))
+        dialogBuilder.setTitle(R.string.fragmentFanListBlockTitle)
+                     .setMessage(activity.getString(R.string.fragmentFanListBlockMessage).format(displayName))
                      .setPositiveButton(R.string.ok, null)
                      .setNegativeButton(R.string.cancel, null)
                      .create()
@@ -103,10 +102,10 @@ class FriendListFragment extends Fragment {
           val progressDialog = ProgressDialog.show(
             activity, 
             activity.getString(R.string.pleaseWait), 
-            activity.getString(R.string.fragmentFriendListDeleting), 
+            activity.getString(R.string.fragmentFanListBlocking), 
             true, false
           )
-          val future = Future { plurkAPI.FriendsFans.removeAsFriend(user.basicInfo.id) }
+          val future = Future { plurkAPI.Blocks.block(user.basicInfo.id) }
 
           future.onSuccessInUI { status => 
             adapter.removeUser(user.basicInfo.id) 
@@ -115,7 +114,7 @@ class FriendListFragment extends Fragment {
           }
 
           future.onFailureInUI { case e: Exception => 
-            Toast.makeText(activity, R.string.fragmentFriendListDeleteFailed, Toast.LENGTH_LONG).show() 
+            Toast.makeText(activity, R.string.fragmentFanListBlockFailed, Toast.LENGTH_LONG).show() 
             progressDialog.dismiss()
             confirmDialog.dismiss()
           }
@@ -127,13 +126,12 @@ class FriendListFragment extends Fragment {
   }
 
   def updateList() {
-    val future = Future { getFriendList }
-    future.onSuccessInUI { allFriends =>
-      val adapter = new UserListAdapter(activity, allFriends)
+    val future = Future { getFanList }
+    future.onSuccessInUI { allFans =>
+      val adapter = new UserListAdapter(activity, allFans)
 
       listViewHolder.foreach { listView =>
         listView.setAdapter(adapter)
-        emptyNoticeHolder.foreach(view => listView.setEmptyView(view))
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
           override def onQueryTextChange(newText: String) = {
             adapter.getFilter.filter(newText)
@@ -145,6 +143,7 @@ class FriendListFragment extends Fragment {
           }
         })
 
+        emptyNoticeHolder.foreach(view => listView.setEmptyView(view))
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
           override def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long) {
             val user = adapter.getItem(position).asInstanceOf[ExtendedUser]
@@ -157,8 +156,8 @@ class FriendListFragment extends Fragment {
           override def onItemLongClick(parent: AdapterView[_], view: View, position: Int, id: Long): Boolean = {
             val dialog = new AlertDialog.Builder(activity)
             val itemList = Array(
-              activity.getString(R.string.fragmentFriendListViewTimeline), 
-              activity.getString(R.string.fragmentFriendListDeleteFriend)
+              activity.getString(R.string.fragmentFanListViewTimeline), 
+              activity.getString(R.string.fragmentFanListBlock)
             )
             val itemAdapter = new ArrayAdapter(activity, android.R.layout.select_dialog_item, itemList)
             val onClickListener = new DialogInterface.OnClickListener {
@@ -170,7 +169,7 @@ class FriendListFragment extends Fragment {
                 }
               }
             }
-            dialog.setTitle(R.string.fragmentFriendListAction)
+            dialog.setTitle(R.string.fragmentFanListAction)
                   .setAdapter(itemAdapter, onClickListener)
                   .show()
             true
@@ -182,16 +181,15 @@ class FriendListFragment extends Fragment {
     }
 
     future.onFailureInUI { case e: Exception =>
-      showErrorNotice(activity.getString(R.string.fragmentFriendFetchFailure))
+      showErrorNotice(activity.getString(R.string.fragmentFanFetchFailure))
     }
 
   }
 
   override def onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-    println("=======> createOptionsMenu in fans list....")
+    println("======> fan list onCreateOptionsMenu")
     inflater.inflate(R.menu.fragment_user_list, menu)
     val searchItem = menu.findItem(R.id.userListSearch)
-
     if (searchView.getParent != null) {
       searchView.getParent.asInstanceOf[ViewGroup].removeView(searchView)
     }

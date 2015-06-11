@@ -73,10 +73,10 @@ class CurrentUserProfileFragment extends Fragment {
   private def birthdayViewHolder = Option(getView).map(_.findView(TR.currentUserProfileBirthday))
   private def privacyViewHolder = Option(getView).map(_.findView(TR.currentUserProfilePrivacy))
 
+  private var profileHolder: Option[OwnProfile] = None
   private var userBirthdayHolder: Option[Date] = None
   private var userPrivacy: Option[TimelinePrivacy] = None
   private var editButtonHolder: Option[MenuItem] = None
-
   private val dateFormatter = new SimpleDateFormat("yyyy-MM-dd")
 
   override def onCreate(savedInstanceState: Bundle) {
@@ -496,7 +496,14 @@ class CurrentUserProfileFragment extends Fragment {
 
   private def updateProfile() {
 
-    val userProfile = Future { plurkAPI.Profile.getOwnProfile.get }
+    val userProfile = Future { 
+      val profile = profileHolder match {
+        case None => plurkAPI.Profile.getOwnProfile.get 
+        case Some(cache) => cache
+      }
+      profileHolder = Some(profile)
+      profile
+    }
 
     editButtonHolder.foreach(_.setVisible(false))
     userProfile.onSuccessInUI { profile =>

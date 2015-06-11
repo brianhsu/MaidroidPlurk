@@ -10,7 +10,7 @@
   <string name="fragmentUserProfileRemoveFreind">移除朋友</string>
   <string name="fragmentUserProfileAddFreindSent">已送好友出請求</string>
 
-  <string name="fragmentUserProfileIsFollowing">關注中</string>
+  <string name="fragmentUserProfileIsFollowing">取消關注</string>
   <string name="fragmentUserProfileNotFollowing">關注</string>
   <string name="fragmentUserProfilePrviate">私密河道</string>
 

@@ -3,7 +3,7 @@
       xmlns:maidroid="http://schemas.android.com/apk/res-auto">
 
   <item android:id="@+id/userListSearch"
-        android:title="@string/userListSearch"
+        android:title=""
         maidroid:showAsAction="always" />
 
 </menu>
