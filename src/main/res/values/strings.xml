@@ -100,5 +100,6 @@
 
   <string name="userListEmptyNoticeText">No body in this list.</string>
   <string name="userListSearch">Search</string>
+  <string name="titleAlertList">通知</string>
 
 </resources>

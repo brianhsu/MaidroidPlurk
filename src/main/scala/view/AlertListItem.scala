@@ -41,19 +41,20 @@ import java.net.URL
 import java.util.Date
 import java.text.SimpleDateFormat
 
-class UserListItem(activity: Activity) extends LinearLayout(activity) {
+class AlertListItem(activity: Activity) extends LinearLayout(activity) {
 
   private implicit val mActivity = activity
   private val inflater = LayoutInflater.from(activity)
   private var ownerID = -1L
 
-  lazy val avatar = this.findView(TR.itemPeopleWithAvatarAvatar)
-  lazy val title = this.findView(TR.itemPeopleWithAvatarTitle)
- 
+  lazy val avatar = this.findView(TR.itemAlertAvatar)
+  lazy val username = this.findView(TR.itemAlertUser)
+  lazy val content = this.findView(TR.itemAlertContent)
+
   initView()
 
   private def initView() {
-    inflater.inflate(R.layout.item_people_with_avatar, this, true)
+    inflater.inflate(R.layout.item_alert, this, true)
   }
 
   def setAvatarFromCache(avatarBitmap: Bitmap) {
@@ -72,10 +73,12 @@ class UserListItem(activity: Activity) extends LinearLayout(activity) {
   }
 
 
-  def update(user: User) {
-    this.ownerID = user.id
-    val displayName = user.displayName.filterNot(_.trim.isEmpty).getOrElse(user.nickname)
-    title.setText(s"$displayName (${user.fullName})")
+  def update(alert: Alert) {
+    val user = alert.user
+    this.ownerID = alert.user.id
+    val displayName = user.displayName.filterNot(_.isEmpty).getOrElse(user.nickname)
+    username.setText(s"$displayName (${user.fullName})")
+    content.setText("希望加入你為朋友")
     avatar.setImageResource(R.drawable.default_avatar)
     avatar.setOnClickListener { view: View => UserTimelineActivity.startActivity(activity, user) }
     AvatarCache.getAvatarBitmapFromCache(activity, user) match {

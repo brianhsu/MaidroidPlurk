@@ -41,6 +41,11 @@
 
     <activity 
       android:configChanges="orientation|screenSize"
+      android:name=".activity.AlertListActivity" 
+      android:label="@string/titleAlertList" />
+
+    <activity 
+      android:configChanges="orientation|screenSize"
       android:name=".activity.CurrentUserActivity" 
       android:label="@string/titleCurrentUser" />
 
