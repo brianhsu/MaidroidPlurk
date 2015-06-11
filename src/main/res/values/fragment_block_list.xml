@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="fragmentBlockListTitle">Blacklist</string>
+  <string name="fragmentBlockListUnblockTitle">Are you sure to unblock this person?</string>
+  <string name="fragmentBlockListUnblockMessage">Are you sure to unblock %s?</string>
+  <string name="fragmentBlockListUnblocking">Unblocking, please wait...</string>
+  <string name="fragmentBlockListUnblockFailed">Cannot unblock, please check internet connectivity and try again.</string>
+  <string name="fragmentBlockListViewTimeline">View Timeline</string>
+  <string name="fragmentBlockListUnblock">Unblock</string>
+  <string name="fragmentBlockListAction">Action</string>
+  <string name="fragmentBlockFetchFailure">Cannot fetch following list.</string>
+
+</resources>

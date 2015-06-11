@@ -31,6 +31,7 @@ object CurrentUserActivity {
 }
 
 class CurrentUserActivity extends ActionBarActivity 
+                          with CurrentUserProfileFragment.Listener
                           with ConfirmDialog.Listener
                           with TypedViewHolder 
 {
@@ -77,6 +78,21 @@ class CurrentUserActivity extends ActionBarActivity
         this.finish()
         Logout.doLogout(this)
     }
+  }
+
+  def onProfileFetchedOK() {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Happy, getString(R.string.fragmentCurrentUserFetchDone)) ::
+      Nil
+    )
+  }
+  def onProfileFetchedFailure(error: Exception) {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Panic, getString(R.string.fragmentCurrentUserFetchFailure01)) ::
+      Message(MaidMaro.Half.Normal, getString(R.string.fragmentCurrentUserFetchFailure02).format(error.getMessage)) ::
+      Nil
+    )
+
   }
 
 

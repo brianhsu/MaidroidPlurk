@@ -98,4 +98,7 @@
   <string name="menuTimeMachine">Time Machine</string>
   <string name="fragmentUserProfileSendPrivateMessageToSelf">Private Message to Self</string>
 
+  <string name="userListEmptyNoticeText">No body in this list.</string>
+  <string name="userListSearch">Search</string>
+
 </resources>

@@ -26,6 +26,7 @@ import org.bone.soplurk.model._
 
 import java.net.URL
 
+
 class PlurkAdapter(activity: FragmentActivity with PlurkView.Listener 
                                               with ConfirmDialog.Listener, 
                    isInResponseList: Boolean = false,

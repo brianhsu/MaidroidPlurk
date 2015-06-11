@@ -39,13 +39,12 @@ import android.app.ProgressDialog
 
 object CurrentUserProfileFragment {
 
-  val SendPrivatePlurk = 1
-
   def newInstance() = new CurrentUserProfileFragment
 
   trait Listener {
-    def onPostPrivateMessageOK(): Unit
-    def onPostPrivateMessageToNotFriend(): Unit
+    def onProfileFetchedOK(): Unit
+    def onProfileFetchedFailure(error: Exception): Unit
+
   }
 
 
@@ -73,10 +72,10 @@ class CurrentUserProfileFragment extends Fragment {
   private def birthdayViewHolder = Option(getView).map(_.findView(TR.currentUserProfileBirthday))
   private def privacyViewHolder = Option(getView).map(_.findView(TR.currentUserProfilePrivacy))
 
+  private var profileHolder: Option[OwnProfile] = None
   private var userBirthdayHolder: Option[Date] = None
   private var userPrivacy: Option[TimelinePrivacy] = None
   private var editButtonHolder: Option[MenuItem] = None
-
   private val dateFormatter = new SimpleDateFormat("yyyy-MM-dd")
 
   override def onCreate(savedInstanceState: Bundle) {
@@ -490,13 +489,20 @@ class CurrentUserProfileFragment extends Fragment {
       intent.putExtra(PostPlurkActivity.PrivatePlurkFullName, profile.userInfo.basicInfo.fullName)
       intent.putExtra(PostPlurkActivity.PrivatePlurkDisplayName, displayName)
 
-      startActivityForResult(intent, CurrentUserProfileFragment.SendPrivatePlurk)
+      startActivity(intent)
     }
   }
 
   private def updateProfile() {
 
-    val userProfile = Future { plurkAPI.Profile.getOwnProfile.get }
+    val userProfile = Future { 
+      val profile = profileHolder match {
+        case None => plurkAPI.Profile.getOwnProfile.get 
+        case Some(cache) => cache
+      }
+      profileHolder = Some(profile)
+      profile
+    }
 
     editButtonHolder.foreach(_.setVisible(false))
     userProfile.onSuccessInUI { profile =>
@@ -512,10 +518,12 @@ class CurrentUserProfileFragment extends Fragment {
       }
       editButtonHolder.foreach(_.setVisible(true))
       loadingIndicatorHolder.foreach(_.hide())
+      activity.onProfileFetchedOK()
     }
 
     userProfile.onFailureInUI { case e: Exception =>
       showErrorNotice(activity.getString(R.string.fragmentUserProfileError))
+      activity.onProfileFetchedFailure(e)
     }
   }
 

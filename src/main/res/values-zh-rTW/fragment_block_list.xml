@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="fragmentBlockListTitle">黑名單</string>
+  <string name="fragmentBlockListUnblockTitle">確定要取消封鎖嗎？</string>
+  <string name="fragmentBlockListUnblockMessage">確定要將【%s】從黑名單中移除嗎？</string>
+  <string name="fragmentBlockListUnblocking">取消黑名單中，請稍候……</string>
+  <string name="fragmentBlockListUnblockFailed">無法取消黑名單，請檢查網路狀態後重試。</string>
+  <string name="fragmentBlockListViewTimeline">關看河道</string>
+  <string name="fragmentBlockListUnblock">取消封鎖</string>
+  <string name="fragmentBlockListAction">行動</string>
+  <string name="fragmentBlockFetchFailure">無法取得黑名單。</string>
+
+</resources>

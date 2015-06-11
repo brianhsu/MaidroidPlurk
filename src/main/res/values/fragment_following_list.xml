@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="fragmentFollowingListTitle">Following</string>
+  <string name="fragmentFollowingListUnfollowTitle">Are you sure to unfollow this person?</string>
+  <string name="fragmentFollowingListUnfollowMessage">Are you sure to unfollow %s?</string>
+  <string name="fragmentFollowingListUnfollowing">Unfollowing, please wait...</string>
+  <string name="fragmentFollowingListUnfollowFailed">Cannot unfollow, please check internet connectivity and try again.</string>
+  <string name="fragmentFollowingListViewTimeline">View Timeline</string>
+  <string name="fragmentFollowingListUnfollow">Unfollow</string>
+  <string name="fragmentFollowingListAction">Action</string>
+  <string name="fragmentFollowingFetchFailure">Cannot fetch following list.</string>
+
+</resources>

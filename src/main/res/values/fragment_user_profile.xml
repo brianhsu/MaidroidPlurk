@@ -10,7 +10,7 @@
   <string name="fragmentUserProfileRemoveFreind">Remove Freindship</string>
   <string name="fragmentUserProfileAddFreindSent">Request sent</string>
 
-  <string name="fragmentUserProfileIsFollowing">Following</string>
+  <string name="fragmentUserProfileIsFollowing">UnFollow</string>
   <string name="fragmentUserProfileNotFollowing">Follow</string>
   <string name="fragmentUserProfilePrviate">Private Timeline</string>
 

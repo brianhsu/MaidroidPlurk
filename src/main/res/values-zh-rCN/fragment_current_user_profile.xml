@@ -27,5 +27,8 @@
   <string name="profilePrivateTimelineConfirmContent">设为私密河道将无法拥有粉丝功能，现在所拥有的粉丝将会全数清除，确定要继续吗？</string>
 
   <string name="activityCurrentUserWelcome01">小铃正在帮主人读取您的个人档案，请主人稍候一下哟！</string>
+  <string name="fragmentCurrentUserFetchDone">小铃已经帮主人把您的个人资料准备好啰，如果主人想更改您的个人资料的话，也请告诉小铃一声哟！</string>
+  <string name="fragmentCurrentUserFetchFailure01">对不起，小铃实在太没用了，没办法从噗浪上取得主人的个人资料……</string>
+  <string name="fragmentCurrentUserFetchFailure02">系统说是由于以下的原因造成的说：%s</string>
 </resources>
 

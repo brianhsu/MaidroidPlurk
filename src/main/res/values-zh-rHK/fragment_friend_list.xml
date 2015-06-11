@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="fragmentFriendListTitle">好友列表</string>
+  <string name="fragmentFriendListDeleteTitle">確定要刪除好友嗎？</string>
+  <string name="fragmentFriendListDeleteMessage">確定要把【%s】從好友名單中移除嗎？</string>
+  <string name="fragmentFriendListDeleting">刪除好友中，請稍候……</string>
+  <string name="fragmentFriendListDeleteFailed">刪除失敗，請檢查網路狀態後重試一次。</string>
+  <string name="fragmentFriendListViewTimeline">關看河道</string>
+  <string name="fragmentFriendListDeleteFriend">刪除好友</string>
+  <string name="fragmentFriendListAction">請選擇</string>
+  <string name="fragmentFriendFetchFailure">無法取得好友列表</string>
+
+</resources>
