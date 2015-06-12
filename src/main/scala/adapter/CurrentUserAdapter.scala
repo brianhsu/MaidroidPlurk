@@ -10,13 +10,20 @@ import idv.brianhsu.maidroid.plurk._
 
 
 class CurrentUserAdapter(context: Context, fm: FragmentManager) extends FragmentPagerAdapter(fm) {
+
+  lazy val currentUserProfileFragment = CurrentUserProfileFragment.newInstance
+  lazy val friendListFragment = new FriendListFragment
+  lazy val fanListFragment = new FanListFragment
+  lazy val followingListFragment = new FollowingListFragment
+  lazy val blockListFragment = new BlockListFragment
+
   override def getCount = 5
   override def getItem(position: Int) = position match {
-    case 0 => CurrentUserProfileFragment.newInstance()
-    case 1 => new FriendListFragment
-    case 2 => new FanListFragment
-    case 3 => new FollowingListFragment
-    case 4 => new BlockListFragment
+    case 0 => currentUserProfileFragment
+    case 1 => friendListFragment
+    case 2 => fanListFragment
+    case 3 => followingListFragment
+    case 4 => blockListFragment
   }
   override def getPageTitle(position: Int) = position match {
     case 0 => context.getString(R.string.titleMyProfile)
