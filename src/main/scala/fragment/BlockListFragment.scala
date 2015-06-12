@@ -109,7 +109,7 @@ class BlockListFragment extends Fragment {
             activity.getString(R.string.fragmentBlockListUnblocking), 
             true, false
           )
-          val future = Future { plurkAPI.Blocks.unblock(user.id) }
+          val future = Future { plurkAPI.Blocks.unblock(user.id).get }
 
           future.onSuccessInUI { status => 
             if (activity != null) {

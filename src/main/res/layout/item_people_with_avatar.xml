@@ -9,7 +9,7 @@
   <ImageView
     android:id="@+id/itemPeopleWithAvatarAvatar"
     android:src="@drawable/default_avatar"
-    android:maxWidth="45dp"
+    android:maxWidth="36dp"
     android:scaleType="centerInside"
     android:adjustViewBounds="true"
     android:layout_margin="5dp"

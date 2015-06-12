@@ -140,7 +140,7 @@ class CurrentUserProfileFragment extends Fragment {
         activity.getString(R.string.profileSaving),
         true, false
       )
-      val future = Future { plurkAPI.Users.update(privacy = Some(newPrivacy)) }
+      val future = Future { plurkAPI.Users.update(privacy = Some(newPrivacy)).get }
 
       future.onSuccessInUI { e: Any => 
         if (activity != null) {
@@ -211,7 +211,7 @@ class CurrentUserProfileFragment extends Fragment {
           activity.getString(R.string.profileSaving), 
           true, false
         )
-        val future = Future { plurkAPI.Users.update(birthday = Some(calendar.getTime)) }
+        val future = Future { plurkAPI.Users.update(birthday = Some(calendar.getTime)).get }
 
         future.onSuccessInUI { e: Any => 
           if (activity != null) {

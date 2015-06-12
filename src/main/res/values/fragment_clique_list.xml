@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="fragmentCliqueListTitle">Cliques</string>
+  <string name="fragmentCliqueListAdd">New Clique</string>
+
+  <string name="fragmentCliqueListAdding">Creating, please wait...</string>
+  <string name="fragmentCliqueListAddTitle">Add new clique</string>
+  <string name="fragmentCliqueListAddHint">Clique name here</string>
+  <string name="fragmentCliqueListAddFailed">Cannot create this clique, please check your Internet connectivity and try again.</string>
+
+  <string name="fragmentCliqueListFetchFailure">Cannot fetch clique list.</string>
+
+  <string name="fragmentCliqueListAction">Action</string>
+  <string name="fragmentCliqueListView">View</string>
+  <string name="fragmentCliqueListDelete">Delete</string>
+
+  <string name="fragmentCliqueListDeleteTitle">Are you sure to delete?</string>
+  <string name="fragmentCliqueListDeleteMessage">Are you sure to delete clique [%s]?</string>
+  <string name="fragmentCliqueListDeleting">Deleting, please wait...</string>
+  <string name="fragmentCliqueListDeleteFailed">Cannot delete this clique, please check your Internet connectivity and try again.</string>
+
+
+
+</resources>

@@ -110,7 +110,7 @@ class FanListFragment extends Fragment {
             activity.getString(R.string.fragmentFanListBlocking), 
             true, false
           )
-          val future = Future { plurkAPI.Blocks.block(user.id) }
+          val future = Future { plurkAPI.Blocks.block(user.id).get }
 
           future.onSuccessInUI { status => 
             if (activity != null) {

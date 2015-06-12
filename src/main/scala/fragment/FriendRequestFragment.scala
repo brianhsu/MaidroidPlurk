@@ -72,7 +72,7 @@ class FriendRequestFragment extends Fragment {
       activity.getString(R.string.fragmentFriendRequestAccepting),
       true, false
     )
-    val future = Future { plurkAPI.Alerts.addAsFriend(alert.user.id) }
+    val future = Future { plurkAPI.Alerts.addAsFriend(alert.user.id).get }
 
     future.onSuccessInUI { status =>
       if (activity != null) {
@@ -98,7 +98,7 @@ class FriendRequestFragment extends Fragment {
       activity.getString(R.string.fragmentFriendRequestFanAdding),
       true, false
     )
-    val future = Future { plurkAPI.Alerts.addAsFan(alert.user.id) }
+    val future = Future { plurkAPI.Alerts.addAsFan(alert.user.id).get }
 
     future.onSuccessInUI { status =>
       if (activity != null) {
@@ -125,7 +125,7 @@ class FriendRequestFragment extends Fragment {
       activity.getString(R.string.fragmentFriendRequestIgnore),
       true, false
     )
-    val future = Future { plurkAPI.Alerts.denyFriendship(alert.user.id) }
+    val future = Future { plurkAPI.Alerts.denyFriendship(alert.user.id).get }
 
     future.onSuccessInUI { status =>
       if (activity != null) {

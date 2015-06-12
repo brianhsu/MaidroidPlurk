@@ -109,7 +109,7 @@ class FollowingListFragment extends Fragment {
             activity.getString(R.string.fragmentFollowingListUnfollowing), 
             true, false
           )
-          val future = Future { plurkAPI.Blocks.block(user.id) }
+          val future = Future { plurkAPI.FriendsFans.setFollowing(user.id, false).get }
 
           future.onSuccessInUI { status => 
             if (activity != null) {
