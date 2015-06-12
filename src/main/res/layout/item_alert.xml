@@ -23,18 +23,22 @@
     <TextView
       android:id="@+id/itemAlertUser"
       android:text="title"
+      android:textSize="14sp"
       android:layout_weight="1"
+      android:singleLine="true"
+      android:ellipsize="end"
       android:gravity="center_vertical"
-      android:layout_marginLeft="5dp"
+      android:layout_marginLeft="10dp"
       android:layout_width="wrap_content"
       android:layout_height="match_parent"/>
 
     <TextView
       android:id="@+id/itemAlertContent"
       android:text="title"
+      android:textSize="16sp"
       android:layout_weight="1"
       android:gravity="right|center_vertical"
-      android:layout_marginLeft="5dp"
+      android:layout_marginRight="10dp"
       android:layout_width="match_parent"
       android:layout_height="match_parent"/>
   </LinearLayout>

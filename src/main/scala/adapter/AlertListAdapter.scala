@@ -15,7 +15,7 @@ class AlertListAdapter(activity: Activity, originList: Vector[Alert]) extends Ba
   override def getItem(position: Int) = alertList(position)
   override def getItemId(position: Int) = alertList(position).hashCode
 
-  def removeUser(alert: Alert) {
+  def removeAlert(alert: Alert) {
     alertList = alertList.filterNot(_ == alert)
     notifyDataSetChanged()
   }

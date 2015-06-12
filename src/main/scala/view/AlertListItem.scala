@@ -32,9 +32,7 @@ import android.widget.LinearLayout
 import android.widget.Toast
 
 import org.bone.soplurk.api.PlurkAPI._
-import org.bone.soplurk.constant.PlurkType
-import org.bone.soplurk.constant.ReadStatus._
-
+import org.bone.soplurk.constant.AlertType
 import org.bone.soplurk.model._
 
 import java.net.URL
@@ -77,8 +75,18 @@ class AlertListItem(activity: Activity) extends LinearLayout(activity) {
     val user = alert.user
     this.ownerID = alert.user.id
     val displayName = user.displayName.filterNot(_.isEmpty).getOrElse(user.nickname)
+    val contentText = alert.alertType match {
+      case AlertType.FriendshipRequest => R.string.viewAlertItemRequest
+      case AlertType.FriendshipPending => R.string.viewAlertItemPending
+      case AlertType.FriendshipAccepted => R.string.viewAlertItemNewFriend
+      case AlertType.NewFriend => R.string.viewAlertItemNewFriend
+      case AlertType.NewFan => R.string.viewAlertItemNewFan
+    }
+
+
     username.setText(s"$displayName (${user.fullName})")
-    content.setText("希望加入你為朋友")
+    content.setText(contentText)
+
     avatar.setImageResource(R.drawable.default_avatar)
     avatar.setOnClickListener { view: View => UserTimelineActivity.startActivity(activity, user) }
     AvatarCache.getAvatarBitmapFromCache(activity, user) match {

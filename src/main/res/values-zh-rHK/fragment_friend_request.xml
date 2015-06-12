@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="fragmentFriendRequestListTitle">好友邀請</string>
+  <string name="fragmentFriendRequestFetchFailure">無法取得好友邀請列表</string>
+
+  <string name="fragmentFriendRequestViewTimeline">觀看河道</string>
+  <string name="fragmentFriendRequestAccept">加為好友</string>
+  <string name="fragmentFriendRequestIgnore">忽略邀請</string>
+  <string name="fragmentFriendRequestAddAsFan">加為粉絲</string>
+  <string name="fragmentFriendRequestAction">請選擇</string>
+
+  <string name="fragmentFriendRequestAccepting">接受好友邀請中，請稍候……</string>
+  <string name="fragmentFriendRequestAccepted">已加為朋友</string>
+  <string name="fragmentFriendRequestAcceptFailed">無法接受此好友邀請，請檢查網路狀態後重試。</string>
+
+  <string name="fragmentFriendRequestFanAdding">加為粉絲，請稍候……</string>
+  <string name="fragmentFriendRequestFanAdded">已加為粉絲</string>
+  <string name="fragmentFriendRequestFanAddFailed">無法將此使用者加為粉絲，請檢查網路狀態後重試。</string>
+
+  <string name="fragmentFriendRequestIgnoring">忽略中，請稍候……</string>
+  <string name="fragmentFriendRequestIgnored">已忽略此邀請</string>
+  <string name="fragmentFriendRequestIgnoreFailed">無法忽略此邀請，請檢查網路狀態後重試。</string>
+
+  <string name="fragmentFriendRequestWelcome">這裡幫主人列出的是目前的好友邀請喲，如果主人想看以前的記錄，可以切換到「歷史記錄」的頁籤喔。 </string>
+
+
+</resources>

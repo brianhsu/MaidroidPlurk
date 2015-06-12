@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="viewAlertItemRequest">希望加入你為朋友</string>
+  <string name="viewAlertItemPending">尚未接受你的加入朋友邀請</string>
+  <string name="viewAlertItemNewFan">已成為你的粉絲</string>
+  <string name="viewAlertItemNewFriend">已成為你的朋友</string>
+
+
+</resources>

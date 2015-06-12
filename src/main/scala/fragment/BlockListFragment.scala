@@ -185,7 +185,7 @@ class BlockListFragment extends Fragment {
     }
 
     future.onFailureInUI { case e: Exception =>
-      showErrorNotice(activity.getString(R.string.fragmentFollowingFetchFailure))
+      showErrorNotice(activity.getString(R.string.fragmentBlockFetchFailure))
     }
 
   }

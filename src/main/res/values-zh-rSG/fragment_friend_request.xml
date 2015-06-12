@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="fragmentFriendRequestListTitle">好友邀请</string>
+  <string name="fragmentFriendRequestFetchFailure">无法取得好友邀请列表</string>
+
+  <string name="fragmentFriendRequestViewTimeline">观看河道</string>
+  <string name="fragmentFriendRequestAccept">加为好友</string>
+  <string name="fragmentFriendRequestIgnore">忽略邀请</string>
+  <string name="fragmentFriendRequestAddAsFan">加为粉丝</string>
+  <string name="fragmentFriendRequestAction">请选择</string>
+
+  <string name="fragmentFriendRequestAccepting">接受好友邀请中，请稍候……</string>
+  <string name="fragmentFriendRequestAccepted">已加为朋友</string>
+  <string name="fragmentFriendRequestAcceptFailed">无法接受此好友邀请，请检查网路状态后重试。</string>
+
+  <string name="fragmentFriendRequestFanAdding">加为粉丝，请稍候……</string>
+  <string name="fragmentFriendRequestFanAdded">已加为粉丝</string>
+  <string name="fragmentFriendRequestFanAddFailed">无法将此使用者加为粉丝，请检查网路状态后重试。</string>
+
+  <string name="fragmentFriendRequestIgnoring">忽略中，请稍候……</string>
+  <string name="fragmentFriendRequestIgnored">已忽略此邀请</string>
+  <string name="fragmentFriendRequestIgnoreFailed">无法忽略此邀请，请检查网路状态后重试。</string>
+
+  <string name="fragmentFriendRequestWelcome">这里帮主人列出的是目前的好友邀请哟，如果主人想看以前的记录，可以切换到“历史记录”的页签喔。 </string>
+</resources>
+

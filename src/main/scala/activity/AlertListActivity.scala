@@ -45,12 +45,10 @@ class AlertListActivity extends ActionBarActivity
     setContentView(R.layout.activity_alert_list)
     viewPager.setAdapter(pageAdapter)
     pagerIndicator.setViewPager(viewPager)
-    /*
     dialogFrame.setMessages(
-      Message(MaidMaro.Half.Smile, getString(R.string.activityCurrentUserWelcome01)) ::
+      Message(MaidMaro.Half.Happy, getString(R.string.fragmentFriendRequestWelcome)) ::
       Nil
     )
-    */
   }
 
   override def onResume() {

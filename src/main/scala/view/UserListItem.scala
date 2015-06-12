@@ -75,7 +75,8 @@ class UserListItem(activity: Activity) extends LinearLayout(activity) {
   def update(user: User) {
     this.ownerID = user.id
     val displayName = user.displayName.filterNot(_.trim.isEmpty).getOrElse(user.nickname)
-    title.setText(s"$displayName (${user.fullName})")
+    val fullName = Option(user.fullName).filterNot(_.trim.isEmpty).map(name => s"($name)").getOrElse("")
+    title.setText(s"$displayName $fullName")
     avatar.setImageResource(R.drawable.default_avatar)
     avatar.setOnClickListener { view: View => UserTimelineActivity.startActivity(activity, user) }
     AvatarCache.getAvatarBitmapFromCache(activity, user) match {

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="fragmentFriendPendingListTitle">我送出的邀請</string>
+  <string name="fragmentFriendPendingFetchFailure">無法取得我送出的邀請清單</string>
+
+
+</resources>
