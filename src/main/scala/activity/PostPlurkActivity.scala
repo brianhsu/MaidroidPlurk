@@ -295,11 +295,26 @@ class PostPlurkActivity extends ActionBarActivity
         setResult(Activity.RESULT_CANCELED)
         progressDialogFragment.dismiss()
         setRequestedOrientation(oldRequestedOrientation)
-        dialogFrame.setMessages(
-          Message(MaidMaro.Half.Panic, getString(R.string.activityPostPlurkFailure01)) :: 
-          Message(MaidMaro.Half.Normal, getString(R.string.activityPostPlurkFailure02).format(e.getMessage)) ::
-          Nil
-        )
+
+        if (e.getMessage.contains("anon-plurk-not-eligible")) {
+          Toast.makeText(this, R.string.activityPostPlurkWhisperNotEligible, Toast.LENGTH_LONG).show()
+          dialogFrame.setMessages(
+            Message(MaidMaro.Half.Normal, getString(R.string.activityPostPlurkWhisperNotEligible).format(e.getMessage)) ::
+            Nil
+          )
+        } else if (e.getMessage.contains("anon-plurk-public-only")) {
+          Toast.makeText(this, R.string.activityPostPlurkWhisperOnlyPublic, Toast.LENGTH_LONG).show()
+          dialogFrame.setMessages(
+            Message(MaidMaro.Half.Normal, getString(R.string.activityPostPlurkWhisperOnlyPublic).format(e.getMessage)) ::
+            Nil
+          )
+        } else {
+          dialogFrame.setMessages(
+            Message(MaidMaro.Half.Panic, getString(R.string.activityPostPlurkFailure01)) :: 
+            Message(MaidMaro.Half.Normal, getString(R.string.activityPostPlurkFailure02).format(e.getMessage)) ::
+            Nil
+          )
+        }
       }
     }
   }

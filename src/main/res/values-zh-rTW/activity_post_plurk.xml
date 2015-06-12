@@ -21,4 +21,7 @@
   <string name="activityPostPlurkFailure02">系統說錯誤的原因是：「%s」，可不可以請主人檢查一次之後再重新按發送鍵一次呢？</string>
 
   <string name="activityPostPlurkAbortConfirm">確定要取消發噗嗎？這會造成目前的內容永遠消失喲！</string>
+  <string name="activityPostPlurkWhisperNotEligible">抱歉，你沒有發偷偷說的資格喲！</string>
+  <string name="activityPostPlurkWhisperOnlyPublic">抱歉，只有公開的噗可以是偷偷說呢……</string>
+
 </resources>
