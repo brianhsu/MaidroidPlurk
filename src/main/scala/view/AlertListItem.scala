@@ -32,28 +32,27 @@ import android.widget.LinearLayout
 import android.widget.Toast
 
 import org.bone.soplurk.api.PlurkAPI._
-import org.bone.soplurk.constant.PlurkType
-import org.bone.soplurk.constant.ReadStatus._
-
+import org.bone.soplurk.constant.AlertType
 import org.bone.soplurk.model._
 
 import java.net.URL
 import java.util.Date
 import java.text.SimpleDateFormat
 
-class UserListItem(activity: Activity) extends LinearLayout(activity) {
+class AlertListItem(activity: Activity) extends LinearLayout(activity) {
 
   private implicit val mActivity = activity
   private val inflater = LayoutInflater.from(activity)
   private var ownerID = -1L
 
-  lazy val avatar = this.findView(TR.itemPeopleWithAvatarAvatar)
-  lazy val title = this.findView(TR.itemPeopleWithAvatarTitle)
- 
+  lazy val avatar = this.findView(TR.itemAlertAvatar)
+  lazy val username = this.findView(TR.itemAlertUser)
+  lazy val content = this.findView(TR.itemAlertContent)
+
   initView()
 
   private def initView() {
-    inflater.inflate(R.layout.item_people_with_avatar, this, true)
+    inflater.inflate(R.layout.item_alert, this, true)
   }
 
   def setAvatarFromCache(avatarBitmap: Bitmap) {
@@ -72,11 +71,22 @@ class UserListItem(activity: Activity) extends LinearLayout(activity) {
   }
 
 
-  def update(user: User) {
-    this.ownerID = user.id
-    val displayName = user.displayName.filterNot(_.trim.isEmpty).getOrElse(user.nickname)
-    val fullName = Option(user.fullName).filterNot(_.trim.isEmpty).map(name => s"($name)").getOrElse("")
-    title.setText(s"$displayName $fullName")
+  def update(alert: Alert) {
+    val user = alert.user
+    this.ownerID = alert.user.id
+    val displayName = user.displayName.filterNot(_.isEmpty).getOrElse(user.nickname)
+    val contentText = alert.alertType match {
+      case AlertType.FriendshipRequest => R.string.viewAlertItemRequest
+      case AlertType.FriendshipPending => R.string.viewAlertItemPending
+      case AlertType.FriendshipAccepted => R.string.viewAlertItemNewFriend
+      case AlertType.NewFriend => R.string.viewAlertItemNewFriend
+      case AlertType.NewFan => R.string.viewAlertItemNewFan
+    }
+
+
+    username.setText(s"$displayName (${user.fullName})")
+    content.setText(contentText)
+
     avatar.setImageResource(R.drawable.default_avatar)
     avatar.setOnClickListener { view: View => UserTimelineActivity.startActivity(activity, user) }
     AvatarCache.getAvatarBitmapFromCache(activity, user) match {

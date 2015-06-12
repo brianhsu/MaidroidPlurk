@@ -21,8 +21,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import idv.brianhsu.maidroid.plurk._
-import idv.brianhsu.maidroid.plurk.activity.UserTimelineActivity
-import idv.brianhsu.maidroid.plurk.activity.PostPlurkActivity
+import idv.brianhsu.maidroid.plurk.activity._
 import idv.brianhsu.maidroid.plurk.adapter._
 import idv.brianhsu.maidroid.plurk.cache._
 import idv.brianhsu.maidroid.plurk.TypedResource._
@@ -71,8 +70,10 @@ class CurrentUserProfileFragment extends Fragment {
   private def fullNameViewHolder = Option(getView).map(_.findView(TR.currentUserProfileFullName))
   private def birthdayViewHolder = Option(getView).map(_.findView(TR.currentUserProfileBirthday))
   private def privacyViewHolder = Option(getView).map(_.findView(TR.currentUserProfilePrivacy))
+  private def alertCountHolder = Option(getView).map(_.findView(TR.currentUserProfileAlertCount))
+  private def alertButtonHolder = Option(getView).map(_.findView(TR.currentUserProfileAlert))
 
-  private var profileHolder: Option[OwnProfile] = None
+  private var profileHolder: Option[(Int, OwnProfile)] = None
   private var userBirthdayHolder: Option[Date] = None
   private var userPrivacy: Option[TimelinePrivacy] = None
   private var editButtonHolder: Option[MenuItem] = None
@@ -497,7 +498,7 @@ class CurrentUserProfileFragment extends Fragment {
 
     val userProfile = Future { 
       val profile = profileHolder match {
-        case None => plurkAPI.Profile.getOwnProfile.get 
+        case None => (plurkAPI.Alerts.getActive.get.size, plurkAPI.Profile.getOwnProfile.get)
         case Some(cache) => cache
       }
       profileHolder = Some(profile)
@@ -505,7 +506,7 @@ class CurrentUserProfileFragment extends Fragment {
     }
 
     editButtonHolder.foreach(_.setVisible(false))
-    userProfile.onSuccessInUI { profile =>
+    userProfile.onSuccessInUI { case (alertCount, profile) =>
 
       val basicInfo = profile.userInfo.basicInfo
 
@@ -518,7 +519,18 @@ class CurrentUserProfileFragment extends Fragment {
       }
       editButtonHolder.foreach(_.setVisible(true))
       loadingIndicatorHolder.foreach(_.hide())
+      alertButtonHolder.foreach { button =>
+        button.setOnClickListener { view: View => 
+          AlertListActivity.startActivity(activity)
+        }
+      }
+      alertCountHolder.foreach { alertCountText =>
+        val visibility = if (alertCount == 0) View.GONE else View.VISIBLE
+        alertCountText.setText(alertCount.toString)
+        alertCountText.setVisibility(visibility)
+      }
       activity.onProfileFetchedOK()
+
     }
 
     userProfile.onFailureInUI { case e: Exception =>
