@@ -25,6 +25,11 @@ class CliqueListAdapter(activity: Activity, originList: Vector[String]) extends 
     notifyDataSetChanged()
   }
 
+  def renameClique(oldCliqueName: String, newCliqueName: String) {
+    cliqueList = cliqueList.filter(_ != oldCliqueName) :+ newCliqueName
+    notifyDataSetChanged()
+  }
+
   def removeClique(cliqueName: String) {
     cliqueList = cliqueList.filterNot(_ == cliqueName)
     notifyDataSetChanged()

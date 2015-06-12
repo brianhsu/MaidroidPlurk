@@ -140,6 +140,7 @@ class CliqueListFragment extends Fragment {
               val dialog = new AlertDialog.Builder(activity)
               val itemList = Array(
                 activity.getString(R.string.fragmentCliqueListView),
+                activity.getString(R.string.fragmentCliqueListRename),
                 activity.getString(R.string.fragmentCliqueListDelete)
               )
               val itemAdapter = new ArrayAdapter(activity, android.R.layout.select_dialog_item, itemList)
@@ -148,7 +149,18 @@ class CliqueListFragment extends Fragment {
                   val clique = adapter.getItem(position)
                   which match {
                     case 0 => //UserTimelineActivity.startActivity(activity, user)
-                    case 1 => removeClique(adapter, clique)
+                    case 1 => 
+                      if (clique == "Classmates" || clique == "Close Friends" || clique == "Colleagues") {
+                        Toast.makeText(activity, R.string.fragmentCliqueListSystemCliques, Toast.LENGTH_LONG).show()
+                      } else {
+                        renameClique(adapter, clique)
+                      }
+                    case 2 => 
+                      if (clique == "Classmates" || clique == "Close Friends" || clique == "Colleagues") {
+                        Toast.makeText(activity, R.string.fragmentCliqueListSystemCliques, Toast.LENGTH_LONG).show()
+                      } else {
+                        removeClique(adapter, clique)
+                      }
                   }
                 }
               }
@@ -172,11 +184,75 @@ class CliqueListFragment extends Fragment {
 
   }
 
+  private def renameClique(adapter: CliqueListAdapter, oldCliqueName: String) {
+    val dialogBuilder = new AlertDialog.Builder(activity)
+    val editText = new EditText(activity)
+    editText.setText(oldCliqueName)
+    editText.setSingleLine(true)
+    editText.setHint(R.string.fragmentCliqueListAddHint)
+
+    val confirmDialog = 
+        dialogBuilder.setTitle(R.string.fragmentCliqueListRenameTitle)
+                     .setView(editText)
+                     .setPositiveButton(R.string.ok, null)
+                     .setNegativeButton(R.string.cancel, null)
+                     .create()
+
+    confirmDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+      override def onShow(dialog: DialogInterface) {
+
+        val okButton = confirmDialog.getButton(DialogInterface.BUTTON_POSITIVE)
+
+        okButton.setOnClickListener { view: View =>
+
+          val cliqueName = editText.getText.toString
+          val progressDialog = ProgressDialog.show(
+            activity, 
+            activity.getString(R.string.pleaseWait), 
+            activity.getString(R.string.fragmentCliqueListRenaming), 
+            true, false
+          )
+
+          val future = Future { plurkAPI.Cliques.renameClique(oldCliqueName, cliqueName).get }
+
+          future.onSuccessInUI { status => 
+            if (activity != null) {
+              adapter.renameClique(oldCliqueName, cliqueName)
+              progressDialog.dismiss()
+              confirmDialog.dismiss()
+            }
+          }
+
+          future.onFailureInUI { case e: Exception => 
+            if (activity != null) {
+              Toast.makeText(activity, R.string.fragmentCliqueListRenameFailed, Toast.LENGTH_LONG).show() 
+              progressDialog.dismiss()
+            }
+          }
+        }
+      }
+    })
+
+    editText.addTextChangedListener(new TextWatcher{
+      override def afterTextChanged(s: Editable) {
+        val shouldEnableOKButton = s.toString.trim.size > 0
+        confirmDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(shouldEnableOKButton)
+      }
+      override def beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+      override def onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
+    })
+
+    confirmDialog.show()
+
+  }
+
+
   private def addClique() {
     val dialogBuilder = new AlertDialog.Builder(activity)
     val editText = new EditText(activity)
     editText.setSingleLine(true)
     editText.setHint(R.string.fragmentCliqueListAddHint)
+
     val confirmDialog = 
         dialogBuilder.setTitle(R.string.fragmentCliqueListAddTitle)
                      .setView(editText)
@@ -188,7 +264,7 @@ class CliqueListFragment extends Fragment {
       override def onShow(dialog: DialogInterface) {
 
         val okButton = confirmDialog.getButton(DialogInterface.BUTTON_POSITIVE)
-
+        okButton.setEnabled(false)
         okButton.setOnClickListener { view: View =>
 
           val cliqueName = editText.getText.toString
@@ -213,7 +289,6 @@ class CliqueListFragment extends Fragment {
             if (activity != null) {
               Toast.makeText(activity, R.string.fragmentCliqueListAddFailed, Toast.LENGTH_LONG).show() 
               progressDialog.dismiss()
-              confirmDialog.dismiss()
             }
           }
         }
