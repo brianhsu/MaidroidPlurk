@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="fragmentFriendListTitle">My Friends</string>
+  <string name="fragmentFriendListDeleteTitle">Are you sure to delete?</string>
+  <string name="fragmentFriendListDeleteMessage">Are you sure to delete %s from friend list?</string>
+  <string name="fragmentFriendListDeleting">Deleting, please wait...</string>
+  <string name="fragmentFriendListDeleteFailed">Cannot delete, please check internet connectivity and try again.</string>
+  <string name="fragmentFriendListViewTimeline">View Timeline</string>
+  <string name="fragmentFriendListDeleteFriend">Delete Friend</string>
+  <string name="fragmentFriendListAction">Action</string>
+  <string name="fragmentFriendFetchFailure">Cannot fetch friend list.</string>
+
+</resources>

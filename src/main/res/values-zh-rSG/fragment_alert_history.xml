@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="fragmentAlertHistoryTitle">历史纪录</string>
+  <string name="fragmentAlertHistoryFetchFailure">无法取得历史纪录</string>
+
+
+</resources>
+

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu 
+  xmlns:android="http://schemas.android.com/apk/res/android" 
+  xmlns:maidroid="http://schemas.android.com/apk/res-auto">
+
+
+  <item
+    android:id="@+id/activityCliqueAdd"
+    android:icon="@drawable/ic_add_white_36dp"
+    android:title="@string/activityCliqueAdd"
+    maidroid:showAsAction="always" />
+
+  <item
+    android:id="@+id/activityCliqueToggleMaid"
+    android:title="@string/menuToggleMaid"
+    maidroid:showAsAction="never" />
+
+  <item
+    android:id="@+id/activityCliqueLogout"
+    android:title="@string/menuLogout"
+    maidroid:showAsAction="never" />
+
+  <item
+    android:id="@+id/activityCliqueAbout"
+    android:title="@string/menuAbout"
+    maidroid:showAsAction="never" />
+
+</menu>

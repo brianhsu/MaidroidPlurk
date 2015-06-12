@@ -18,4 +18,8 @@
   <string name="activityPostPlurkFailure02">Here is system error message: "%s". Would you mind check it and try again?</string>
 
   <string name="activityPostPlurkAbortConfirm">Are you sure to cancel? All data will be lost.</string>
+
+  <string name="activityPostPlurkWhisperNotEligible">Sorry, you are not eligible to post whispers.</string>
+  <string name="activityPostPlurkWhisperOnlyPublic">Sorry, only public plurks could be whispers.</string>
+
 </resources>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="fragmentCliqueListTitle">小圈圈</string>
+  <string name="fragmentCliqueListAdd">新增小圈圈</string>
+
+  <string name="fragmentCliqueListAdding">新增中，请稍候……</string>
+  <string name="fragmentCliqueListAddTitle">新增</string>
+  <string name="fragmentCliqueListAddHint">新的小圈圈名称</string>
+  <string name="fragmentCliqueListAddFailed">无法新增此小圈圈，请确认网路状态后重试。</string>
+
+  <string name="fragmentCliqueListRenaming">改名西，请稍候……</string>
+  <string name="fragmentCliqueListRenameTitle">重新命名</string>
+  <string name="fragmentCliqueListRenameHint">请输入新的名称</string>
+  <string name="fragmentCliqueListRenameFailed">无法改名此小圈圈，请确认网路状态后重试。</string>
+
+  <string name="fragmentCliqueListFetchFailure">无法取得小圈圈列表</string>
+
+  <string name="fragmentCliqueListAction">请选择</string>
+  <string name="fragmentCliqueListView">检视</string>
+  <string name="fragmentCliqueListRename">改名</string>
+  <string name="fragmentCliqueListDelete">删除</string>
+
+  <string name="fragmentCliqueListDeleteTitle">您确定要删除吗？</string>
+  <string name="fragmentCliqueListDeleteMessage">您确定要删除【%s】这个小圈圈吗？</string>
+  <string name="fragmentCliqueListDeleting">删除中，请稍候……</string>
+  <string name="fragmentCliqueListDeleteFailed">无法删除此小圈圈，请确认网路状态后重试。</string>
+  <string name="fragmentCliqueListSystemCliques">这是系统预设的小圈圈，无法删除或更改名称</string>
+
+
+
+</resources>
+

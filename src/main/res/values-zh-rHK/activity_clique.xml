@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="activityCliqueFetchError">無法取得在此小圈圈中的朋友列表</string>
+
+  <string name="activityCliqueAction">請選擇</string>
+  <string name="activityCliqueChoose">新增至小圈圈</string>
+  <string name="activityCliqueAdd">新增朋友至小圈圈</string>
+  <string name="activityCliqueViewTimeline">觀看河道</string>
+  <string name="activityCliqueDelete">自小圈圈中移除</string>
+
+  <string name="activityCliqueAddingFriend">新增至小圈圈中，請稍候……</string>
+  <string name="activityCliqueAddingFriendFailed">無法新增朋友至小圈圈，請檢查網路狀態後重試。</string>
+
+  <string name="activityCliqueDeleteTitle">確定要移除？</string>
+  <string name="activityCliqueDeleteMessage">確定要將此使用者從小圈圈中移除嗎？</string>
+  <string name="activityCliqueDeleting">移除中，請稍候……</string>
+  <string name="activityCliqueDeleteFailed">無法從小圈圈中移除此朋友，請檢查網路狀態後重試。</string>
+
+  <string name="activityCliqueWelcome01">正在幫主人取得在此小圈圈中的朋友列表，請主人稍候一下喲！</string>
+
+  <string name="activityCliqueFetchOK01">這是在【%s】這個小圈圈中的朋友，主人可以利用長按的方式來將朋友從小圈圈中移除喲！</string>
+  <string name="activityCliqueFetchOK02">或者也可以用新增朋友按鈕來將其他朋友加入這個小圈圈裡喔。</string>
+
+  <string name="activityCliqueFetchFailure01">真是抱歉，小鈴沒辦法取得這個小圈圈的資料。小鈴實在太沒用了……</string>
+  <string name="activityCliqueFetchFailure02">系統說會這樣是由於下面的原因造成的：%s</string>
+
+  <string name="activityCliqueAddOK">小鈴已經幫主人把這些朋友都加入這個小圈圈囉！</string>
+  <string name="activityCliqueAddFailed01">噫噫噫！發生了什麼事？小鈴沒辦法幫主人把這些朋加入小圈圈耶。</string>
+  <string name="activityCliqueAddFailed02">看起來好像是因為發生了這個錯誤：%s</string>
+
+  <string name="activityCliqueDeleteOK">小鈴已經幫主人把【%s】從這個小圈圈中移除了喔！</string>
+  <string name="activityCliqueDeleteFailed01">噫噫噫！發生了什麼事？小鈴沒辦法幫主人把他移出小圈圈耶。</string>
+  <string name="activityCliqueDeleteFailed02">看起來好像是因為發生了這個錯誤：%s</string>
+
+
+</resources>

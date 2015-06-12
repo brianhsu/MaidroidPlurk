@@ -12,6 +12,13 @@
   <string name="activityResponseListDeleteResponseFailure02">System says it\'s caused by "%s".</string>
   <string name="activityResponseListDeleteResponseFailure03">Would you mind check internet connectivity and try it again later?</string>
 
+  <string name="activityResponseListBlocking">Blocking and deleting...</string>
+  <string name="activityResponseListBlockResponseOK">I have deleted this post and blocked this user for you.</string>
+  <string name="activityResponseListBlockResponseFailure01">I\'m sorry, I can\'t block this user...</string>
+  <string name="activityResponseListBlockResponseFailure02">System says it\'s caused by "%s".</string>
+  <string name="activityResponseListBlockResponseFailure03">Would you mind check internet connectivity and try it again later?</string>
+
+
   <string name="activityResponseListDeletePlurkFailure01">I\'m so sorry, I can\'t delete this plurk.</string>
   <string name="activityResponseListDeletePlurkFailure02">System says it\'s caused by "%s".</string>
   <string name="activityResponseListDeletePlurkFailure03">Would you mind check internet connectivity and try it again later?</string>

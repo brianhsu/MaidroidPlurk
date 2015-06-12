@@ -22,13 +22,13 @@
     maidroid:showAsAction="always" />
 
   <item
-    android:id="@+id/activityResponseListActionLogout"
-    android:title="@string/menuLogout"
+    android:id="@+id/activityResponseListActionToggleMaid"
+    android:title="@string/menuToggleMaid"
     maidroid:showAsAction="never" />
 
   <item
-    android:id="@+id/activityResponseListActionToggleMaid"
-    android:title="@string/menuToggleMaid"
+    android:id="@+id/activityResponseListActionLogout"
+    android:title="@string/menuLogout"
     maidroid:showAsAction="never" />
 
   <item

@@ -13,7 +13,7 @@ import android.util.TypedValue
 
 class QualifierSpinnerAdapter(context: Context) extends BaseAdapter {
 
-  def getCount = 19
+  def getCount = 20
   def getItemId(position: Int) = position
   def getItem(position: Int) = position match {
     case 0  => Qualifier.::
@@ -35,6 +35,7 @@ class QualifierSpinnerAdapter(context: Context) extends BaseAdapter {
     case 16 => Qualifier.Thinks
     case 17 => Qualifier.Says
     case 18 => Qualifier.Is
+    case 19 => Qualifier.Whispers
   }
 
   def getView(position: Int, convertView: View, parent: ViewGroup): View = {

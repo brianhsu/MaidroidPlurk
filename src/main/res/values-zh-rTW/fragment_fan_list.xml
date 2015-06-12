@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="fragmentFanListTitle">我的粉絲</string>
+  <string name="fragmentFanListBlockTitle">確定要封鎖這個人嗎？</string>
+  <string name="fragmentFanListBlockMessage">確定要把【%s】加入黑名單嗎？</string>
+  <string name="fragmentFanListBlocking">封鎖中，請稍候……</string>
+  <string name="fragmentFanListBlockFailed">無法封鎖此人，請檢查網路狀態後重試。</string>
+  <string name="fragmentFanListViewTimeline">關看河道</string>
+  <string name="fragmentFanListBlock">封鎖此人</string>
+  <string name="fragmentFanListAction">行動</string>
+  <string name="fragmentFanFetchFailure">無法取得粉絲列表</string>
+
+</resources>

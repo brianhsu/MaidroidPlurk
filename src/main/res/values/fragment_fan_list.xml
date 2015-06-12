@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="fragmentFanListTitle">Fans</string>
+  <string name="fragmentFanListBlockTitle">Are you sure to block this person?</string>
+  <string name="fragmentFanListBlockMessage">Are you sure to add %s? to blacklist?</string>
+  <string name="fragmentFanListBlocking">Blocking, please wait...</string>
+  <string name="fragmentFanListBlockFailed">Cannot block, please check internet connectivity and try again.</string>
+  <string name="fragmentFanListViewTimeline">View Timeline</string>
+  <string name="fragmentFanListBlock">Delete Friend</string>
+  <string name="fragmentFanListAction">Action</string>
+  <string name="fragmentFanFetchFailure">Cannot fetch fan list.</string>
+
+</resources>

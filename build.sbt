@@ -5,7 +5,7 @@ android.Plugin.androidBuild
  
 name := "MaidroidPlurk"
 
-version := "0.1.2"
+version := "0.1.3"
  
 scalaVersion := "2.11.6"
 
@@ -36,7 +36,7 @@ dependencyOverrides += "com.android.support" % "appcompat-v7" % "19.1.+"
 
 
 libraryDependencies ++= Seq(
-  "org.bone" %% "soplurk" % "0.3.3",
+  "org.bone" %% "soplurk" % "0.3.5",
   "com.typesafe.akka" %% "akka-actor" % "2.3.2"
 )
 

@@ -34,18 +34,34 @@
         android:layout_weight="1"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
-        <ImageView
-          android:id="@+id/userProfileAvatar"
-          android:src="@drawable/default_avatar"
-          android:paddingRight="10dp"
+        <RelativeLayout
           android:maxWidth="80dp"
-          android:scaleType="fitCenter"
-          android:adjustViewBounds="true"
+          android:paddingRight="10dp"
           android:layout_margin="5dp"
           android:layout_weight="1"
           android:layout_width="match_parent"
-          android:layout_height="wrap_content"/>
+          android:layout_height="wrap_content">
+
+          <ImageView
+            android:id="@+id/userProfileAvatar"
+            android:src="@drawable/default_avatar"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+          <ImageView
+            android:id="@+id/userProfileCake"
+            android:src="@drawable/cake"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:paddingRight="10dp"
+            android:paddingBottom="10dp" />
+
+        </RelativeLayout>
+
 
         <LinearLayout
           android:orientation="vertical"
@@ -218,6 +234,37 @@
           <Button
             android:id="@+id/fragmentUserProfileFanButton"
             android:text="@string/fragmentUserProfileIsFollowing"
+            android:textSize="16sp"
+            android:background="@drawable/rounded_blue"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+          <Button
+            android:id="@+id/fragmentUserProfilePrivateMessage"
+            android:text="@string/fragmentUserProfileSendPrivateMessage"
+            android:textSize="16sp"
+            android:background="@drawable/rounded_blue"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        </LinearLayout>
+        <LinearLayout
+          android:orientation="horizontal"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content">
+
+          <Button
+            android:id="@+id/fragmentUserProfilePrivateMessageToSelf"
+            android:text="@string/fragmentUserProfileSendPrivateMessageToSelf"
             android:textSize="16sp"
             android:background="@drawable/rounded_blue"
             android:layout_marginLeft="10dp"

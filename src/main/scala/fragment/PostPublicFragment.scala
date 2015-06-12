@@ -1,6 +1,7 @@
 package idv.brianhsu.maidroid.plurk.fragment
 
 import idv.brianhsu.maidroid.plurk._
+import idv.brianhsu.maidroid.plurk.activity._
 import idv.brianhsu.maidroid.plurk.dialog._
 import idv.brianhsu.maidroid.plurk.util._
 import idv.brianhsu.maidroid.plurk.adapter._
@@ -28,14 +29,16 @@ object PostPublicFragment {
 
 class PostPublicFragment extends Fragment with PlurkEditor {
 
-  private implicit def activity = getActivity.asInstanceOf[Activity with PostPublicFragment.Listener]
+  private implicit def activity = getActivity.asInstanceOf[PostPlurkActivity with PostPublicFragment.Listener]
 
   protected def plurkAPI = PlurkAPIHelper.getPlurkAPI(activity)
   protected def contentEditorHolder = Option(getView).map(_.findView(TR.fragmentPostPublicContent))
   protected def qualifierSpinnerHolder = Option(getView).map(_.findView(TR.fragmentPostPublicQualifier))
   protected def responseTypeSpinnerHolder = Option(getView).map(_.findView(TR.fragmentPostPublicResponseTypeSpinner))
   protected def charCounterHolder = Option(getView).map(_.findView(TR.fragmentPostPublicCharCounter))
+  override protected def shareSettingPostfix = activity.shareSettingPostfix
 
+  override def maxTextLength = 210 - shareSettingPostfix.length
 
   override def onCreateView(inflater: LayoutInflater, container: ViewGroup, 
                             savedInstanceState: Bundle): View = {

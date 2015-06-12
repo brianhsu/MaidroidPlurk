@@ -47,6 +47,7 @@ class UserTimelineActivity extends ActionBarActivity
                            with UserTimelineActivity.Listener
                            with PlurkView.Listener
                            with UserTimelineFragment.Listener
+                           with UserProfileFragment.Listener
 {
   import UserTimelineActivity._
 
@@ -74,12 +75,6 @@ class UserTimelineActivity extends ActionBarActivity
     viewPager.setAdapter(pageAdapter)
     pagerIndicator.setViewPager(viewPager)
 
-  }
-
-  override def onCreateOptionsMenu(menu: Menu): Boolean = {
-    val inflater = getMenuInflater
-    inflater.inflate(R.menu.activity_user_timeline, menu)
-    super.onCreateOptionsMenu(menu)
   }
 
   override def onOptionsItemSelected(menuItem: MenuItem): Boolean = menuItem.getItemId match {
@@ -138,6 +133,37 @@ class UserTimelineActivity extends ActionBarActivity
     )
 
   }
+
+  def onPostPrivateMessageOK(): Unit = {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Happy, getString(R.string.activityUserTimelineSendPrivateMessageOK01)) ::
+      Message(MaidMaro.Half.Normal, getString(R.string.activityUserTimelineSendPrivateMessageOK02)) ::
+      Nil
+    )
+  }
+
+  def onPostPrivateMessageToNotFriend(): Unit = {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Normal, getString(R.string.activityUserTimelineSendPMToNotFriend)) ::
+      Nil
+    )
+  }
+
+  def linkCopied() {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Happy, getString(R.string.maidLinkCopied)) ::
+      Nil
+    )
+  }
+
+  def contentCopied() {
+    dialogFrame.setMessages(
+      Message(MaidMaro.Half.Happy, getString(R.string.maidContentCopied)) ::
+      Nil
+    )
+  }
+
+
 
 
 }

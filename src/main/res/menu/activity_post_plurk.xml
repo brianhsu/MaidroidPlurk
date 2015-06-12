@@ -4,6 +4,21 @@
   xmlns:maidroid="http://schemas.android.com/apk/res-auto">
 
   <item
+    android:id="@+id/activityPostPlurkActionShareSetting"
+    android:title="@string/activityPostPlurkActionShare"
+    android:icon="@android:drawable/ic_menu_share"
+    maidroid:showAsAction="always">
+    <menu>
+      <item
+        android:id="@+id/activityPostPlurkActionShareFB"
+        android:title="@string/activityPostPlurkActionFB"/>
+      <item
+        android:id="@+id/activityPostPlurkActionShareTwitter"
+        android:title="@string/activityPostPlurkActionTwitter"/>
+    </menu>
+  </item>
+
+  <item
     android:id="@+id/activityPostPlurkActionEmoticon"
     android:title="@string/menuEmoticon"
     android:icon="@drawable/ic_action_emoticon"

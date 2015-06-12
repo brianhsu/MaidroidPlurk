@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="viewAlertItemRequest">would like to add you as friend.</string>
+  <string name="viewAlertItemPending">has not accepted your friendship request yet.</string>
+  <string name="viewAlertItemNewFan">has became your fan.</string>
+  <string name="viewAlertItemNewFriend">has became your friend.</string>
+
+
+</resources>

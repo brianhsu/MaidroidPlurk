@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="menuCurrentUser">My Profile</string>
+  <string name="titleCurrentUser">My Profile</string>
+  <string name="titleMyProfile">My Profile</string>
+
+  <string name="profileEditCrop">Crop</string>
+  <string name="profileEditChooseAvatar">Choose Avatar From</string>
+  <string name="profileEditGallery">Choose from Gallery</string>
+  <string name="profileEditCamera">Take a Photo</string>
+
+  <string name="profileEditFullName">Edit Full Name</string>
+  <string name="profileEditDisplayName">Edit Display Name</string>
+  <string name="profileEditAbout">Edit Biography</string>
+  <string name="profileEditBirthday">Edit Birthday</string>
+  <string name="profileEditPrivacy">Edit Timeline Privacy</string>
+
+  <string name="profileFullName">Full Name</string>
+  <string name="profileBirthday">Birthday</string>
+  <string name="timelinePrivacy">Timeline Privacy</string>
+  <string name="timelinePrivacyWorld">World</string>
+  <string name="timelinePrivacyOnlyFriends">Private</string>
+  <string name="profileSaving">Saving, please wait...</string>
+  <string name="profileSavingFailed">Cannot save your edition, please check internet connectivity and try again.</string>
+  <string name="profilePrivateTimelineConfirmTitle">Are you sure set to Private Timeline?</string>
+  <string name="profilePrivateTimelineConfirmContent">Private timeline cannot have any fans, fans your currently have will also be deleted. Are you sure to continue?</string>
+  <string name="activityCurrentUserWelcome01">I\'m loading your profile now, please wait a moment, my master.</string>
+
+  <string name="fragmentCurrentUserFetchDone">I\'ve fetched your profile for you, my master.</string>
+  <string name="fragmentCurrentUserFetchFailure01">Sorry, I\'m so useless. I cannot get your profile from Plurk...</string>
+  <string name="fragmentCurrentUserFetchFailure02">The system says this is caused by: %s</string>
+
+</resources>

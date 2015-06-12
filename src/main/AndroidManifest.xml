@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   package="idv.brianhsu.maidroid.plurk"
   android:installLocation="auto"
-  android:versionCode="16"
-  android:versionName="0.1.2">
+  android:versionCode="17"
+  android:versionName="0.1.3">
   <uses-sdk android:minSdkVersion="11" android:targetSdkVersion="19"/>
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -36,8 +36,22 @@
 
     <activity 
       android:configChanges="orientation|screenSize"
+      android:name=".activity.CliqueActivity"  />
+
+    <activity 
+      android:configChanges="orientation|screenSize"
       android:name=".activity.UserTimelineActivity" 
       android:label="@string/titleUserTimeline" />
+
+    <activity 
+      android:configChanges="orientation|screenSize"
+      android:name=".activity.AlertListActivity" 
+      android:label="@string/titleAlertList" />
+
+    <activity 
+      android:configChanges="orientation|screenSize"
+      android:name=".activity.CurrentUserActivity" 
+      android:label="@string/titleCurrentUser" />
 
     <activity 
       android:configChanges="orientation|screenSize"

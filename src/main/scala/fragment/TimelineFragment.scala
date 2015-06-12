@@ -33,6 +33,7 @@ import android.view.View
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.widget.AdapterView
 import android.widget.AbsListView.OnScrollListener
 import android.widget.AbsListView
 import android.widget.Button
@@ -99,14 +100,15 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
 
   private var isInError: Boolean = false
   private var isRecreate: Boolean = false
+  private var currentFilter: Option[Filter] = None
 
   override def onNavigationItemSelected(itemPosition: Int, itemId: Long) = {
-    val filter = navigationAdapter.getItem(itemPosition).asInstanceOf[Option[Filter]]
+    currentFilter = navigationAdapter.getItem(itemPosition).asInstanceOf[Option[Filter]]
 
     if (isRecreate && !isInError) {
       updateToggleButtonTitle(true, Some(unreadCount).filter(_ != 0))
     } else {
-      switchToFilter(filter, isUnreadOnly)
+      switchToFilter(currentFilter, isUnreadOnly)
     }
 
     this.isInError = false
@@ -172,16 +174,6 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
     }
   }
 
-  override def onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-    val actionMenu = inflater.inflate(R.menu.fragment_timeline, menu)
-    this.toggleButtonHolder = Option(menu.findItem(R.id.fragmentTimelineActionToggleUnreadOnly))
-
-    val aboutFromActivity = menu.findItem(R.id.activityMaidroidPlurkActionAbout)
-    aboutFromActivity.setVisible(false)
-    updateToggleButtonTitle(false, None)
-    actionMenu
-  }
-
   def deletePlurk(plurkID: Long) {
     adapterHolder.foreach(_.deletePlurk(plurkID))
   }
@@ -243,15 +235,19 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
     val olderTimelineFuture = Future { getPlurks(offset = adapterHolder.flatMap(_.lastPlurkDate)) }
 
     olderTimelineFuture.onSuccessInUI { timeline => 
-      adapterHolder.foreach(_.appendTimeline(timeline))
-      loadMoreFooter.setStatus(LoadMoreFooter.Status.Loaded)
-      this.hasMoreItem = !timeline.plurks.isEmpty
-      this.isLoadingMore = false
+      if (activity != null) {
+        adapterHolder.foreach(_.appendTimeline(timeline))
+        loadMoreFooter.setStatus(LoadMoreFooter.Status.Loaded)
+        this.hasMoreItem = !timeline.plurks.isEmpty
+        this.isLoadingMore = false
+      }
     }
 
     olderTimelineFuture.onFailureInUI { case e: Exception => 
-      loadMoreFooter.setStatus(LoadMoreFooter.Status.Failed)
-      this.isLoadingMore = true
+      if (activity != null) {
+        loadMoreFooter.setStatus(LoadMoreFooter.Status.Failed)
+        this.isLoadingMore = true
+      }
     }
 
   }
@@ -283,14 +279,14 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
     super.onDestroy()
   }
 
-  private def switchToFilter(filter: Option[Filter], isUnreadOnly: Boolean) = {
+  private def switchToFilter(filter: Option[Filter], isUnreadOnly: Boolean, offset: Option[Date] = None) = {
     this.plurkFilter = filter
     this.isUnreadOnly = isUnreadOnly
     toggleButtonHolder.foreach { button =>
       button.setEnabled(false)
       MenuItemCompat.setActionView(button, R.layout.action_bar_loading)
     }
-    updateTimeline(true)
+    updateTimeline(true, false, offset)
     true
   }
 
@@ -301,12 +297,50 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
     ImageCache.clearCache()
   }
 
+  private def showTimeMachine() {
+    import android.app.DatePickerDialog
+    import android.widget.DatePicker
+    import java.util.Calendar
+    
+    val calendar = Calendar.getInstance()
+    val mYear = calendar.get(Calendar.YEAR)
+    val mMonth = calendar.get(Calendar.MONTH)
+    val mDay = calendar.get(Calendar.DAY_OF_MONTH)
+    val onDateSetListener = new DatePickerDialog.OnDateSetListener() {
+      override def onDateSet(view: DatePicker, year: Int, month: Int, day: Int): Unit = {
+        calendar.set(Calendar.YEAR, year)
+        calendar.set(Calendar.MONTH, month)
+        calendar.set(Calendar.DAY_OF_MONTH, day)
+        calendar.set(Calendar.HOUR_OF_DAY, 23)
+        calendar.set(Calendar.MINUTE, 59)
+        calendar.set(Calendar.SECOND, 59)
+        calendar.set(Calendar.MILLISECOND, 999)
+        println("===========> calendar.getTime:" + calendar.getTime)
+        switchToFilter(plurkFilter, isUnreadOnly, Some(calendar.getTime))
+      }
+    }
+    val datePickerDialog = new DatePickerDialog(activity, onDateSetListener, mYear,mMonth, mDay);
+    datePickerDialog.show()
+  }
+
+  override def onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    val actionMenu = inflater.inflate(R.menu.fragment_timeline, menu)
+    this.toggleButtonHolder = Option(menu.findItem(R.id.fragmentTimelineActionToggleUnreadOnly))
+
+    val aboutFromActivity = menu.findItem(R.id.activityMaidroidPlurkActionAbout)
+    aboutFromActivity.setVisible(false)
+    updateToggleButtonTitle(false, None)
+    actionMenu
+  }
+
   override def onOptionsItemSelected(item: MenuItem) = item.getItemId match {
+    case R.id.fragmentTimelineActionTimeMachine => showTimeMachine(); false
     case R.id.fragmentTimelineActionToggleUnreadOnly => switchToFilter(plurkFilter, !this.isUnreadOnly)
     case R.id.fragmentTimelineActionPost => startPostPlurkActivity(); false
     case R.id.fragmentTimelineActionMarkAllAsRead => markAllAsRead(); false
     case R.id.fragmentTimelineActionLogout => Logout.logout(activity); false
     case R.id.fragmentTimelineActionAbout => AboutActivity.startActivity(activity); false
+    case R.id.fragmentTimelineActionCurrentUser => CurrentUserActivity.startActivity(activity); false
     case _ => super.onOptionsItemSelected(item)
   }
 
@@ -382,26 +416,30 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
     }
 
     markFuture.onSuccessInUI { case plurk =>
+      if (activity != null) {
 
-      if (isAdded) {
+        if (isAdded) {
 
-        progressDialogFragment.dismiss()
-        activity.setRequestedOrientation(oldRequestedOrientation)
+          progressDialogFragment.dismiss()
+          activity.setRequestedOrientation(oldRequestedOrientation)
 
-        Toast.makeText(
-          activity, 
-          getString(R.string.fragmentTimelineMarkedToast), 
-          Toast.LENGTH_LONG
-        ).show()
+          Toast.makeText(
+            activity, 
+            getString(R.string.fragmentTimelineMarkedToast), 
+            Toast.LENGTH_LONG
+          ).show()
 
-        switchToFilter(filter, isUnreadOnly)
+          switchToFilter(filter, isUnreadOnly)
+        }
       }
     }
 
     markFuture.onFailureInUI { case e =>
-      if (isAdded) {
-        progressDialogFragment.dismiss()
-        activity.setRequestedOrientation(oldRequestedOrientation)
+      if (activity != null) {
+        if (isAdded) {
+          progressDialogFragment.dismiss()
+          activity.setRequestedOrientation(oldRequestedOrientation)
+        }
       }
     }
   }
@@ -412,7 +450,7 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
     false
   }
 
-  def updateTimeline(isNewFilter: Boolean = false, isRecreate: Boolean = false) {
+  def updateTimeline(isNewFilter: Boolean = false, isRecreate: Boolean = false, startDate: Option[Date] = None) {
 
     this.isLoadingMore = false
     this.hasMoreItem = true
@@ -423,37 +461,47 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
     }
 
     val plurksFuture = Future { 
-      val plurks = getPlurks(isRecreate = isRecreate)
+      val plurks = getPlurks(isRecreate = isRecreate, offset = startDate)
+      val rawUnreadCount = plurkAPI.Polling.getUnreadCount.get
       val unreadCount = isRecreate match {
-        case true  => this.unreadCount
-        case false => plurkAPI.Polling.getUnreadCount.get.all
+        case false if currentFilter == None => rawUnreadCount.all
+        case false if currentFilter == Some(OnlyFavorite) => rawUnreadCount.favorite
+        case false if currentFilter == Some(OnlyPrivate) => rawUnreadCount.privatePlurks
+        case false if currentFilter == Some(OnlyResponded) => rawUnreadCount.responded
+        case false if currentFilter == Some(OnlyUser) => rawUnreadCount.my
+        case _  => this.unreadCount
       }
       this.unreadCount = unreadCount
+      navigationAdapter.setUnreadCount(rawUnreadCount)
       (plurks, unreadCount, adapterVersion) 
     }
 
     plurksFuture.onSuccessInUI { case (timeline, unreadCount, adapterVersion) => 
 
-      if (isAdded && adapterVersion >= this.adapterVersion) {
+      if (activity != null) {
+        if (isAdded && adapterVersion >= this.adapterVersion) {
 
-        if (isNewFilter) { 
-          updateListAdapter() 
+          if (isNewFilter) { 
+            updateListAdapter() 
+          }
+
+          adapterHolder.foreach(_.appendTimeline(timeline))
+          activity.onShowTimelinePlurksSuccess(timeline, isNewFilter, plurkFilter, isUnreadOnly)
+          updateToggleButtonTitle(true, Some(unreadCount).filter(_ != 0))
+          loadingIndicatorHolder.foreach(_.hide())
+          pullToRefreshHolder.foreach(_.setRefreshComplete())
         }
-
-        adapterHolder.foreach(_.appendTimeline(timeline))
-        activity.onShowTimelinePlurksSuccess(timeline, isNewFilter, plurkFilter, isUnreadOnly)
-        updateToggleButtonTitle(true, Some(unreadCount).filter(_ != 0))
-        loadingIndicatorHolder.foreach(_.hide())
-        pullToRefreshHolder.foreach(_.setRefreshComplete())
       }
     }
 
     plurksFuture.onFailureInUI { case e: Exception =>
-      if (isAdded) {
-        activity.onShowTimelinePlurksFailure(e)
-        showErrorNotice(getString(R.string.fragmentTimelineGetTimelineFailure))
-        updateToggleButtonTitle(false)
-        pullToRefreshHolder.foreach(_.setRefreshComplete())
+      if (activity != null) {
+        if (isAdded) {
+          activity.onShowTimelinePlurksFailure(e)
+          showErrorNotice(getString(R.string.fragmentTimelineGetTimelineFailure))
+          updateToggleButtonTitle(false)
+          pullToRefreshHolder.foreach(_.setRefreshComplete())
+        }
       }
     }
   }

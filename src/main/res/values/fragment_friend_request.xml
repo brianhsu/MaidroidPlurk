@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="fragmentFriendRequestListTitle">Friend Request</string>
+  <string name="fragmentFriendRequestFetchFailure">Cannot fetch friend request list.</string>
+
+  <string name="fragmentFriendRequestViewTimeline">View Timeline</string>
+  <string name="fragmentFriendRequestAccept">Accept</string>
+  <string name="fragmentFriendRequestIgnore">Ignore</string>
+  <string name="fragmentFriendRequestAddAsFan">Add as Fan</string>
+  <string name="fragmentFriendRequestAction">Action</string>
+
+  <string name="fragmentFriendRequestAccepting">Accepting request, please wait...</string>
+  <string name="fragmentFriendRequestAccepted">Added as freind.</string>
+  <string name="fragmentFriendRequestAcceptFailed">Cannot accept this friend request, please check your Internet connectivity and try again.</string>
+
+  <string name="fragmentFriendRequestFanAdding">Adding as fan, please wait...</string>
+  <string name="fragmentFriendRequestFanAdded">Added as fan.</string>
+  <string name="fragmentFriendRequestFanAddFailed">Cannot add this user to fan list, please check your Internet connectivity and try again.</string>
+
+  <string name="fragmentFriendRequestIgnoring">Ignoring, please wait...</string>
+  <string name="fragmentFriendRequestIgnored">Ignored.</string>
+  <string name="fragmentFriendRequestIgnoreFailed">Cannot ignore this user, please check your Internet connectivity and try again.</string>
+
+  <string name="fragmentFriendRequestWelcome">Dear master, here is your Plurk alerts.</string>
+
+
+</resources>

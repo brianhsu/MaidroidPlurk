@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="fragmentFriendPendingListTitle">Friendship Pending</string>
+  <string name="fragmentFriendPendingFetchFailure">Cannot fetch friend pending list.</string>
+
+
+</resources>

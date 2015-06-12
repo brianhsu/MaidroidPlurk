@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="menuCurrentUser">個人檔案</string>
+  <string name="titleCurrentUser">個人檔案</string>
+  <string name="titleMyProfile">我的檔案</string>
+
+  <string name="profileEditCrop">剪裁</string>
+  <string name="profileEditChooseAvatar">選擇大頭貼</string>
+  <string name="profileEditGallery">從相簿選取</string>
+  <string name="profileEditCamera">拍照</string>
+
+  <string name="profileEditFullName">修改全名</string>
+  <string name="profileEditDisplayName">修改暱稱</string>
+  <string name="profileEditAbout">修改自介</string>
+  <string name="profileEditBirthday">修改生日</string>
+  <string name="profileEditPrivacy">修改河道權限</string>
+
+  <string name="profileFullName">全名</string>
+  <string name="profileBirthday">生日</string>
+  <string name="timelinePrivacy">河道權限</string>
+  <string name="timelinePrivacyWorld">公開河道</string>
+  <string name="timelinePrivacyOnlyFriends">私密河道</string>
+  <string name="profileSaving">儲存中，請稍候……</string>
+  <string name="profileSavingFailed">無法儲存，請檢查網路狀態後重試。</string>
+  <string name="profilePrivateTimelineConfirmTitle">確定要設為私密河道嗎？</string>
+  <string name="profilePrivateTimelineConfirmContent">設為私密河道將無法擁有粉絲功能，現在所擁有的粉絲將會全數清除，確定要繼續嗎？</string>
+
+  <string name="activityCurrentUserWelcome01">小鈴正在幫主人讀取您的個人檔案，請主人稍候一下喲！</string>
+  <string name="fragmentCurrentUserFetchDone">小鈴已經幫主人把您的個人資料準備好囉，如果主人想更改您的個人資料的話，也請告訴小鈴一聲喲！</string>
+  <string name="fragmentCurrentUserFetchFailure01">對不起，小鈴實在太沒用了，沒辦法從噗浪上取得主人的個人資料……</string>
+  <string name="fragmentCurrentUserFetchFailure02">系統說是由於以下的原因造成的說：%s</string>
+
+</resources>
