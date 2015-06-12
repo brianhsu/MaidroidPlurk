@@ -16,7 +16,21 @@
   <string name="activityCliqueDeleting">Deleting, please wait...</string>
   <string name="activityCliqueDeleteFailed">Cannot delete this user, please check your Internet connectivity.</string>
 
+  <string name="activityCliqueWelcome01">I\'m fetching users in this clique, please wait a moment, my master.</string>
 
+  <string name="activityCliqueFetchOK01">Here is friends in clique %s, you could remove them from this by long click on them.</string>
+  <string name="activityCliqueFetchOK02">You could also add others into this clique by click add button.</string>
+
+  <string name="activityCliqueFetchFailure01">I\'m so sorry, I cannot get user list of this clique. I\'m really so useless...</string>
+  <string name="activityCliqueFetchFailure02">System says it\'s cuased by the following reason: %s</string>
+
+  <string name="activityCliqueAddOK">I\'ve add all of them to this clique for you, my master.</string>
+  <string name="activityCliqueAddFailed01">Oops, what happend? I cannot add them into this clique.</string>
+  <string name="activityCliqueAddFailed02">It seems casued by the following reason: %s</string>
+
+  <string name="activityCliqueDeleteOK">I\'ve remove %s from this clique for you, my master.</string>
+  <string name="activityCliqueDeleteFailed01">Oops, what happend? I cannot remove this user from this clique.</string>
+  <string name="activityCliqueDeleteFailed02">It seems casued by the following reason: %s</string>
 
 
 </resources>

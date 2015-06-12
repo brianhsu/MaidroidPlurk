@@ -98,12 +98,21 @@ class CliqueActivity extends ActionBarActivity
             adapter.removeUser(user.id) 
             progressDialog.dismiss()
             confirmDialog.dismiss()
+            dialogFrame.setMessages(
+              Message(MaidMaro.Half.Happy, getString(R.string.activityCliqueDeleteOK).format(displayName)) ::
+              Nil
+            )
           }
 
           future.onFailureInUI { case e: Exception => 
             Toast.makeText(CliqueActivity.this, R.string.activityCliqueDeleteFailed, Toast.LENGTH_LONG).show() 
             progressDialog.dismiss()
             confirmDialog.dismiss()
+            dialogFrame.setMessages(
+              Message(MaidMaro.Half.Panic, getString(R.string.activityCliqueDeleteFailed01)) ::
+              Message(MaidMaro.Half.Normal, getString(R.string.activityCliqueDeleteFailed02).format(e.getMessage)) ::
+              Nil
+            )
           }
         }
       }
@@ -154,10 +163,22 @@ class CliqueActivity extends ActionBarActivity
       })
 
       loadingIndicator.setVisibility(View.GONE)
+      dialogFrame.setMessages(
+        Message(MaidMaro.Half.Happy, getString(R.string.activityCliqueFetchOK01).format(cliqueName)) ::
+        Message(MaidMaro.Half.Smile, getString(R.string.activityCliqueFetchOK02)) ::
+        Nil
+      )
+
     }
 
     future.onFailureInUI { case e: Exception =>
       showErrorNotice(getString(R.string.activityCliqueFetchError))
+      dialogFrame.setMessages(
+        Message(MaidMaro.Half.Panic, getString(R.string.activityCliqueFetchFailure01)) ::
+        Message(MaidMaro.Half.Normal, getString(R.string.activityCliqueFetchFailure02).format(e.getMessage)) ::
+        Nil
+      )
+
     }
 
   }
@@ -167,18 +188,13 @@ class CliqueActivity extends ActionBarActivity
     setContentView(R.layout.activity_clique)
     setTitle(cliqueName)
     updateList()
-    /*
     dialogFrame.setMessages(
-      Message(MaidMaro.Half.Happy, getString(R.string.fragmentFriendRequestWelcome)) ::
+      Message(MaidMaro.Half.Happy, getString(R.string.activityCliqueWelcome01)) ::
       Nil
     )
-    */
   }
 
   def onPeopleSelected(selectedCliques: Set[String], selectedUsers: Set[(Long, String)]) {
-
-    println("=========> selectedCliques:" + selectedCliques)
-    println("=========> selectedUsers:" + selectedUsers)
 
     val progressDialog = ProgressDialogFragment.createDialog(
       getString(R.string.pleaseWait),
@@ -192,21 +208,32 @@ class CliqueActivity extends ActionBarActivity
         clique <- selectedCliques
         user <- plurkAPI.Cliques.getClique(clique).get
       } { 
-        plurkAPI.Cliques.add(cliqueName, user.id)
+        plurkAPI.Cliques.add(cliqueName, user.id).get
       }
       selectedUsers.foreach { case(userID, name) =>
-        plurkAPI.Cliques.add(cliqueName, userID)
+        plurkAPI.Cliques.add(cliqueName, userID).get
       }
     }
 
     future.onSuccessInUI { status =>
       updateList()
       progressDialog.dismiss()
+      dialogFrame.setMessages(
+        Message(MaidMaro.Half.Happy, getString(R.string.activityCliqueAddOK)) ::
+        Nil
+      )
     }
 
     future.onFailureInUI { case e: Exception =>
       Toast.makeText(this, R.string.activityCliqueAddingFriendFailed, Toast.LENGTH_LONG).show()
       progressDialog.dismiss()
+      dialogFrame.setMessages(
+        Message(MaidMaro.Half.Panic, getString(R.string.activityCliqueAddFailed01)) ::
+        Message(MaidMaro.Half.Normal, getString(R.string.activityCliqueAddFailed02).format(e.getMessage)) ::
+        Nil
+      )
+
+
     }
   }
 
