@@ -214,15 +214,19 @@ class UserTimelineFragment extends Fragment {
     val olderTimelineFuture = Future { getPlurks(offset = adapterHolder.flatMap(_.lastPlurkDate)) }
 
     olderTimelineFuture.onSuccessInUI { timeline => 
-      adapterHolder.foreach(_.appendTimeline(timeline))
-      loadMoreFooter.setStatus(LoadMoreFooter.Status.Loaded)
-      this.hasMoreItem = !timeline.plurks.isEmpty
-      this.isLoadingMore = false
+      if (activity != null) {
+        adapterHolder.foreach(_.appendTimeline(timeline))
+        loadMoreFooter.setStatus(LoadMoreFooter.Status.Loaded)
+        this.hasMoreItem = !timeline.plurks.isEmpty
+        this.isLoadingMore = false
+      }
     }
 
     olderTimelineFuture.onFailureInUI { case e: Exception => 
-      loadMoreFooter.setStatus(LoadMoreFooter.Status.Failed)
-      this.isLoadingMore = true
+      if (activity != null) {
+        loadMoreFooter.setStatus(LoadMoreFooter.Status.Failed)
+        this.isLoadingMore = true
+      }
     }
 
   }
@@ -273,29 +277,33 @@ class UserTimelineFragment extends Fragment {
 
     plurksFuture.onSuccessInUI { case (timeline, isPrivateTimeline, profile) => 
 
-      if (isPrivateTimeline) {
-        val basicInfo = profile.userInfo.basicInfo
-        val displayName = basicInfo.displayName.getOrElse(basicInfo.nickname)
-        loadingIndicatorHolder.foreach(_.hide())
-        privateTimelineHolder.foreach(_.setVisibility(View.VISIBLE))
-        activity.onShowTimelinePlurksPrivate(displayName)
-      } else if (isAdded) {
-        if (isPullRefresh) {
-          updateListAdapter()
+      if (activity != null) {
+        if (isPrivateTimeline) {
+          val basicInfo = profile.userInfo.basicInfo
+          val displayName = basicInfo.displayName.getOrElse(basicInfo.nickname)
+          loadingIndicatorHolder.foreach(_.hide())
+          privateTimelineHolder.foreach(_.setVisibility(View.VISIBLE))
+          activity.onShowTimelinePlurksPrivate(displayName)
+        } else if (isAdded) {
+          if (isPullRefresh) {
+            updateListAdapter()
+          }
+          adapterHolder.foreach(_.appendTimeline(timeline))
+          activity.onShowTimelinePlurksSuccess(timeline)
+          loadingIndicatorHolder.foreach(_.hide())
+          privateTimelineHolder.foreach(_.setVisibility(View.GONE))
+          pullToRefreshHolder.foreach(_.setRefreshComplete())
         }
-        adapterHolder.foreach(_.appendTimeline(timeline))
-        activity.onShowTimelinePlurksSuccess(timeline)
-        loadingIndicatorHolder.foreach(_.hide())
-        privateTimelineHolder.foreach(_.setVisibility(View.GONE))
-        pullToRefreshHolder.foreach(_.setRefreshComplete())
       }
     }
 
     plurksFuture.onFailureInUI { case e: Exception =>
-      if (isAdded) {
-        activity.onShowTimelinePlurksFailure(e)
-        showErrorNotice(getString(R.string.fragmentTimelineGetTimelineFailure))
-        pullToRefreshHolder.foreach(_.setRefreshComplete())
+      if (activity != null) {
+        if (isAdded) {
+          activity.onShowTimelinePlurksFailure(e)
+          showErrorNotice(getString(R.string.fragmentTimelineGetTimelineFailure))
+          pullToRefreshHolder.foreach(_.setRefreshComplete())
+        }
       }
     }
   }

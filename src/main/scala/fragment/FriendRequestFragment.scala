@@ -75,14 +75,18 @@ class FriendRequestFragment extends Fragment {
     val future = Future { plurkAPI.Alerts.addAsFriend(alert.user.id) }
 
     future.onSuccessInUI { status =>
-      Toast.makeText(activity, R.string.fragmentFriendRequestAccepted, Toast.LENGTH_LONG).show()
-      adapter.removeAlert(alert)
-      progressDialog.dismiss()
+      if (activity != null) {
+        Toast.makeText(activity, R.string.fragmentFriendRequestAccepted, Toast.LENGTH_LONG).show()
+        adapter.removeAlert(alert)
+        progressDialog.dismiss()
+      }
     }
 
     future.onFailureInUI { case e: Exception =>
-      Toast.makeText(activity, R.string.fragmentFriendRequestAcceptFailed, Toast.LENGTH_LONG).show()
-      progressDialog.dismiss()
+      if (activity != null) {
+        Toast.makeText(activity, R.string.fragmentFriendRequestAcceptFailed, Toast.LENGTH_LONG).show()
+        progressDialog.dismiss()
+      }
     }
     
   }
@@ -97,14 +101,18 @@ class FriendRequestFragment extends Fragment {
     val future = Future { plurkAPI.Alerts.addAsFan(alert.user.id) }
 
     future.onSuccessInUI { status =>
-      Toast.makeText(activity, R.string.fragmentFriendRequestFanAdded, Toast.LENGTH_LONG).show()
-      adapter.removeAlert(alert)
-      progressDialog.dismiss()
+      if (activity != null) {
+        Toast.makeText(activity, R.string.fragmentFriendRequestFanAdded, Toast.LENGTH_LONG).show()
+        adapter.removeAlert(alert)
+        progressDialog.dismiss()
+      }
     }
 
     future.onFailureInUI { case e: Exception =>
-      Toast.makeText(activity, R.string.fragmentFriendRequestFanAddFailed, Toast.LENGTH_LONG).show()
-      progressDialog.dismiss()
+      if (activity != null) {
+        Toast.makeText(activity, R.string.fragmentFriendRequestFanAddFailed, Toast.LENGTH_LONG).show()
+        progressDialog.dismiss()
+      }
     }
     
   }
@@ -120,14 +128,18 @@ class FriendRequestFragment extends Fragment {
     val future = Future { plurkAPI.Alerts.denyFriendship(alert.user.id) }
 
     future.onSuccessInUI { status =>
-      Toast.makeText(activity, R.string.fragmentFriendRequestIgnored, Toast.LENGTH_LONG).show()
-      adapter.removeAlert(alert)
-      progressDialog.dismiss()
+      if (activity != null) {
+        Toast.makeText(activity, R.string.fragmentFriendRequestIgnored, Toast.LENGTH_LONG).show()
+        adapter.removeAlert(alert)
+        progressDialog.dismiss()
+      }
     }
 
     future.onFailureInUI { case e: Exception =>
-      Toast.makeText(activity, R.string.fragmentFriendRequestIgnoreFailed, Toast.LENGTH_LONG).show()
-      progressDialog.dismiss()
+      if (activity != null) {
+        Toast.makeText(activity, R.string.fragmentFriendRequestIgnoreFailed, Toast.LENGTH_LONG).show()
+        progressDialog.dismiss()
+      }
     }
     
   }
@@ -137,54 +149,58 @@ class FriendRequestFragment extends Fragment {
     val future = Future { plurkAPI.Alerts.getActive.get.toVector.filter(_.alertType == AlertType.FriendshipRequest) }
     future.onSuccessInUI { alertList =>
 
-      val adapter = new AlertListAdapter(activity, alertList)
+      if (activity != null) {
+        val adapter = new AlertListAdapter(activity, alertList)
 
 
-      listViewHolder.foreach { listView =>
-        listView.setAdapter(adapter)
-        emptyNoticeHolder.foreach(view => listView.setEmptyView(view))
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-          override def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long) {
-            val alert = adapter.getItem(position).asInstanceOf[Alert]
-            UserTimelineActivity.startActivity(activity, alert.user)
-          }
-        })
+        listViewHolder.foreach { listView =>
+          listView.setAdapter(adapter)
+          emptyNoticeHolder.foreach(view => listView.setEmptyView(view))
+          listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            override def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long) {
+              val alert = adapter.getItem(position).asInstanceOf[Alert]
+              UserTimelineActivity.startActivity(activity, alert.user)
+            }
+          })
 
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+          listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 
-          override def onItemLongClick(parent: AdapterView[_], view: View, position: Int, id: Long): Boolean = {
-            val dialog = new AlertDialog.Builder(activity)
-            val itemList = Array(
-              activity.getString(R.string.fragmentFriendRequestViewTimeline), 
-              activity.getString(R.string.fragmentFriendRequestAccept),
-              activity.getString(R.string.fragmentFriendRequestAddAsFan),
-              activity.getString(R.string.fragmentFriendRequestIgnore)
-            )
-            val itemAdapter = new ArrayAdapter(activity, android.R.layout.select_dialog_item, itemList)
-            val onClickListener = new DialogInterface.OnClickListener {
-              override def onClick(dialog: DialogInterface, which: Int) {
-                val alert = adapter.getItem(position)
-                which match {
-                  case 0 => UserTimelineActivity.startActivity(activity, alert.user)
-                  case 1 => acceptFriend(adapter, alert)
-                  case 2 => addAsFan(adapter, alert)
-                  case 3 => ignore(adapter, alert)
+            override def onItemLongClick(parent: AdapterView[_], view: View, position: Int, id: Long): Boolean = {
+              val dialog = new AlertDialog.Builder(activity)
+              val itemList = Array(
+                activity.getString(R.string.fragmentFriendRequestViewTimeline), 
+                activity.getString(R.string.fragmentFriendRequestAccept),
+                activity.getString(R.string.fragmentFriendRequestAddAsFan),
+                activity.getString(R.string.fragmentFriendRequestIgnore)
+              )
+              val itemAdapter = new ArrayAdapter(activity, android.R.layout.select_dialog_item, itemList)
+              val onClickListener = new DialogInterface.OnClickListener {
+                override def onClick(dialog: DialogInterface, which: Int) {
+                  val alert = adapter.getItem(position)
+                  which match {
+                    case 0 => UserTimelineActivity.startActivity(activity, alert.user)
+                    case 1 => acceptFriend(adapter, alert)
+                    case 2 => addAsFan(adapter, alert)
+                    case 3 => ignore(adapter, alert)
+                  }
                 }
               }
+              dialog.setTitle(R.string.fragmentFriendRequestAction)
+                    .setAdapter(itemAdapter, onClickListener)
+                    .show()
+              true
             }
-            dialog.setTitle(R.string.fragmentFriendRequestAction)
-                  .setAdapter(itemAdapter, onClickListener)
-                  .show()
-            true
-          }
-        })
+          })
 
+        }
+        loadingIndicatorHolder.foreach(_.setVisibility(View.GONE))
       }
-      loadingIndicatorHolder.foreach(_.setVisibility(View.GONE))
     }
 
     future.onFailureInUI { case e: Exception =>
-      showErrorNotice(activity.getString(R.string.fragmentFriendRequestFetchFailure))
+      if (activity != null) {
+        showErrorNotice(activity.getString(R.string.fragmentFriendRequestFetchFailure))
+      }
     }
 
   }

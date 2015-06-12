@@ -68,8 +68,8 @@ class LoginFragment extends Fragment {
       plurkAPI.getAuthorizationURL.get.replace("OAuth", "m")
     }
 
-    authorizationURL.onFailureInUI { 
-      case error: Exception => {
+    authorizationURL.onFailureInUI { case error: Exception =>
+      if (activity != null) {
         DebugLog("====> authorizationURL.onFailureInUI:" + error.getMessage, error) 
         if (isAdded) {
           activity.onGetAuthURLFailure(error)
@@ -79,8 +79,10 @@ class LoginFragment extends Fragment {
     }
 
     authorizationURL.onSuccessInUI { url =>
-      webViewHolder.foreach(_.getSettings.setJavaScriptEnabled(true))
-      webViewHolder.foreach(_.loadUrl(url))
+      if (activity != null) {
+        webViewHolder.foreach(_.getSettings.setJavaScriptEnabled(true))
+        webViewHolder.foreach(_.loadUrl(url))
+      }
     }
   }
 
@@ -141,16 +143,20 @@ class LoginFragment extends Fragment {
       loadingIndicatorHolder.foreach(_.show())
 
       loggedInUserIDFuture.onSuccessInUI{ userID => 
-        PlurkAPIHelper.saveAccessToken(activity, userID)
-        if (isAdded) {
-          activity.onLoginSuccess()
+        if (activity != null) {
+          PlurkAPIHelper.saveAccessToken(activity, userID)
+          if (isAdded) {
+            activity.onLoginSuccess()
+          }
         }
       }
 
       loggedInUserIDFuture.onFailureInUI{ case e: Exception => 
-        if (isAdded) {
-          activity.onLoginFailure(e)
-          showErrorNotice(getString(R.string.fragmentLoginFailedGeneric))
+        if (activity != null) {
+          if (isAdded) {
+            activity.onLoginFailure(e)
+            showErrorNotice(getString(R.string.fragmentLoginFailedGeneric))
+          }
         }
       }
     }

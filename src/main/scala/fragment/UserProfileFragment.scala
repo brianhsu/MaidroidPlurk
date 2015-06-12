@@ -111,7 +111,9 @@ class UserProfileFragment extends Fragment {
   def setAvatarFromNetwork(context: Context, user: User) {
     val avatarFuture = AvatarCache.getAvatarBitmapFromNetwork(context, user)
     avatarFuture.onSuccessInUI { case(userID, bitmap) =>
-      avatarHolder.foreach(_.setImageBitmap(bitmap))
+      if (activity != null) {
+        avatarHolder.foreach(_.setImageBitmap(bitmap))
+      }
     }
   }
 
@@ -167,15 +169,19 @@ class UserProfileFragment extends Fragment {
         val requestFuture = Future { plurkAPI.FriendsFans.becomeFriend(userID).get }.filter(_ == true)
 
         requestFuture.onSuccessInUI { case _ =>
-          button.setText(R.string.fragmentUserProfileAddFreindSent)
-          button.setEnabled(false)
+          if (activity != null) {
+            button.setText(R.string.fragmentUserProfileAddFreindSent)
+            button.setEnabled(false)
+          }
         }
 
         requestFuture.onFailureInUI { case e: Exception =>
-          //! 錯誤通知
-          val toast = Toast.makeText(activity, R.string.fragmentUserPofileCanntSendFreindRequest, Toast.LENGTH_LONG)
-          toast.show()
-          setButtonToAddFriend()
+          if (activity != null) {
+            //! 錯誤通知
+            val toast = Toast.makeText(activity, R.string.fragmentUserPofileCanntSendFreindRequest, Toast.LENGTH_LONG)
+            toast.show()
+            setButtonToAddFriend()
+          }
         }
       }
     }
@@ -193,12 +199,18 @@ class UserProfileFragment extends Fragment {
 
             val requestFuture = Future { plurkAPI.FriendsFans.removeAsFriend(userID).get }.filter(_ == true)
 
-            requestFuture.onSuccessInUI { case _ => setButtonToAddFriend() }
+            requestFuture.onSuccessInUI { case _ => 
+              if (activity != null) {
+                setButtonToAddFriend() 
+              }
+            }
             requestFuture.onFailureInUI { case e: Exception =>
-              //! 錯誤通知
-              val toast = Toast.makeText(activity, R.string.fragmentUserPofileCanntCancelFreindRequest, Toast.LENGTH_LONG)
-              toast.show()
-              setButtonToAddFriend()
+              if (activity != null) {
+                //! 錯誤通知
+                val toast = Toast.makeText(activity, R.string.fragmentUserPofileCanntCancelFreindRequest, Toast.LENGTH_LONG)
+                toast.show()
+                setButtonToAddFriend()
+              }
             }
           }
         }
@@ -245,15 +257,19 @@ class UserProfileFragment extends Fragment {
         val requestFuture = Future { plurkAPI.FriendsFans.setFollowing(userID, false).get }.filter(_ == true)
 
         requestFuture.onSuccessInUI { case _ =>
-          button.setText(R.string.fragmentUserProfileNotFollowing)
-          setButtonToFollow()
+          if (activity != null) {
+            button.setText(R.string.fragmentUserProfileNotFollowing)
+            setButtonToFollow()
+          }
         }
 
         requestFuture.onFailureInUI { case e: Exception =>
-          //! 錯誤通知
-          val toast = Toast.makeText(activity, R.string.fragmentUserPofileCanntUnFollow, Toast.LENGTH_LONG)
-          toast.show()
-          setButtonToUnfollow()
+          if (activity != null) {
+            //! 錯誤通知
+            val toast = Toast.makeText(activity, R.string.fragmentUserPofileCanntUnFollow, Toast.LENGTH_LONG)
+            toast.show()
+            setButtonToUnfollow()
+          }
         }
       }
     }
@@ -269,15 +285,19 @@ class UserProfileFragment extends Fragment {
         val requestFuture = Future { plurkAPI.FriendsFans.setFollowing(userID, true).get }.filter(_ == true)
 
         requestFuture.onSuccessInUI { case _ =>
-          button.setText(R.string.fragmentUserProfileIsFollowing)
-          setButtonToUnfollow()
+          if (activity != null) {
+            button.setText(R.string.fragmentUserProfileIsFollowing)
+            setButtonToUnfollow()
+          }
         }
 
         requestFuture.onFailureInUI { case e: Exception =>
-          //! 錯誤通知
-          val toast = Toast.makeText(activity, R.string.fragmentUserPofileCanntFollow, Toast.LENGTH_LONG)
-          toast.show()
-          setButtonToFollow()
+          if (activity != null) {
+            //! 錯誤通知
+            val toast = Toast.makeText(activity, R.string.fragmentUserPofileCanntFollow, Toast.LENGTH_LONG)
+            toast.show()
+            setButtonToFollow()
+          }
         }
       }
      
@@ -322,36 +342,41 @@ class UserProfileFragment extends Fragment {
 
     userProfile.onSuccessInUI { profile =>
 
-      val basicInfo = profile.userInfo.basicInfo
+      if (activity != null) {
 
-      setupBasicInfo(profile)
+        val basicInfo = profile.userInfo.basicInfo
 
-      if (userID == PlurkAPIHelper.plurkUserID) {
-        friendButtonHolder.foreach(_.setVisibility(View.GONE))
-        fanButtonHolder.foreach(_.setVisibility(View.GONE))
-        privateMessageButtonHolder.foreach(_.setVisibility(View.GONE))
-        privateMessageToSelfButtonHolder.foreach(button => setupPrivateMessageButton(button, profile))
-      } else {
-        val areFriends = profile.areFriends.getOrElse(false)
-        val isFollowing = profile.isFollowing.getOrElse(false)
-        val isPrivateTimeline = profile.privacy == TimelinePrivacy.OnlyFriends
+        setupBasicInfo(profile)
 
-        friendButtonHolder.foreach(button => setupFriendButton(button, areFriends, userID))
-        fanButtonHolder.foreach(button => setupFollowingButton(button, isPrivateTimeline, areFriends, isFollowing, userID) )
-        privateMessageButtonHolder.foreach(button => setupPrivateMessageButton(button, profile))
-        privateMessageToSelfButtonHolder.foreach(_.setVisibility(View.GONE))
+        if (userID == PlurkAPIHelper.plurkUserID) {
+          friendButtonHolder.foreach(_.setVisibility(View.GONE))
+          fanButtonHolder.foreach(_.setVisibility(View.GONE))
+          privateMessageButtonHolder.foreach(_.setVisibility(View.GONE))
+          privateMessageToSelfButtonHolder.foreach(button => setupPrivateMessageButton(button, profile))
+        } else {
+          val areFriends = profile.areFriends.getOrElse(false)
+          val isFollowing = profile.isFollowing.getOrElse(false)
+          val isPrivateTimeline = profile.privacy == TimelinePrivacy.OnlyFriends
+
+          friendButtonHolder.foreach(button => setupFriendButton(button, areFriends, userID))
+          fanButtonHolder.foreach(button => setupFollowingButton(button, isPrivateTimeline, areFriends, isFollowing, userID) )
+          privateMessageButtonHolder.foreach(button => setupPrivateMessageButton(button, profile))
+          privateMessageToSelfButtonHolder.foreach(_.setVisibility(View.GONE))
+        }
+
+        AvatarCache.getAvatarBitmapFromCache(activity, basicInfo) match {
+          case Some(avatarBitmap) => setAvatarFromCache(avatarBitmap)
+          case None => setAvatarFromNetwork(activity, basicInfo)
+        }
+
+        loadingIndicatorHolder.foreach(_.hide())
       }
-
-      AvatarCache.getAvatarBitmapFromCache(activity, basicInfo) match {
-        case Some(avatarBitmap) => setAvatarFromCache(avatarBitmap)
-        case None => setAvatarFromNetwork(activity, basicInfo)
-      }
-
-      loadingIndicatorHolder.foreach(_.hide())
     }
 
     userProfile.onFailureInUI { case e: Exception =>
-      showErrorNotice(activity.getString(R.string.fragmentUserProfileError))
+      if (activity != null) {
+        showErrorNotice(activity.getString(R.string.fragmentUserProfileError))
+      }
     }
   }
 

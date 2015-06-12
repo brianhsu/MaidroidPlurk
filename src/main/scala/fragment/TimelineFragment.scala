@@ -235,15 +235,19 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
     val olderTimelineFuture = Future { getPlurks(offset = adapterHolder.flatMap(_.lastPlurkDate)) }
 
     olderTimelineFuture.onSuccessInUI { timeline => 
-      adapterHolder.foreach(_.appendTimeline(timeline))
-      loadMoreFooter.setStatus(LoadMoreFooter.Status.Loaded)
-      this.hasMoreItem = !timeline.plurks.isEmpty
-      this.isLoadingMore = false
+      if (activity != null) {
+        adapterHolder.foreach(_.appendTimeline(timeline))
+        loadMoreFooter.setStatus(LoadMoreFooter.Status.Loaded)
+        this.hasMoreItem = !timeline.plurks.isEmpty
+        this.isLoadingMore = false
+      }
     }
 
     olderTimelineFuture.onFailureInUI { case e: Exception => 
-      loadMoreFooter.setStatus(LoadMoreFooter.Status.Failed)
-      this.isLoadingMore = true
+      if (activity != null) {
+        loadMoreFooter.setStatus(LoadMoreFooter.Status.Failed)
+        this.isLoadingMore = true
+      }
     }
 
   }
@@ -412,26 +416,30 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
     }
 
     markFuture.onSuccessInUI { case plurk =>
+      if (activity != null) {
 
-      if (isAdded) {
+        if (isAdded) {
 
-        progressDialogFragment.dismiss()
-        activity.setRequestedOrientation(oldRequestedOrientation)
+          progressDialogFragment.dismiss()
+          activity.setRequestedOrientation(oldRequestedOrientation)
 
-        Toast.makeText(
-          activity, 
-          getString(R.string.fragmentTimelineMarkedToast), 
-          Toast.LENGTH_LONG
-        ).show()
+          Toast.makeText(
+            activity, 
+            getString(R.string.fragmentTimelineMarkedToast), 
+            Toast.LENGTH_LONG
+          ).show()
 
-        switchToFilter(filter, isUnreadOnly)
+          switchToFilter(filter, isUnreadOnly)
+        }
       }
     }
 
     markFuture.onFailureInUI { case e =>
-      if (isAdded) {
-        progressDialogFragment.dismiss()
-        activity.setRequestedOrientation(oldRequestedOrientation)
+      if (activity != null) {
+        if (isAdded) {
+          progressDialogFragment.dismiss()
+          activity.setRequestedOrientation(oldRequestedOrientation)
+        }
       }
     }
   }
@@ -470,26 +478,30 @@ class TimelineFragment extends Fragment with ActionBar.OnNavigationListener {
 
     plurksFuture.onSuccessInUI { case (timeline, unreadCount, adapterVersion) => 
 
-      if (isAdded && adapterVersion >= this.adapterVersion) {
+      if (activity != null) {
+        if (isAdded && adapterVersion >= this.adapterVersion) {
 
-        if (isNewFilter) { 
-          updateListAdapter() 
+          if (isNewFilter) { 
+            updateListAdapter() 
+          }
+
+          adapterHolder.foreach(_.appendTimeline(timeline))
+          activity.onShowTimelinePlurksSuccess(timeline, isNewFilter, plurkFilter, isUnreadOnly)
+          updateToggleButtonTitle(true, Some(unreadCount).filter(_ != 0))
+          loadingIndicatorHolder.foreach(_.hide())
+          pullToRefreshHolder.foreach(_.setRefreshComplete())
         }
-
-        adapterHolder.foreach(_.appendTimeline(timeline))
-        activity.onShowTimelinePlurksSuccess(timeline, isNewFilter, plurkFilter, isUnreadOnly)
-        updateToggleButtonTitle(true, Some(unreadCount).filter(_ != 0))
-        loadingIndicatorHolder.foreach(_.hide())
-        pullToRefreshHolder.foreach(_.setRefreshComplete())
       }
     }
 
     plurksFuture.onFailureInUI { case e: Exception =>
-      if (isAdded) {
-        activity.onShowTimelinePlurksFailure(e)
-        showErrorNotice(getString(R.string.fragmentTimelineGetTimelineFailure))
-        updateToggleButtonTitle(false)
-        pullToRefreshHolder.foreach(_.setRefreshComplete())
+      if (activity != null) {
+        if (isAdded) {
+          activity.onShowTimelinePlurksFailure(e)
+          showErrorNotice(getString(R.string.fragmentTimelineGetTimelineFailure))
+          updateToggleButtonTitle(false)
+          pullToRefreshHolder.foreach(_.setRefreshComplete())
+        }
       }
     }
   }

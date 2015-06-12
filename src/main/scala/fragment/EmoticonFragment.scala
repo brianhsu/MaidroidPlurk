@@ -93,26 +93,30 @@ class EmoticonFragment extends Fragment {
 
     tabFuture.onSuccessInUI { iconTabs =>
       
-      for {
-        viewPager <- viewPagerHolder
-        viewPagerIndicator <- viewPagerIndicatorHolder
-      } {
-        viewPager.setAdapter(new IconPagerAdapter(activity, iconTabs))
-        viewPagerIndicator.setViewPager(viewPager)
-      }
+      if (activity != null) {
+        for {
+          viewPager <- viewPagerHolder
+          viewPagerIndicator <- viewPagerIndicatorHolder
+        } {
+          viewPager.setAdapter(new IconPagerAdapter(activity, iconTabs))
+          viewPagerIndicator.setViewPager(viewPager)
+        }
 
-      loadingIndicatorHolder.foreach(_.hide())
+        loadingIndicatorHolder.foreach(_.hide())
+      }
     }
 
     tabFuture.onFailureInUI { case e: Exception =>
-      loadingIndicatorHolder.foreach(_.hide())
-      errorNoticeHolder.foreach { errorNotice =>
-        val message = getString(R.string.cannotGetEmoticon)
-        errorNotice.setVisibility(View.VISIBLE)
-        errorNotice.setMessageWithRetry(message) { retryButton => 
-          errorNotice.setVisibility(View.GONE)
-          loadingIndicatorHolder.foreach(_.show())
-          setupTabs()
+      if (activity != null) {
+        loadingIndicatorHolder.foreach(_.hide())
+        errorNoticeHolder.foreach { errorNotice =>
+          val message = getString(R.string.cannotGetEmoticon)
+          errorNotice.setVisibility(View.VISIBLE)
+          errorNotice.setMessageWithRetry(message) { retryButton => 
+            errorNotice.setVisibility(View.GONE)
+            loadingIndicatorHolder.foreach(_.show())
+            setupTabs()
+          }
         }
       }
     }

@@ -143,14 +143,18 @@ class CurrentUserProfileFragment extends Fragment {
       val future = Future { plurkAPI.Users.update(privacy = Some(newPrivacy)) }
 
       future.onSuccessInUI { e: Any => 
-        progress.dismiss() 
-        alertDialog.dismiss()
-        updateProfile()
+        if (activity != null) {
+          progress.dismiss() 
+          alertDialog.dismiss()
+          updateProfile()
+        }
       }
 
       future.onFailureInUI { case e: Exception => 
-        progress.dismiss() 
-        Toast.makeText(activity, R.string.profileSavingFailed, Toast.LENGTH_LONG).show()
+        if (activity != null) {
+          progress.dismiss() 
+          Toast.makeText(activity, R.string.profileSavingFailed, Toast.LENGTH_LONG).show()
+        }
       }
     }
 
@@ -210,13 +214,17 @@ class CurrentUserProfileFragment extends Fragment {
         val future = Future { plurkAPI.Users.update(birthday = Some(calendar.getTime)) }
 
         future.onSuccessInUI { e: Any => 
-          progress.dismiss() 
-          updateProfile()
+          if (activity != null) {
+            progress.dismiss() 
+            updateProfile()
+          }
         }
 
         future.onFailureInUI { case e: Exception => 
-          progress.dismiss() 
-          Toast.makeText(activity, R.string.profileSavingFailed, Toast.LENGTH_LONG).show()
+          if (activity != null) {
+            progress.dismiss() 
+            Toast.makeText(activity, R.string.profileSavingFailed, Toast.LENGTH_LONG).show()
+          }
         }
 
       }
@@ -264,14 +272,18 @@ class CurrentUserProfileFragment extends Fragment {
           val future = Future { callback(editText.getText.toString) }
 
           future.onSuccessInUI { e: Any => 
-            progress.dismiss() 
-            alertDialog.dismiss()
-            updateProfile()
+            if (activity != null) {
+              progress.dismiss() 
+              alertDialog.dismiss()
+              updateProfile()
+            }
           }
 
           future.onFailureInUI { case e: Exception => 
-            progress.dismiss() 
-            Toast.makeText(activity, R.string.profileSavingFailed, Toast.LENGTH_LONG).show()
+            if (activity != null) {
+              progress.dismiss() 
+              Toast.makeText(activity, R.string.profileSavingFailed, Toast.LENGTH_LONG).show()
+            }
           }
         }
       }
@@ -337,7 +349,9 @@ class CurrentUserProfileFragment extends Fragment {
   def setAvatarFromNetwork(context: Context, user: User) {
     val avatarFuture = AvatarCache.getAvatarBitmapFromNetwork(context, user)
     avatarFuture.onSuccessInUI { case(userID, bitmap) =>
-      avatarHolder.foreach(_.setImageBitmap(bitmap))
+      if (activity != null) {
+        avatarHolder.foreach(_.setImageBitmap(bitmap))
+      }
     }
   }
 
@@ -385,13 +399,17 @@ class CurrentUserProfileFragment extends Fragment {
       }
 
       future.onSuccessInUI { e => 
-        progressDialog.dismiss() 
-        updateProfile() 
+        if (activity != null) {
+          progressDialog.dismiss() 
+          updateProfile() 
+        }
       }
 
       future.onFailureInUI { case e: Exception =>
-        progressDialog.dismiss() 
-        Toast.makeText(activity, R.string.profileSavingFailed, Toast.LENGTH_LONG).show()
+        if (activity != null) {
+          progressDialog.dismiss() 
+          Toast.makeText(activity, R.string.profileSavingFailed, Toast.LENGTH_LONG).show()
+        }
       }
     }
   }
@@ -508,34 +526,39 @@ class CurrentUserProfileFragment extends Fragment {
     editButtonHolder.foreach(_.setVisible(false))
     userProfile.onSuccessInUI { case (alertCount, profile) =>
 
-      val basicInfo = profile.userInfo.basicInfo
+      if (activity != null) {
 
-      setupBasicInfo(profile)
-      privateMessageToSelfButtonHolder.foreach(button => setupPrivateMessageButton(button, profile))
+        val basicInfo = profile.userInfo.basicInfo
 
-      AvatarCache.getAvatarBitmapFromCache(activity, basicInfo) match {
-        case Some(avatarBitmap) => setAvatarFromCache(avatarBitmap)
-        case None => setAvatarFromNetwork(activity, basicInfo)
-      }
-      editButtonHolder.foreach(_.setVisible(true))
-      loadingIndicatorHolder.foreach(_.hide())
-      alertButtonHolder.foreach { button =>
-        button.setOnClickListener { view: View => 
-          AlertListActivity.startActivity(activity)
+        setupBasicInfo(profile)
+        privateMessageToSelfButtonHolder.foreach(button => setupPrivateMessageButton(button, profile))
+
+        AvatarCache.getAvatarBitmapFromCache(activity, basicInfo) match {
+          case Some(avatarBitmap) => setAvatarFromCache(avatarBitmap)
+          case None => setAvatarFromNetwork(activity, basicInfo)
         }
+        editButtonHolder.foreach(_.setVisible(true))
+        loadingIndicatorHolder.foreach(_.hide())
+        alertButtonHolder.foreach { button =>
+          button.setOnClickListener { view: View => 
+            AlertListActivity.startActivity(activity)
+          }
+        }
+        alertCountHolder.foreach { alertCountText =>
+          val visibility = if (alertCount == 0) View.GONE else View.VISIBLE
+          alertCountText.setText(alertCount.toString)
+          alertCountText.setVisibility(visibility)
+        }
+        activity.onProfileFetchedOK()
       }
-      alertCountHolder.foreach { alertCountText =>
-        val visibility = if (alertCount == 0) View.GONE else View.VISIBLE
-        alertCountText.setText(alertCount.toString)
-        alertCountText.setVisibility(visibility)
-      }
-      activity.onProfileFetchedOK()
 
     }
 
     userProfile.onFailureInUI { case e: Exception =>
-      showErrorNotice(activity.getString(R.string.fragmentUserProfileError))
-      activity.onProfileFetchedFailure(e)
+      if (activity != null) {
+        showErrorNotice(activity.getString(R.string.fragmentUserProfileError))
+        activity.onProfileFetchedFailure(e)
+      }
     }
   }
 

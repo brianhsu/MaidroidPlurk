@@ -69,25 +69,30 @@ class FriendPendingFragment extends Fragment {
     val future = Future { plurkAPI.Alerts.getActive.get.toVector.filter(_.alertType == AlertType.FriendshipPending) }
     future.onSuccessInUI { alertList =>
 
-      val adapter = new AlertListAdapter(activity, alertList)
+      if (activity != null) {
+
+        val adapter = new AlertListAdapter(activity, alertList)
 
 
-      listViewHolder.foreach { listView =>
-        listView.setAdapter(adapter)
-        emptyNoticeHolder.foreach(view => listView.setEmptyView(view))
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-          override def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long) {
-            val alert = adapter.getItem(position).asInstanceOf[Alert]
-            UserTimelineActivity.startActivity(activity, alert.user)
-          }
-        })
+        listViewHolder.foreach { listView =>
+          listView.setAdapter(adapter)
+          emptyNoticeHolder.foreach(view => listView.setEmptyView(view))
+          listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            override def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long) {
+              val alert = adapter.getItem(position).asInstanceOf[Alert]
+              UserTimelineActivity.startActivity(activity, alert.user)
+            }
+          })
 
+        }
+        loadingIndicatorHolder.foreach(_.setVisibility(View.GONE))
       }
-      loadingIndicatorHolder.foreach(_.setVisibility(View.GONE))
     }
 
     future.onFailureInUI { case e: Exception =>
-      showErrorNotice(activity.getString(R.string.fragmentFriendPendingFetchFailure))
+      if (activity != null) {
+        showErrorNotice(activity.getString(R.string.fragmentFriendPendingFetchFailure))
+      }
     }
 
   }

@@ -78,25 +78,30 @@ class ResponseListFragment extends Fragment {
     val responses = Future { plurkAPI.Responses.get(plurk.plurkID).get }
 
     responses.onSuccessInUI { response =>
-      adapter.clearErrorCallback()
-      adapter.update(response.responses, response.friends)
-      PlurkView.updatePlurkCommentInfo(plurk.plurkID, response.responses.size, true)
+      if (activity != null) {
+        adapter.clearErrorCallback()
+        adapter.update(response.responses, response.friends)
+        PlurkView.updatePlurkCommentInfo(plurk.plurkID, response.responses.size, true)
 
-      if (isAdded) {
-        activity.onGetResponseSuccess(response)
+        if (isAdded) {
+          activity.onGetResponseSuccess(response)
+        }
       }
     }
 
     responses.onFailureInUI { case e: Exception =>
-      if (isAdded) {
-        activity.onGetResponseFailure(e)
-      }
 
-      val message = getString(R.string.cannotGetResponse)
-      adapter.setupErrorCallback(message, () => { 
-        adapter.clearErrorCallback()
-        loadResponses()
-      })
+      if (activity != null) {
+        if (isAdded) {
+          activity.onGetResponseFailure(e)
+        }
+
+        val message = getString(R.string.cannotGetResponse)
+        adapter.setupErrorCallback(message, () => { 
+          adapter.clearErrorCallback()
+          loadResponses()
+        })
+      }
     }
 
   }
