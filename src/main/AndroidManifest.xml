@@ -36,6 +36,10 @@
 
     <activity 
       android:configChanges="orientation|screenSize"
+      android:name=".activity.CliqueActivity"  />
+
+    <activity 
+      android:configChanges="orientation|screenSize"
       android:name=".activity.UserTimelineActivity" 
       android:label="@string/titleUserTimeline" />
 

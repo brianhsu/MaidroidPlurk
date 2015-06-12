@@ -125,14 +125,12 @@ class CliqueListFragment extends Fragment {
         listViewHolder.foreach { listView =>
           listView.setAdapter(adapter)
           emptyNoticeHolder.foreach(view => listView.setEmptyView(view))
-          /*
           listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             override def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long) {
-              val alert = adapter.getItem(position).asInstanceOf[Alert]
-              UserTimelineActivity.startActivity(activity, alert.user)
+              val clique = adapter.getItem(position).toString
+              CliqueActivity.startActivity(activity, clique)
             }
           })
-          */
 
           listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 
@@ -148,7 +146,7 @@ class CliqueListFragment extends Fragment {
                 override def onClick(dialog: DialogInterface, which: Int) {
                   val clique = adapter.getItem(position)
                   which match {
-                    case 0 => //UserTimelineActivity.startActivity(activity, user)
+                    case 0 => CliqueActivity.startActivity(activity, clique)
                     case 1 => 
                       if (clique == "Classmates" || clique == "Close Friends" || clique == "Colleagues") {
                         Toast.makeText(activity, R.string.fragmentCliqueListSystemCliques, Toast.LENGTH_LONG).show()

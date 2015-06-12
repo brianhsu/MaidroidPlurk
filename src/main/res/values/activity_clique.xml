@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="activityCliqueFetchError">Cannot get user list in this clique.</string>
+
+  <string name="activityCliqueAction">Action</string>
+  <string name="activityCliqueChoose">Choose</string>
+  <string name="activityCliqueAdd">Add</string>
+  <string name="activityCliqueViewTimeline">View Timeline</string>
+  <string name="activityCliqueDelete">Delete</string>
+
+  <string name="activityCliqueAddingFriend">Adding users to clique, please wait...</string>
+  <string name="activityCliqueAddingFriendFailed">Cannot add friend to this clique, please check your Internet connectivity and try again.</string>
+
+  <string name="activityCliqueDeleteTitle">Are your sure to delete?</string>
+  <string name="activityCliqueDeleteMessage">Are your sure to remove %s from this clique?</string>
+  <string name="activityCliqueDeleting">Deleting, please wait...</string>
+  <string name="activityCliqueDeleteFailed">Cannot delete this user, please check your Internet connectivity.</string>
+
+
+
+
+</resources>
