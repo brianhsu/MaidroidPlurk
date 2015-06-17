@@ -102,4 +102,6 @@
   <string name="userListSearch">Search</string>
   <string name="titleAlertList">通知</string>
 
+  <string name="userDisabled">Disabled User</string>
+
 </resources>

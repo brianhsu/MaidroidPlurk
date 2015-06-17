@@ -1,5 +1,8 @@
 package idv.brianhsu.maidroid.plurk.adapter
 
+import org.bone.soplurk.model.User
+import org.bone.soplurk.constant.Gender
+
 import idv.brianhsu.maidroid.plurk._
 import idv.brianhsu.maidroid.plurk.activity._
 import idv.brianhsu.maidroid.plurk.TypedResource._
@@ -95,7 +98,30 @@ class ResponseAdapter(activity: FragmentActivity with PlurkView.Listener
       case _ => new ResponseView(this)
     }
 
-    val owner = friendsHolder.get(response.userID)
+    val disabledUser = User(
+      id = -1L,
+      nickname = "UserDisabled",
+      fullName = "UserDisabled",
+      displayName = Some(activity.getString(R.string.userDisabled)),
+      isVerifiedAccount = false,
+      gender = Gender.Male,
+      karma = 0.0,
+      hasProfileImage = false,
+      birthdayPrivacy = None,
+      defaultLanguage = "en",
+      avatarVersion = None,
+      location = None,
+      birthday = None,
+      timezone = None,
+      nameColor = None
+    )
+
+    val responseOwnerHolder = for {
+      friendsMap <- friendsHolder
+      user <- friendsMap.get(response.userID)
+    } yield user
+
+    val responseOnwer = responseOwnerHolder.getOrElse(disabledUser)
     val isDeleteableNormal = 
       (plurk.userID == plurk.ownerID)  || // Comment is in current user's plurk
       (plurk.userID == response.userID)   // Comment wrote by current user
@@ -108,7 +134,7 @@ class ResponseAdapter(activity: FragmentActivity with PlurkView.Listener
       case _ => isDeleteableNormal
     }
 
-    itemView.update(response, owner, isDeletable, textViewImageGetter)
+    itemView.update(response, responseOnwer, isDeletable, textViewImageGetter)
     itemView
   }
 
@@ -161,7 +187,7 @@ class ResponseAdapter(activity: FragmentActivity with PlurkView.Listener
   }
 
   def update(responses: List[Response], friends: Map[Long, User]) {
-    this.responsesHolder = Some(responses.toVector)
+    this.responsesHolder = Some(responses.toVector.filter(response => friends.contains(response.userID)))
     this.friendsHolder = Some(friends)
     notifyDataSetChanged()
   }
