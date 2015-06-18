@@ -495,6 +495,9 @@ class CurrentUserProfileFragment extends Fragment {
       aboutTextView.setMovementMethod(new LinkMovementMethod)
     }
 
+    val gif = activity.getAssets.open("test.gif")
+    println("=====> gif:" + gif)
+
   }
 
   private def setupPrivateMessageButton(button: Button, profile: OwnProfile) {
