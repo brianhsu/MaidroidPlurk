@@ -131,7 +131,7 @@ MaidroidPlurk 是自由（開放源碼）軟體，您可以自由使用，也可
 ------------
 
  0. 準備 Android API level 19 的開發環境，包括 support / google play service 的 repositories.
- 1. 下載 [SBT][0] 自動建製工具
+ 1. 下載 [SBT][1] 自動建製工具
  2. 從 GitHub 下載原始碼
 
     ```console
