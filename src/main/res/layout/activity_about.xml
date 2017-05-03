@@ -14,7 +14,7 @@
                          ads:adUnitId="ca-app-pub-5355431206158340/6571943615"
                          ads:adSize="BANNER"/>
 
-  <com.viewpagerindicator.TitlePageIndicator
+  <net.rdrei.android.viewpagerindicator.TitlePageIndicator
     android:id="@+id/activityAboutPagerIndicator"
     android:paddingTop="5dp"
     android:layout_height="wrap_content"
